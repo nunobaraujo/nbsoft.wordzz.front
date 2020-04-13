@@ -17,8 +17,8 @@ export class UserService {
 
 
 
-  signUp(username: string, password: string) {
-    return this.http.post<any>(`${environment.apiUrl}/user/create`, { username, password })
+  signUp(username: string, email:string ,password: string) {
+    return this.http.post<any>(`${environment.apiUrl}/user/create`, { username, email, password })
         .pipe(map(user => {
             return user;
         }));

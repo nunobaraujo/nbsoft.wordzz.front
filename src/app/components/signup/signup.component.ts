@@ -28,6 +28,7 @@ export class SignupComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
+      email: ['', Validators.required],
       password: ['', Validators.required]
   });
 
@@ -46,7 +47,7 @@ export class SignupComponent implements OnInit {
     }
 
     this.loading = true;
-    this.userService.signUp(this.f.username.value, this.f.password.value)
+    this.userService.signUp(this.f.username.value,this.f.email.value, this.f.password.value)
         .pipe(first())
         .subscribe(
             data => {

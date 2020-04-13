@@ -12,13 +12,15 @@ import { HomeComponent } from './components/home/home.component';
 import { JwtInterceptor } from './_helpers/jwt.interceptor';
 import { ErrorInterceptor } from './_helpers/error.interceptor';
 import { SignupComponent } from './components/signup/signup.component';
+import { GameboardComponent } from './components/gameboard/gameboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     HomeComponent,
-    SignupComponent
+    SignupComponent,
+    GameboardComponent
   ],
   imports: [
     BrowserModule,
