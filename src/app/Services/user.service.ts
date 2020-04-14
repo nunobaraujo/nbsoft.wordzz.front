@@ -27,7 +27,14 @@ export class UserService {
     return this.http.get<any>(`${environment.apiUrl}/user/mainsettings`)
     .pipe(map(settings => {      
       return settings;
-  }));
+    }));
+  }
+
+  getContacts(){
+    return this.http.get<any>(`${environment.apiUrl}/user/contact`)
+    .pipe(map(contacts => {      
+      return contacts;
+    }));
   }
 
 }

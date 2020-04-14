@@ -1,0 +1,11 @@
+<div>
+    <span><strong>Friends</strong></span>
+</div>
+<div *ngIf="contacts.length > 0">
+    <ul class="list-group">
+        <li *ngFor="let contact of contacts" class="list-group-item d-flex justify-content-between align-items-center" style="height:36px">
+            {{contact}}
+            <span class="badge badge-danger badge-pill">Offline</span>
+        </li>
+    </ul>    
+</div>

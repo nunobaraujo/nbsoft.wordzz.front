@@ -13,6 +13,8 @@ import { JwtInterceptor } from './_helpers/jwt.interceptor';
 import { ErrorInterceptor } from './_helpers/error.interceptor';
 import { SignupComponent } from './components/signup/signup.component';
 import { GameboardComponent } from './components/gameboard/gameboard.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { FriendListComponent } from './components/friend-list/friend-list.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import { GameboardComponent } from './components/gameboard/gameboard.component';
     LoginComponent,
     HomeComponent,
     SignupComponent,
-    GameboardComponent
+    GameboardComponent,
+    ChatComponent,
+    FriendListComponent
   ],
   imports: [
     BrowserModule,
