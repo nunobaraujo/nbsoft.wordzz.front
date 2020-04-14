@@ -1,24 +1,21 @@
-<div id="main-container">    
-  <div>
-    <app-friend-list></app-friend-list>
-  </div>
-  <div >
-    <strong style="text-align:center">Hello </strong>
-    <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" >
-      <div class="input-group">           
-          <input type="text" formControlName="message"  class="form-control"  />
-          <span>
-              <button type="submit" id="sendmessage" class="btn btn-info" [disabled]="!chatForm.valid">»</button>
-          </span>            
-      </div>
-      
-    </form>
-  </div>
-
-  <div *ngIf="messages.length > 0">
-    <div *ngFor="let message of messages">
-      <span>{{message}}</span>
-    </div>
-  </div>
-  
+<div>
+  <span><strong>Chat</strong></span>
 </div>
+<div #chatLog class="wz-chatcontainer overflow-auto bg-secondary">
+  <div *ngFor="let message of messages$ | async">
+    <span>{{message.sender}}: {{message.text}}</span>
+  </div>
+</div>
+<div>    
+  <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" >
+    <div class="input-group">           
+        <input type="text" formControlName="message"  class="form-control"  />
+        <span>
+            <button type="submit" id="sendmessage" class="btn btn-info" [disabled]="!chatForm.valid">»</button>
+        </span>            
+    </div>      
+  </form>
+</div>
+    
+  
+

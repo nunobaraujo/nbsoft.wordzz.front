@@ -15,6 +15,7 @@ import { SignupComponent } from './components/signup/signup.component';
 import { GameboardComponent } from './components/gameboard/gameboard.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { FriendListComponent } from './components/friend-list/friend-list.component';
+import { SideMenuComponent } from './components/side-menu/side-menu.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { FriendListComponent } from './components/friend-list/friend-list.compon
     SignupComponent,
     GameboardComponent,
     ChatComponent,
-    FriendListComponent
+    FriendListComponent,
+    SideMenuComponent
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { GameService } from 'src/app/Services/game.service';
 import { Observable } from 'rxjs';
+import { GameService } from 'src/app/Services/game.service';
+import { ChatMessage } from 'src/app/Models/chatMessage';
 
 
 @Component({
@@ -9,28 +10,41 @@ import { Observable } from 'rxjs';
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss']
 })
-export class ChatComponent implements OnInit {  
+export class ChatComponent implements OnInit,AfterViewChecked  {  
+  @ViewChild('chatLog') private myScrollContainer: ElementRef;
   chatForm: FormGroup;
   
   message = '';
-  messages: string[];
-  
+  messages$:Observable<ChatMessage[]>;
+    
   constructor(private formBuilder: FormBuilder,    
     private gameService: GameService) 
   {
-    this.messages  = gameService.Messages;
+    this.messages$  = gameService.messages;
   }
+  
   ngOnInit(): void {    
     this.chatForm = this.formBuilder.group({
       message: ['', Validators.required]
-    });    
+    });
+    this.scrollToBottom();    
+  }
+  ngAfterViewChecked(): void {
+    this.scrollToBottom();
   }
  
 
   get f() { return this.chatForm.controls; }
 
+  scrollToBottom(): void {
+    try {
+        this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+    } catch(err) { }                 
+  }
+
   public sendMessage(): void {
     this.gameService.sendMessage(this.f.message.value);
+    this.f.message.setValue("");
   }
 
 }
