@@ -4,18 +4,20 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-
-import { LoginComponent } from './components/login/login.component';
-import { HomeComponent } from './components/home/home.component';
+import { GameCenterModule }      from './components/game-center/game-center.module';
 
 import { JwtInterceptor } from './_helpers/jwt.interceptor';
 import { ErrorInterceptor } from './_helpers/error.interceptor';
+
+import { AppComponent } from './app.component';
+import { LoginComponent } from './components/login/login.component';
+import { HomeComponent } from './components/home/home.component';
 import { SignupComponent } from './components/signup/signup.component';
-import { GameboardComponent } from './components/gameboard/gameboard.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { FriendListComponent } from './components/friend-list/friend-list.component';
 import { SideMenuComponent } from './components/side-menu/side-menu.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+
 
 @NgModule({
   declarations: [
@@ -23,15 +25,16 @@ import { SideMenuComponent } from './components/side-menu/side-menu.component';
     LoginComponent,
     HomeComponent,
     SignupComponent,
-    GameboardComponent,
     ChatComponent,
     FriendListComponent,
-    SideMenuComponent
+    SideMenuComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
     HttpClientModule,
+    GameCenterModule,
     AppRoutingModule
   ],
   providers: [

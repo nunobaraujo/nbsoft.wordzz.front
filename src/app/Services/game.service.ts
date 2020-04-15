@@ -7,6 +7,7 @@ import * as signalR from '@aspnet/signalr';
 import { environment } from 'src/environments/environment';
 import { ChatMessage } from '../Models/chatMessage';
 import { UserService } from './user.service';
+import { stringify } from 'querystring';
 
 
 
@@ -64,9 +65,26 @@ export class GameService implements OnDestroy {
       .invoke('sendToAll', this.currentUser.username, message)
       .catch(err => console.error(err));
   }
+  public newGame(language:string, friend:string, size:number ):Promise<string>
+  {    
+    return this.hubConnection
+      .invoke('newGame', language, friend ,size)
+      .then(res =>{
+        let result:string = res;
+        return result; 
+      })
+      .catch(err => {
+        console.error(err);
+        return "";
+      });      
+  }
+  public newSoloGame():string
+  {
+    return ""
+  }
 
   private initializeService(): void {    
-    this.hubConnection.invoke('GetOnlineContacts',this.currentUser.username)
+    this.hubConnection.invoke('GetOnlineContacts')
       .then(result => {          
         console.log('friends :', result);
           this.onlineFriendStore.friends = result;

@@ -1,20 +1,37 @@
-<div>
-    <span><strong>Friends</strong></span>
+<div class="col-12 friend-menu-header">    
+    <span class="d-inline-block"><strong>Friends</strong></span>
+    <button type="button" title="Add Friend" class="btn d-flex float-right btn-sm btn-success">
+        <i class="fas fa-fw fa-menu fa-user-friends"></i>
+    </button>    
 </div>
 <div *ngIf="contacts.length == 0">
    <p class="text-muted">You have no friends yet :(</p>
 </div>
 <div *ngIf="contacts.length > 0">
     <ul class="list-group">
-        <li *ngFor="let contact of onlineContacts" class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white" style="height:36px">
+        <li *ngFor="let contact of onlineContacts" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center friend-menu-item bg-secondary text-white">
             {{contact}}
-            <span class="badge badge-success badge-pill"><i class="fa fa-fw fa-edit"></i></span>
+            <div class="btn-toolbar d-flex flex-row-reverse" role="toolbar" aria-label="Toolbar with button groups">                
+                <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">
+                    <button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-danger">
+                        <i class="fas fa-fw fa-menu fa-user-slash"></i>
+                    </button>
+                    <button type="button" title="Start Game" class="btn d-flex flex-row-reverse btn-info">
+                        <i class="fas fa-fw fa-menu fa-trophy"></i>
+                    </button>
+                </div>
+            </div>            
         </li>
     </ul>
+    <div>
+        <span class="text-sm-left"><small>Offline</small></span>
+    </div>
     <ul class="list-group">
-        <li *ngFor="let contact of offlineContacts" class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white" style="height:36px">
-            {{contact}}
-            <span class="badge badge-danger badge-pill">offline</span>
+        <li *ngFor="let contact of offlineContacts" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center friend-menu-item bg-secondary text-dark">
+            {{contact}}                        
+            <button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-sm btn-danger">
+                <i class="fas fa-fw fa-menu-dimdark fa-user-slash"></i>
+            </button>
         </li>
     </ul>
 </div>
