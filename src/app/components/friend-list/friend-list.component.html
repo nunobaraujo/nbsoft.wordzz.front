@@ -1,21 +1,20 @@
 <div>
     <span><strong>Friends</strong></span>
 </div>
-<div *ngIf="allContacts.length == 0">
+<div *ngIf="contacts.length == 0">
    <p class="text-muted">You have no friends yet :(</p>
-    
 </div>
-<div *ngIf="allContacts.length > 0">
+<div *ngIf="contacts.length > 0">
     <ul class="list-group">
         <li *ngFor="let contact of onlineContacts" class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white" style="height:36px">
             {{contact}}
-            <span class="badge badge-success badge-pill">OnLine</span>
+            <span class="badge badge-success badge-pill"><i class="fa fa-fw fa-edit"></i></span>
         </li>
     </ul>
     <ul class="list-group">
         <li *ngFor="let contact of offlineContacts" class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white" style="height:36px">
             {{contact}}
-            <span class="badge badge-danger badge-pill">Offline</span>
+            <span class="badge badge-danger badge-pill">offline</span>
         </li>
     </ul>
 </div>

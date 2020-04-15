@@ -40,7 +40,6 @@ export class GameService implements OnDestroy {
     
     this.userSubscription = this.authenticationService.currentUser.subscribe(x =>{
       this.currentUser = x;
-      console.log('User :', this.currentUser?.username);
       if (!this.currentUser?.username)
       {
         this.disconnect();
@@ -53,6 +52,9 @@ export class GameService implements OnDestroy {
   }
   ngOnDestroy(): void {
     this.userSubscription.unsubscribe();
+
+    if(!!this.contactsSubscription){
+      this.contactsSubscription.unsubscribe();}
   } 
 
 
@@ -63,11 +65,13 @@ export class GameService implements OnDestroy {
       .catch(err => console.error(err));
   }
 
-  private getOnlineContacts(): void {    
-    var promise =  this.hubConnection.invoke('GetOnlineContacts',this.currentUser.username)
+  private initializeService(): void {    
+    this.hubConnection.invoke('GetOnlineContacts',this.currentUser.username)
       .then(result => {          
+        console.log('friends :', result);
           this.onlineFriendStore.friends = result;
           this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
+          this._isConnected.next(true);
         })
         .catch(err =>  {          
           this.onlineFriendStore.friends = [];
@@ -83,8 +87,7 @@ export class GameService implements OnDestroy {
     this.hubConnection
       .start()
       .then(() => {
-        this._isConnected.next(true);
-        this.getOnlineContacts();
+        this.initializeService();
       })
       .catch(err =>{ 
         this._isConnected.next(false);
@@ -98,6 +101,7 @@ export class GameService implements OnDestroy {
       newMsg.text = message;
 
       this.messageStore.messages.push(newMsg);
+      console.log('messages :', this.messageStore.messages.length);
       this._messages.next(Object.assign({}, this.messageStore).messages);
     });
 
@@ -117,6 +121,9 @@ export class GameService implements OnDestroy {
     console.log('Disconnecting from WebSockets...');    
     this.hubConnection.off("start");
     this.hubConnection.off("catch");
+    this.hubConnection.off("sendToAll");
+    this.hubConnection.off("connected");
+    this.hubConnection.off("disconnected");
     this.hubConnection.stop();
   }
 
