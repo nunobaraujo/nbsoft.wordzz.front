@@ -1,1 +1,9 @@
-<p>game-center-game works!</p>
+<div id="header" class="game-header">
+    <p>{{player.userName}} vs {{opponent.userName}}</p>
+</div>
+<div id="board">
+    <app-grid-board [game]='game'></app-grid-board>
+</div>
+<div id="rack">
+    <app-rack [playerRack]='rack' ></app-rack>
+</div>

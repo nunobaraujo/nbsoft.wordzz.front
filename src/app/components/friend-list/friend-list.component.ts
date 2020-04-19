@@ -2,13 +2,18 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { UserService } from 'src/app/Services/user.service';
 import { GameService } from 'src/app/Services/game.service';
+import { faTrophy,faUserSlash,faUserFriends } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-friend-list',
   templateUrl: './friend-list.component.html',
   styleUrls: ['./friend-list.component.scss']
 })
-export class FriendListComponent implements OnInit,OnDestroy {
+export class FriendListComponent implements OnInit,OnDestroy {  
+  faTrophy = faTrophy;
+  faUserSlash = faUserSlash;
+  faUserFriends = faUserFriends;
+  
   contacts: string[] =[];
   onlineContacts: string[];
   offlineContacts: string[];

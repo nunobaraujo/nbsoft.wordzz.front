@@ -18,6 +18,7 @@ import { FriendListComponent } from './components/friend-list/friend-list.compon
 import { SideMenuComponent } from './components/side-menu/side-menu.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -33,9 +34,10 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
   imports: [
     BrowserModule,
     ReactiveFormsModule,
-    HttpClientModule,
+    HttpClientModule,    
     GameCenterModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FontAwesomeModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

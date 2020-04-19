@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { GameService } from 'src/app/Services/game.service';
 import { ChatMessage } from 'src/app/Models/chatMessage';
+import { faShare } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -12,8 +13,10 @@ import { ChatMessage } from 'src/app/Models/chatMessage';
 })
 export class ChatComponent implements OnInit,AfterViewChecked  {  
   @ViewChild('chatLog') private myScrollContainer: ElementRef;
-  chatForm: FormGroup;
   
+  faShare = faShare;
+
+  chatForm: FormGroup;  
   message = '';
   messages$:Observable<ChatMessage[]>;
     

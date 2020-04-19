@@ -1,10 +1,8 @@
-<div>
-    <div class="col-3 px-1 bg-dark position-fixed">        
+<div id="wrapper" class="d-flex">    
+    <div id="sidebar-wrapper" class="bg-dark">        
         <app-side-menu></app-side-menu>        
     </div>
-    <div class="col offset-3">
-        <div class="container-fluid">
-            <app-dashboard></app-dashboard>
-        </div>
+    <div id="page-content-wrapper" class="col offset-2" >            
+        <app-dashboard></app-dashboard>
     </div>
 </div>

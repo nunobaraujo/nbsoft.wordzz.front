@@ -1,23 +1,26 @@
-<div class="col-12 friend-menu-header">    
+<div class="col-12 friend-menu-header justify-content-between align-items-center">    
     <span class="d-inline-block"><strong>Friends</strong></span>
-    <button type="button" title="Add Friend" class="btn d-flex float-right btn-sm btn-success">
-        <i class="fas fa-fw fa-menu fa-user-friends"></i>
+    <button type="button" title="Add Friend" class="btn d-flex float-right btn-sm btn-success friend-menu-btn-sm">
+        <fa-icon [icon]="faUserFriends" size="sm" ></fa-icon>
     </button>    
 </div>
+
 <div *ngIf="contacts.length == 0">
    <p class="text-muted">You have no friends yet :(</p>
 </div>
 <div *ngIf="contacts.length > 0">
     <ul class="list-group">
-        <li *ngFor="let contact of onlineContacts" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center friend-menu-item bg-secondary text-white">
+        <li *ngFor="let contact of onlineContacts" class="list-group-item d-flex justify-content-between align-items-center friend-menu-item bg-secondary text-white">
             {{contact}}
             <div class="btn-toolbar d-flex flex-row-reverse" role="toolbar" aria-label="Toolbar with button groups">                
                 <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">
-                    <button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-danger">
-                        <i class="fas fa-fw fa-menu fa-user-slash"></i>
+                    <button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-danger friend-menu-btn-xs">
+                        <!--<i class="fas fa-fw fa-menu fa-user-slash"></i>-->
+                        <fa-icon [icon]="faUserSlash" size="lg"></fa-icon>
                     </button>
-                    <button type="button" title="Start Game" class="btn d-flex flex-row-reverse btn-info">
-                        <i class="fas fa-fw fa-menu fa-trophy"></i>
+                    <button type="button" title="Start Game" class="btn d-flex flex-row-reverse btn-info friend-menu-btn-xs">
+                        <!--<i class="fas fa-fw fa-menu fa-trophy"></i>-->
+                        <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
                     </button>
                 </div>
             </div>            
@@ -29,8 +32,9 @@
     <ul class="list-group">
         <li *ngFor="let contact of offlineContacts" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center friend-menu-item bg-secondary text-dark">
             {{contact}}                        
-            <button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-sm btn-danger">
-                <i class="fas fa-fw fa-menu-dimdark fa-user-slash"></i>
+            <button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-sm btn-danger friend-menu-btn-xs" >
+                <!--<i class="fas fa-fw fa-menu-dimdark fa-user-slash"></i>-->
+                <fa-icon [icon]="faUserSlash" size="lg"></fa-icon>
             </button>
         </li>
     </ul>

@@ -6,6 +6,8 @@ import { GameCenterHomeComponent } from './game-center-home/game-center-home.com
 import { GameCenterActiveGameListComponent } from './game-center-active-game-list/game-center-active-game-list.component';
 import { GameCenterGameComponent } from './game-center-game/game-center-game.component';
 import { GameCenterNewGameComponent } from './game-center-new-game/game-center-new-game.component';
+import { GameCenterChallengeListComponent } from './game-center-challenge-list/game-center-challenge-list.component';
+import { GameResolverServiceService } from './services/game-resolver-service.service';
 
 const gameCenterRoutes: Routes = [
   {
@@ -16,20 +18,27 @@ const gameCenterRoutes: Routes = [
         path: 'newgame',
         component: GameCenterNewGameComponent
       },
+      {
+        path: 'challenges',
+        component: GameCenterChallengeListComponent
+      },
       {        
         path: '',
         component: GameCenterActiveGameListComponent,
         children:[
         {
           path: ':id',
-          component: GameCenterGameComponent
+          component: GameCenterGameComponent,
+          resolve: {
+            game: GameResolverServiceService
+          }
         },
         {
           path:'',
           component: GameCenterHomeComponent
         }
         ]
-      }     
+      }
     ]
   }
 ];

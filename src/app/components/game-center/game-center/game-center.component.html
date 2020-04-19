@@ -1,15 +1,18 @@
-<div class="col-3 px-1 bg-dark position-fixed wz-sidemenu bg-dark text-white">                
-    <nav class="nav flex-column navbar-dark bg-dark">
-        <ul class="navbar-nav mr-auto">
-            <a class="nav-link" routerLink="/game-center">Active Games</a>
-            <a class="nav-link" routerLink="/game-center/newgame" >New Game</a>            
-        </ul>
-    </nav>
-</div>
-<div class="col offset-3">
-    <div class="container-fluid">
-        <router-outlet></router-outlet>
+<div id="wrapper" class="d-flex">
+    <div id="sidebar-wrapper" class="bg-dark">
+        <div class="wz-sidemenu bg-dark text-white">
+            <nav class="nav flex-column navbar-dark bg-dark ">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-link" routerLink="/game-center">Active Games</a>
+                    <a class="nav-link" routerLink="/game-center/newgame" >New Game</a>            
+                    <a class="nav-link" routerLink="/game-center/challenges" >Challenges</a>
+                </ul>
+            </nav>
+        </div>        
+    </div>
+    <div id="page-content-wrapper" class="" >            
+        <div class="container-fluid">
+            <router-outlet></router-outlet>
+        </div>
     </div>
 </div>
-
-

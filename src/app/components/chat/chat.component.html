@@ -11,7 +11,9 @@
     <div class="input-group">           
         <input type="text" formControlName="message"  class="form-control"  />
         <span>
-            <button type="submit" id="sendmessage" class="btn btn-info" [disabled]="!chatForm.valid">»</button>
+            <button type="submit" id="sendmessage" class="btn btn-info" [disabled]="!chatForm.valid">
+              <fa-icon [icon]="faShare" size="sm" ></fa-icon>
+            </button>
         </span>            
     </div>      
   </form>

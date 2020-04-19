@@ -1,19 +1,29 @@
 <h4>Nem Game</h4>
-<div class="col-md-6">
-    <div class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white">
-        Solo Game
-        <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
-            <button type="button" title="Start Solo Game" class="btn btn-primary  flex-row-reverse" (click)="startSoloGame($event)">
-                <i class="fas fa-fw fa-trophy"></i>
-            </button>
+<div class="row">    
+    <div class="col-sm-6">
+        <div class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white">
+            Solo Game
+            <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
+                <button type="button" title="Start Solo Game" class="btn btn-primary  flex-row-reverse" (click)="startSoloGame($event)">
+                    <fa-icon [icon]="faTrophy" size="sm" ></fa-icon>
+                </button>
+            </div>
         </div>
+        <div *ngFor="let friend of onlineFriends$ |async " class="list-group-item d-flex justify-content-between align-items-center ">
+            {{friend}}
+            <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
+                <button [disabled]="hasChallenge(friend)" type="button" title="Start Game with {{friend}}" class="btn btn-success  flex-row-reverse" (click)="startGame($event, friend)" >
+                    <span *ngIf="hasChallenge(friend)" class="spinner-border spinner-border-sm mr-1"></span>
+                    <fa-icon [icon]="faTrophy" size="sm" ></fa-icon>
+                </button>
+            </div>
+        </div> 
     </div>
-    <div *ngFor="let friend of onlineFriends$ |async " class="list-group-item d-flex justify-content-between align-items-center ">
-        {{friend}}
-        <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
-            <button type="button" title="Start Game with {{friend}}" class="btn btn-success  flex-row-reverse" (click)="startGame($event, friend)" >
-                <i class="fas fa-fw fa-trophy"></i>
-            </button>
+    <div class="col-sm-6">
+        <div>
+            <div class="overflow-auto" *ngFor="let challengeResult of sentChallengesResults">
+                <div >{{challengeResult}}</div>
+            </div>
         </div>
     </div>
 </div>

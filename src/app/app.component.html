@@ -1,14 +1,29 @@
 <nav class="navbar navbar-expand navbar-dark bg-dark" *ngIf="currentUser">
   <ul class="navbar-nav mr-auto">
-      <a class="nav-item nav-link" routerLink="/">Home</a>
-      <a class="nav-item nav-link" routerLink="/game-center" routerLinkActive="active">Game Center</a>
-      <a class="nav-item nav-link" (click)="logout()">Logout</a>      
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/">Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/game-center" routerLinkActive="active">Game Center</a>
+    </li>
+    <li class="nav-item dropdown" >
+      <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Online Friends
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" *ngFor="let friend of onlineContacts | async">{{friend}}</a>
+      </div>
+    </li>    
   </ul>
   <ul class="navbar-nav">
-    <a class="nav-item nav-link" routerLink="/">{{currentUser.firstName}} {{currentUser.lastName}}</a>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/">{{currentUser.firstName}} {{currentUser.lastName}}</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" (click)="logout()">Logout</a>      
+    </li>
   </ul>
 </nav>
 <div >
   <router-outlet></router-outlet>
 </div>
-

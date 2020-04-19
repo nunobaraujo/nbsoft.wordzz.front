@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class UserService {
 
   
 
-  constructor(private http: HttpClient) 
+  constructor(private http: HttpClient, private router:Router) 
   {
     
   } 
@@ -32,9 +33,6 @@ export class UserService {
 
   getContacts(){
     return this.http.get<any>(`${environment.apiUrl}/user/contact`)
-    .pipe(map(contacts => {      
-      return contacts;
-    }));
-  }
-
+    .pipe(map(contacts => contacts));
+  } 
 }

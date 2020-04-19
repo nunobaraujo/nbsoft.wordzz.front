@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { GameCenterComponent } from './game-center/game-center.component';
 import { GameCenterHomeComponent } from './game-center-home/game-center-home.component';
@@ -8,6 +9,12 @@ import { GameCenterGameComponent } from './game-center-game/game-center-game.com
 
 import { GameCenterRoutingModule } from './game-center-routing.module';
 import { GameCenterNewGameComponent } from './game-center-new-game/game-center-new-game.component';
+import { GameCenterChallengeListComponent } from './game-center-challenge-list/game-center-challenge-list.component';
+import { GridTileComponent } from './board/grid-tile/grid-tile.component';
+import { GridBoardComponent } from './board/grid-board/grid-board.component';
+import { RackComponent } from './board/rack/rack.component';
+import { BoardLetterComponent } from './board/board-letter/board-letter.component';
+
 
 @NgModule({
   declarations: [
@@ -15,10 +22,16 @@ import { GameCenterNewGameComponent } from './game-center-new-game/game-center-n
     GameCenterHomeComponent,
     GameCenterActiveGameListComponent,
     GameCenterGameComponent,
-    GameCenterNewGameComponent
+    GameCenterNewGameComponent,
+    GameCenterChallengeListComponent,
+    GridTileComponent,
+    GridBoardComponent,
+    RackComponent,
+    BoardLetterComponent
   ],
   imports: [
     CommonModule,
+    FontAwesomeModule,
     GameCenterRoutingModule
   ]
 })
