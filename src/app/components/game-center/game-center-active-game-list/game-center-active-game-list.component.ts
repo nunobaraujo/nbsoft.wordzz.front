@@ -14,6 +14,7 @@ import { User } from 'src/app/Models/user';
   styleUrls: ['./game-center-active-game-list.component.scss']
 })
 export class GameCenterActiveGameListComponent implements OnInit, OnDestroy{  
+  private gameServiceConnected:Subscription;  
   private gameSubscription:Subscription;  
   loading:boolean = false;  
   games$: Observable<Game[]>;
@@ -25,15 +26,31 @@ export class GameCenterActiveGameListComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {    
     this.loading = true;    
-          
+    this.gameServiceConnected = this.gameService.isConnected$.subscribe(connected =>    {
+      if (connected){
+        this.games$ = this.gameService.getActiveGames();
+        this.gameSubscription = this.games$.subscribe(g => this.games = g);
+        this.loading = false;
+      }
+      else
+      {
+        this.loading = true;
+      }
+    });
+    /*
     setTimeout(() => {      
       this.games$ = this.gameService.getActiveGames();
       this.gameSubscription = this.games$.subscribe(g => this.games = g);
       this.loading = false;
     },1000);
+    */
   }
   ngOnDestroy(): void {
-    this.gameSubscription.unsubscribe();
+    this.gameServiceConnected.unsubscribe();
+    if(!!this.gameSubscription){
+      this.gameSubscription.unsubscribe();
+    }
+    
   }   
   getOpponent(gameId:string):string{
     var player = this.gameService.getOpponent(gameId);

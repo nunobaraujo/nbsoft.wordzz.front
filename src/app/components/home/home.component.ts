@@ -14,8 +14,7 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.userSettings = this.authenticationService.currentSettingsValue;
-    console.log('this.userSettings :', this.userSettings);
+    this.userSettings = this.authenticationService.currentSettingsValue;    
   }
 
 }

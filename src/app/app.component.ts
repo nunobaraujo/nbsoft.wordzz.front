@@ -7,6 +7,7 @@ import { GameService } from './Services/game.service';
 
 import { User } from './Models/user';
 import { UserService } from './Services/user.service';
+import { ThrowStmt } from '@angular/compiler';
 
 
 @Component({
@@ -15,7 +16,7 @@ import { UserService } from './Services/user.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent  implements OnInit, OnDestroy{
-  title = 'wordzz-front';
+  title = 'wordzz-front';  
   currentUser: User;
   onlineContacts:Observable<string[]>;
   
@@ -29,21 +30,21 @@ export class AppComponent  implements OnInit, OnDestroy{
   {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
     
-    this.socketsConnectedSubscription = this.gameService.isConnected.subscribe(c => {
+    this.socketsConnectedSubscription = this.gameService.isConnected$.subscribe(c => {      
       if (c == true){        
-        this.onlineContacts = this.gameService.onlineFriends;
-        this.challengeReceivedSubscription = this.gameService.lastReceivedChallenge.subscribe(res => {
+        this.onlineContacts = this.gameService.onlineFriends$;
+        this.challengeReceivedSubscription = this.gameService.lastReceivedChallenge$.subscribe(res => {
           if (!!res){                        
             let txt:string  = "You received a challenge from "+res.challenger+"!\nDo you accept the challenge?";            
             var accepted = confirm(txt);
             if (accepted) {
               this.router.navigateByUrl("/game-center/challenges")
-            }
+            }            
           }
-        });
+        });        
       }
       else{
-        this.onlineContacts = null;
+        this.onlineContacts = null;        
       }
     });
 

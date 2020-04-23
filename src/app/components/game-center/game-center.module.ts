@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { GameCenterComponent } from './game-center/game-center.component';
 import { GameCenterHomeComponent } from './game-center-home/game-center-home.component';
@@ -14,6 +15,7 @@ import { GridTileComponent } from './board/grid-tile/grid-tile.component';
 import { GridBoardComponent } from './board/grid-board/grid-board.component';
 import { RackComponent } from './board/rack/rack.component';
 import { BoardLetterComponent } from './board/board-letter/board-letter.component';
+
 
 
 @NgModule({
@@ -32,7 +34,9 @@ import { BoardLetterComponent } from './board/board-letter/board-letter.componen
   imports: [
     CommonModule,
     FontAwesomeModule,
-    GameCenterRoutingModule
+    DragDropModule,
+    GameCenterRoutingModule,
+    
   ]
 })
 export class GameCenterModule { }

@@ -1,4 +1,14 @@
-<div class="flex-container">
-    <app-board-letter *ngFor="let letter of rack" [boardLetter]='letter' ></app-board-letter>
+<div class="rack-container">
+    <div class="flex-container" id="list-rack" 
+        cdkDropList     
+        cdkDropListSortingDisabled     
+        [cdkDropListConnectedTo]="connectedTiles"     
+        [cdkDropListData]="gameManager.activeRack$"
+        (cdkDropListDropped)="drop($event)" >
+        <div  [cdkDragData]='letter'  *ngFor="let letter of gameManager.activeRack$ | async"  cdkDrag >
+            <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+            <app-board-letter [boardLetter]='letter' ></app-board-letter>
+        </div>    
+    </div>
 </div>
 

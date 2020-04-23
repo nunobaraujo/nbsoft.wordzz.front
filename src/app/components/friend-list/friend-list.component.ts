@@ -26,22 +26,16 @@ export class FriendListComponent implements OnInit,OnDestroy {
       this.contactsSubscription = this.userService.getContacts()
         .subscribe(c => {
           this.contacts = c;
-          console.log('allContacts :', this.contacts);
-
+          
           // after all contacts are received start socket subscription
-
-          this.socketsConnectedSubscription = this.gameService.isConnected.subscribe(c => {
-            if (c == true){
-              console.log('Connected :');
-              this.onlineContactsSubscription = this.gameService.onlineFriends.subscribe(o => {
+          this.socketsConnectedSubscription = this.gameService.isConnected$.subscribe(c => {
+            if (c == true){              
+              this.onlineContactsSubscription = this.gameService.onlineFriends$.subscribe(o => {
                 this.onlineContacts = o;
-                this.offlineContacts = this.contacts.filter(x => !this.isOnline(x));
-                console.log('this.onlineContacts :', this.onlineContacts);
-                console.log('this.offlineContacts :', this.offlineContacts);   
+                this.offlineContacts = this.contacts.filter(x => !this.isOnline(x));                
               });
             }
-            else{
-              console.log('DisConnected :');
+            else{              
               if (!!this.onlineContactsSubscription)
               {
                 this.onlineContactsSubscription.unsubscribe();

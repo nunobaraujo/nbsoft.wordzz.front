@@ -1,4 +1,15 @@
-<div class="board-tile" [class]="bonusClass">
+
+<div *ngIf="!letter"  class="grid-tile" [class]="bonusClass" >
     {{text}}
-    <fa-icon *ngIf="isStar" [icon]="faStar" size="lg" ></fa-icon>
+    <fa-icon *ngIf="isStar" [icon]="faStar" size="lg" ></fa-icon>    
 </div>
+
+<div *ngIf="letter" class="grid-letter" [class]="bonusClass">        
+    <div  [cdkDragData]='boardTile' cdkDrag >
+        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+        <app-board-letter [boardLetter]='letter' ></app-board-letter>
+    </div>
+</div>
+
+
+

@@ -11,8 +11,6 @@ export class BoardLetterComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-    console.log('boardLetter:', this.boardLetter); 
-  }
+  ngOnInit(): void {}
 
 }

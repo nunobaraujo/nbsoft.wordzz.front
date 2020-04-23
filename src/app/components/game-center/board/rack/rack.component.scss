@@ -1,8 +1,29 @@
 $game-background: #c0c0c0;
+$rack-background:  #007bff;
+
+.rack-container{
+  background-color: $game-background;  
+  min-width: 810px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .flex-container {
-    display: flex;
-    background-color: $game-background;
-    justify-content: center;
-  }  
+  display: flex;    
+  align-items: center;
+  justify-content: center;
+  background-color: $rack-background;  
+  margin-top: 3px;
+  min-width: 300px;
+  min-height: 50px;
+}  
   
+.cdk-drag-preview {
+  background: white;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+

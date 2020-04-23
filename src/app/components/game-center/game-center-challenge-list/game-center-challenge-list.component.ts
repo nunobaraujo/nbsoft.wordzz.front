@@ -12,7 +12,7 @@ export class GameCenterChallengeListComponent implements OnInit, OnDestroy {
   private subscription:Subscription;
   challengeList$:Observable<GameChallenge[]>  
   constructor(private gameService:GameService) {
-    this.challengeList$ = gameService.receivedChallenges;
+    this.challengeList$ = gameService.receivedChallenges$;
     this.subscription = this.challengeList$.subscribe();
     
    }

@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Game } from 'src/app/Models/game';
-import { GamePlayer } from 'src/app/Models/gamePlayer';
 import { GameService } from 'src/app/Services/game.service';
-import { BoardLetter } from 'src/app/Models/boardLetter';
+import { GameManager } from 'src/app/Managers/gameManger';
 
 @Component({
   selector: 'app-game-center-game',
@@ -11,25 +9,21 @@ import { BoardLetter } from 'src/app/Models/boardLetter';
   styleUrls: ['./game-center-game.component.scss']
 })
 export class GameCenterGameComponent implements OnInit {
-  game:Game;
-  player:GamePlayer;
-  opponent:GamePlayer;
-  rack: BoardLetter[];
+  gameManager:GameManager;
 
   constructor(private route: ActivatedRoute, private gameService:GameService) {
     this.route.data
     .subscribe((data) => {
-      this.player = this.gameService.getPlayer(data.game.id) ; 
-      this.opponent = this.gameService.getOpponent(data.game.id) ;
-      this.game = data.game;
-      this.rack = this.player.rack.map(l =>{
-        return new BoardLetter(l,this.player.userName);
-      });
-      console.log('prack :',this.rack);
+      this.gameManager = gameService.getManager(data.game.id);            
     }); 
   }
 
   ngOnInit(): void {    
+  }
+
+  getTiles():string[]
+  {
+    return this.gameManager.game.board.tiles.map(t => `${t.x}-${t.y}`);    
   }
 
 }

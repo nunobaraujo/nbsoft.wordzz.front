@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { BoardTile } from 'src/app/Models/boardTile';
 import { BonusType } from 'src/app/Enums/bonusType';
+import { BoardLetter } from 'src/app/Models/boardLetter';
+
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -14,20 +16,21 @@ export class GridTileComponent implements OnInit {
   text:string;
   bonusClass:string;
   isStar:boolean;
+  letter:BoardLetter;
   constructor() 
   { 
   }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {     
     this.bonusClass = this.getBonus();
     this.text = this.getText();
-    this.isStar = this.boardTile.bonus == BonusType.Center;
+    this.isStar = this.boardTile.bonus == BonusType.Center;    
   }
 
   private getBonus():string{
     switch (this.boardTile.bonus) {
       case BonusType.Center:
-        return "star-square";
+          return "star-square";
       case BonusType.TripleWord:
         return "triple-word";    
       case BonusType.DoubleWord:
@@ -53,6 +56,12 @@ export class GridTileComponent implements OnInit {
       default:
         return "";
     }
-  }
+  } 
 
+  setLetter(letter:BoardLetter){
+    this.letter = letter;
+  }
+  removeLetter(){
+    this.letter = null;
+  }
 }

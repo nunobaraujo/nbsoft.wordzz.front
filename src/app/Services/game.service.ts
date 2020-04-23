@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import * as signalR from '@aspnet/signalr';
 import { HubConnection } from '@aspnet/signalr';
-import { Subscription, Observable, from, BehaviorSubject } from 'rxjs';
+import { Subscription, Observable, from, BehaviorSubject, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 
@@ -15,6 +15,7 @@ import { GameChallengeResult } from '../Models/gameChallengeResult';
 import { Game } from '../Models/game';
 import { GamePlayer } from '../Models/gamePlayer';
 import { map } from 'rxjs/operators';
+import { GameManager } from '../Managers/gameManger';
 
 
 
@@ -31,29 +32,33 @@ export class GameService implements OnDestroy {
   
   private _messages = new BehaviorSubject<ChatMessage[]>([]);
   private messageStore: { messages: ChatMessage[] } = { messages: [] }; // store our data in memory
-  messages = this._messages.asObservable();
+  messages$ = this._messages.asObservable();
 
   private _isConnected = new BehaviorSubject<boolean>(false);
-  isConnected = this._isConnected.asObservable();
-
+  isConnected$ = this._isConnected.asObservable();
+  
   private _onlineFriends = new BehaviorSubject<string[]>([]);
   private onlineFriendStore: { friends: string[] } = { friends: [] }; // store our data in memory
-  onlineFriends = this. _onlineFriends.asObservable();
+  onlineFriends$ = this. _onlineFriends.asObservable();
 
   private _receivedChallenges = new BehaviorSubject<GameChallenge[]>(null);
   private _lastReceivedChallenge = new BehaviorSubject<GameChallenge>(null);
   private receivedChallengeStore: { challenges:  GameChallenge[] } ={ challenges: []};
-  receivedChallenges = this._receivedChallenges.asObservable();
-  lastReceivedChallenge = this._lastReceivedChallenge.asObservable();
+  receivedChallenges$ = this._receivedChallenges.asObservable();
+  lastReceivedChallenge$ = this._lastReceivedChallenge.asObservable();
 
   private _sentChallenges = new BehaviorSubject<GameChallenge[]>(null);  
   private sentChallengeStore: { challenges:  GameChallenge[] } ={ challenges: []};
-  sentChallenges = this._sentChallenges.asObservable();
+  sentChallenges$ = this._sentChallenges.asObservable();
 
   private _sentChallengesResult = new BehaviorSubject<GameChallengeResult>(null);  
-  sentChallengesResult = this._sentChallengesResult.asObservable();
+  sentChallengesResult$ = this._sentChallengesResult.asObservable();
   
   private activeGamesStore: { games: Game[] } = { games: [] }; // store our data in memory
+
+  private _gameManagers = new BehaviorSubject<GameManager[]>(null);  
+  private gameManagersStore: { gameManagers:  GameManager[] } ={ gameManagers: []};
+  gameManagers$ = this._gameManagers.asObservable();
   
   constructor(private router:Router,
     private authenticationService: AuthenticationService, 
@@ -134,9 +139,9 @@ export class GameService implements OnDestroy {
   public getActiveGames():Observable<Game[]>
   {
     if (this._isConnected.value == true){
-      var promise = (this.hubConnection.invoke('GetActiveGames').then(games=>{
-        console.log('games :', games);
-        this.activeGamesStore.games = games;      
+      var promise = (this.hubConnection.invoke('GetActiveGames').then(games=>{        
+        this.activeGamesStore.games = games; 
+        this.updateGameManagers();        
         return this.activeGamesStore.games;
       }));    
       return from(promise);
@@ -144,9 +149,15 @@ export class GameService implements OnDestroy {
     return null;    
   }
   public getGame(id: string) {
-    return this.getActiveGames().pipe(
-      map(games => games.find(game => game.id === id))
-    );
+    if (this._isConnected.value == true){
+      return this.getActiveGames().pipe(
+        map(games => games.find(game => game.id === id))
+      );
+    }
+    return of(null);
+  }
+  public getManager(gameId:string):GameManager{
+    return this.gameManagersStore.gameManagers.find(gm => gm.game.id == gameId);
   }
   public getOpponent(gameId:string):GamePlayer{
     var game = this.activeGamesStore.games.find(x => x.id == gameId);
@@ -166,21 +177,68 @@ export class GameService implements OnDestroy {
       return game.player02;
     }
   }
+  
+  
 
 
 
   private initializeService(): void {    
     this.hubConnection.invoke('GetOnlineContacts')
       .then(result => {
-          this.onlineFriendStore.friends = result;
-          this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);          
-          this._isConnected.next(true);
-        })
-        .catch(err =>  {          
-          this.onlineFriendStore.friends = [];
-          this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
+        this.onlineFriendStore.friends = result;
+        this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);          
+        this._isConnected.next(true);
+      })
+      .catch(err =>  {          
+        this.onlineFriendStore.friends = [];
+        this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
       });    
-      
+    this.hubConnection.invoke('GetActiveGames')
+      .then(games=>{        
+        console.log("ActiveGames Changed");  
+        this.activeGamesStore.games = games;
+        this.updateGameManagers()
+        console.log("gameManagersStore:", this.gameManagersStore.gameManagers.length);
+      })
+      .catch(err =>  {          
+          this.activeGamesStore.games = [];
+          this.gameManagersStore.gameManagers = [];
+          this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
+      });
+  }
+
+  private updateGameManagers(){
+    // Check new Games
+    this.activeGamesStore.games.forEach(g =>{
+      var manager = this.gameManagersStore.gameManagers.find(gm => gm.game.id == g.id);
+      if (!manager){
+        // No manager to this game, add it
+        var manager = new GameManager(this,g);
+        this.gameManagersStore.gameManagers.push(manager);
+        this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
+        console.log('New Game Mananager :', g.id);
+      }
+    });
+    
+    // Check removed games
+    let managersToRemove :string[]=[];
+    this.gameManagersStore.gameManagers.forEach(gm =>{
+      var game = this.activeGamesStore.games.find(g => g.id == gm.game.id);
+      if (!game)
+      {
+        // No game for this manager, remove it
+        managersToRemove.push(gm.game.id);        
+      }
+    });
+    managersToRemove.forEach(id => {
+      let index = this.gameManagersStore.gameManagers.findIndex(gm => gm.game.id == id);
+      if (index !== -1){
+        this.gameManagersStore.gameManagers.splice(index,1);
+        this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
+        console.log('Game Mananager removed:', id);
+      }
+    });
+
   }
 
   private connect():void{
@@ -290,6 +348,8 @@ export class GameService implements OnDestroy {
         this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
     }
   }
+
+  
 
   
 }

@@ -14,27 +14,23 @@ import { GameService } from 'src/app/Services/game.service';
 @Injectable({
   providedIn: 'root'
 })
-export class GameResolverServiceService implements Resolve<Game> {
+export class GameResolverService implements Resolve<Game> {
 
   constructor(private gs: GameService, private router: Router) { }
   
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<Game> | Observable<never> {
-    if (!this.gs){
-      return EMPTY;
-    }
-    
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<Game> | Observable<never> {    
     let id = route.paramMap.get('id');
+ 
     return this.gs.getGame(id).pipe(
       take(1),
       mergeMap(g => {
         if (g) {
           return of(g);
         } else { // id not found
-          this.router.navigate(['/game-center']);
+          this.router.navigate(['']);
           return EMPTY;
         }
       })
-    );
-
+    );  
   }
 }

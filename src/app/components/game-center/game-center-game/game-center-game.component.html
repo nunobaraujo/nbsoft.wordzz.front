@@ -1,9 +1,9 @@
 <div id="header" class="game-header">
-    <p>{{player.userName}} vs {{opponent.userName}}</p>
+    <p>{{this.gameManager.player.userName}} vs {{this.gameManager.opponent.userName}}</p>
 </div>
 <div id="board">
-    <app-grid-board [game]='game'></app-grid-board>
+    <app-grid-board [gameManager]='gameManager'></app-grid-board>
 </div>
 <div id="rack">
-    <app-rack [playerRack]='rack' ></app-rack>
+    <app-rack [gameManager]='gameManager' [connectedTiles]='getTiles()' ></app-rack>
 </div>

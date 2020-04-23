@@ -1,5 +1,16 @@
-<div class="board-container" >
-  <div class="board">
-    <app-grid-tile  [boardTile]='tile' *ngFor="let tile of game.board.tiles"></app-grid-tile>
-  </div>
+<div class="board-container"  >
+  <div class="boardOverlay">
+    <div class="boardTiles">
+      <div class="board" >
+        <div *ngFor="let tile of gameManager.game.board.tiles"
+          [id]="getCoordinate(tile)" 
+          cdkDropList 
+          [cdkDropListConnectedTo]="getTileConnections(tile)" 
+          [cdkDropListData]="tile"
+          (cdkDropListDropped)="drop($event)" >
+          <app-grid-tile  [boardTile]='tile' ></app-grid-tile>
+        </div>
+      </div>
+    </div>
+  </div>  
 </div>

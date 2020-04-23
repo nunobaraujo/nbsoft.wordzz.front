@@ -23,7 +23,7 @@ export class ChatComponent implements OnInit,AfterViewChecked  {
   constructor(private formBuilder: FormBuilder,    
     private gameService: GameService) 
   {
-    this.messages$  = gameService.messages;
+    this.messages$  = gameService.messages$;
   }
   
   ngOnInit(): void {    

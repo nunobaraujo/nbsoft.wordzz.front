@@ -23,9 +23,9 @@ export class GameCenterNewGameComponent implements OnInit, OnDestroy {
   sentChallengesResults: string[]=[];
   
   constructor(private router:Router, private gameService:GameService) {     
-    this.onlineFriends$ = this.gameService.onlineFriends;
-    this.sentChallenges$ = this.gameService.sentChallenges;
-    this.sentChallengesResult$ = this.gameService.sentChallengesResult;
+    this.onlineFriends$ = this.gameService.onlineFriends$;
+    this.sentChallenges$ = this.gameService.sentChallenges$;
+    this.sentChallengesResult$ = this.gameService.sentChallengesResult$;
     this.sentChallengesSubscription = this.sentChallenges$.subscribe(chall =>{      
       this.sentChallenges = chall;
     });
