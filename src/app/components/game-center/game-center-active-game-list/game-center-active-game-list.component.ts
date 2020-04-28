@@ -27,10 +27,13 @@ export class GameCenterActiveGameListComponent implements OnInit, OnDestroy{
   ngOnInit(): void {    
     this.loading = true;    
     this.gameServiceConnected = this.gameService.isConnected$.subscribe(connected =>    {
-      if (connected){
+      if (connected){        
         this.games$ = this.gameService.getActiveGames();
-        this.gameSubscription = this.games$.subscribe(g => this.games = g);
-        this.loading = false;
+        this.gameSubscription = this.games$.subscribe(g =>{ 
+          this.games = g;
+          this.loading = false;
+        });
+        
       }
       else
       {

@@ -7,8 +7,7 @@ $white: #fff;
   display: flex;
   flex-Direction: row;
   flex-wrap: wrap;
-  justify-content: space-evenly;
-  min-width: 810px;
+  justify-content: space-evenly;  
 }
 
 .boardOverlay{
@@ -32,32 +31,3 @@ $white: #fff;
   border-top: 5px solid #aaa;
   border-bottom: 5px solid #656565;    
 } 
-
-
-/*
-.boardOverlay .boardLetters .letterPlaceHolder{
-  display: grid;
-  grid-template-columns: repeat(15,auto);  
-  grid-gap: 1px; 
-}
-.boardOverlay .boardLetters .letterPlaceHolder .letter{
-  width: 45px;
-  height: 45px;
-
-  background: $game-background;  
-  opacity: 0.5;
-  border-left: 1px solid red;
-  border-right: 1px solid red;
-  border-top: 1px solid red;
-  border-bottom: 1px solid red;
-}
-
-
-.boardOverlay .boardLetterGrid {        
-  border-left: 5px solid red;
-  border-right: 5px solid red;
-  border-top: 5px solid red;
-  border-bottom: 5px solid red;  
-  z-index: 10;
-} */
-  

@@ -1,9 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { BoardTile } from 'src/app/Models/boardTile';
 import { BonusType } from 'src/app/Enums/bonusType';
 import { BoardLetter } from 'src/app/Models/boardLetter';
 
 import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { BoardLetterComponent } from '../board-letter/board-letter.component';
 
 @Component({
   selector: 'app-grid-tile',
@@ -12,12 +13,13 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 })
 export class GridTileComponent implements OnInit {
   @Input('boardTile') boardTile: BoardTile;
+  @Input('letter') letter:BoardLetter = null;
+  @Input('isLocked') isLocked:boolean;
   faStar = faStar;
   text:string;
   bonusClass:string;
-  isStar:boolean;
-  letter:BoardLetter;
-  constructor() 
+  isStar:boolean;  
+  constructor(private cdr: ChangeDetectorRef ) 
   { 
   }
 
@@ -26,7 +28,7 @@ export class GridTileComponent implements OnInit {
     this.text = this.getText();
     this.isStar = this.boardTile.bonus == BonusType.Center;    
   }
-
+  
   private getBonus():string{
     switch (this.boardTile.bonus) {
       case BonusType.Center:
@@ -56,12 +58,7 @@ export class GridTileComponent implements OnInit {
       default:
         return "";
     }
-  } 
+  }  
 
-  setLetter(letter:BoardLetter){
-    this.letter = letter;
-  }
-  removeLetter(){
-    this.letter = null;
-  }
+ 
 }

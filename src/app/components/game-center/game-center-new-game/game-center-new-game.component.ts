@@ -21,6 +21,7 @@ export class GameCenterNewGameComponent implements OnInit, OnDestroy {
   faTrophy = faTrophy;
   onlineFriends$: Observable<string[]>;  
   sentChallengesResults: string[]=[];
+  isWaiting: string[]=[];
   
   constructor(private router:Router, private gameService:GameService) {     
     this.onlineFriends$ = this.gameService.onlineFriends$;
@@ -32,6 +33,11 @@ export class GameCenterNewGameComponent implements OnInit, OnDestroy {
 
     this.sentChallengeResultsSubscription = this.sentChallengesResult$.subscribe(cres =>{
       if (!!cres){
+        var waitingIndex = this.isWaiting.findIndex(u => u === cres.challenge.challenger);
+        if (waitingIndex !== -1){
+          this.isWaiting.splice(waitingIndex,1);
+        }
+
         if (cres.accepted){
           this.sentChallengesResults.push(cres.challenge.challenger + " accepted your challenge. Game starting in 3 seconds...");
           setTimeout(() =>{
@@ -56,7 +62,8 @@ export class GameCenterNewGameComponent implements OnInit, OnDestroy {
   }
 
 
-  startGame($event: any,friend:string ){    
+  startGame($event: any,friend:string ){
+    this.isWaiting.push(friend);
     this.gameService.challengeGame('en-us',friend,15).then(res => {
       console.log('New Challenge :', res);
     });
@@ -68,6 +75,11 @@ export class GameCenterNewGameComponent implements OnInit, OnDestroy {
 
   hasChallenge(friendName:string):boolean
   {    
+    var waitingIndex = this.isWaiting.findIndex(u => u === friendName);
+    if (waitingIndex !== -1){
+      return true
+    }
+
     if (!!this.sentChallenges){
       let isChallenge = this.sentChallenges.find((c) => c.challenger===friendName);            
       return  !!isChallenge;

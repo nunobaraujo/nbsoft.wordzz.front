@@ -1,19 +1,27 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { GameManager } from 'src/app/Managers/gameManger';
 import { BoardTile } from 'src/app/Models/boardTile';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-rack',
   templateUrl: './rack.component.html',
   styleUrls: ['./rack.component.scss']
 })
-export class RackComponent implements OnInit {  
+export class RackComponent implements OnInit , AfterViewInit {  
   @Input('gameManager') gameManager: GameManager;
-  @Input('connectedTiles') connectedTiles: string[];
-  constructor() {  }
-
-  ngOnInit(): void {}
+  connectedTiles$: Observable<string[]>;
+  constructor() { }
+  
+  ngOnInit(): void {
+    
+  }
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.connectedTiles$ = this.gameManager.rackConnectedTiles$;
+    });
+  }
 
   drop(event: CdkDragDrop<string[]>) {    
     if (event.container.id === event.previousContainer.id) {

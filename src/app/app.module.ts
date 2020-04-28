@@ -20,6 +20,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MaterialModule } from './material.module';
+import { ModalComponent } from './modal/modal.component';
+import { SelectLetterModalComponent } from './components/select-letter-modal/select-letter-modal.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +33,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     ChatComponent,
     FriendListComponent,
     SideMenuComponent,
-    DashboardComponent
+    DashboardComponent,
+    ModalComponent,
+    SelectLetterModalComponent
   ],
   imports: [
     BrowserModule,
@@ -39,12 +44,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     GameCenterModule,
     AppRoutingModule,
     FontAwesomeModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MaterialModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ModalComponent,SelectLetterModalComponent]
 })
 export class AppModule { }

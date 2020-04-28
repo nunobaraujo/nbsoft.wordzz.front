@@ -1,8 +1,8 @@
 <div class="rack-container">
-    <div class="flex-container" id="list-rack" 
+    <div class="flex-container bg-dark " id="list-rack" 
         cdkDropList     
         cdkDropListSortingDisabled     
-        [cdkDropListConnectedTo]="connectedTiles"     
+        [cdkDropListConnectedTo]="connectedTiles$|async"     
         [cdkDropListData]="gameManager.activeRack$"
         (cdkDropListDropped)="drop($event)" >
         <div  [cdkDragData]='letter'  *ngFor="let letter of gameManager.activeRack$ | async"  cdkDrag >

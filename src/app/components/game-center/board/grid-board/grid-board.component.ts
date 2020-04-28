@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, AfterViewInit, ViewChildren, QueryList, OnDestroy } from '@angular/core';
-import { CdkDragDrop } from "@angular/cdk/drag-drop";
+import { CdkDragDrop, CdkDrag } from "@angular/cdk/drag-drop";
 import { GridTileComponent } from '../grid-tile/grid-tile.component';
 
 import { Game } from 'src/app/Models/game';
@@ -11,6 +11,9 @@ import { GamePlayer } from 'src/app/Models/gamePlayer';
 import { GameService } from 'src/app/Services/game.service';
 import { GameManager } from 'src/app/Managers/gameManger';
 import { Subscription, Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalComponent } from 'src/app/modal/modal.component';
+import { SelectLetterModalComponent } from 'src/app/components/select-letter-modal/select-letter-modal.component';
 
 @Component({
   selector: 'app-grid-board',
@@ -22,11 +25,17 @@ export class GridBoardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(GridTileComponent) viewChildren!: QueryList<GridTileComponent>
 
   private currentPlaysSubscription:Subscription
-  private lastPlay:PlayLetter[]=[];
+  private moveHistorySubscription:Subscription
+  //private lastPlay:PlayLetter[]=[];
+
+  private boardFixedLetters:PlayLetter[]=[];
+  private boardLetters:PlayLetter[]=[];
 
   dndConnections:string[] 
   player:GamePlayer;  
-  constructor(private gameService:GameService) {    
+
+  email:string;
+  constructor(private gameService:GameService, public dialog: MatDialog) {    
     
    }    
   ngOnInit(): void {
@@ -35,41 +44,44 @@ export class GridBoardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   ngAfterViewInit(): void {    
     console.log('ngAfterViewInit');
-    this.player = this.gameService.getPlayer(this.gameManager.game.id) ;     
+    this.player = this.gameManager.getPlayer() ;     
     
     if (!this.currentPlaysSubscription){
       setTimeout(() => {
         this.currentPlaysSubscription = this.gameManager.currentPlays$.subscribe(play => {
-          if (!!play) {                           
-            
-            // Removed Plays from visual element
-            this.lastPlay.forEach(lp =>{            
-              // Verify if any play was removed
-              var playStillExists = play
-                .find(newp => newp.tile.x === lp.tile.x && newp.tile.y === lp.tile.y);              
-              if (!playStillExists)
-              {
-                // Play was removed (Letter was given back to rack)
-                let child = this.getComponent(lp.tile);
-                child.removeLetter();
-              }
-            });
-
-
-            // Add Plays to visual element       
-            play.forEach(p => {
-              let child = this.getComponent(p.tile);
-              child.setLetter(p.letter);
-            });  
-            
-            Object.assign(this.lastPlay,play);
-          }    
+          this.boardLetters = play;
         })  
       });  
-    }      
+    }
+    
+    if(!this.moveHistorySubscription){
+      setTimeout(() => { 
+        this.moveHistorySubscription = this.gameManager.moveHistory$.subscribe( moves => {
+          if (!!moves){
+            this.boardFixedLetters = [];
+            moves.forEach(move => {
+              move.letters.forEach(l => {
+                this.boardFixedLetters.push(l);
+              });
+            });
+          }
+        });
+      });
+    }
+
   }  
   ngOnDestroy(): void {
     this.currentPlaysSubscription.unsubscribe();
+  }
+  openDialog(): void {
+    const dialogRef = this.dialog.open(SelectLetterModalComponent, {
+      width: '300px',
+      data: {  "availableLetters" : this.gameManager.game.availableLetters}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.email = result;
+    });
   }
   
   getCoordinate(tile:BoardTile):string {
@@ -92,7 +104,12 @@ export class GridBoardComponent implements OnInit, AfterViewInit, OnDestroy {
         Object.assign(targetTile, event.container.data);      
         
         // apply new play
+        console.log('Tile :', targetTile.x,targetTile.y);
         var playAllowed = this.gameManager.newLetterPlay(targetTile,letter);        
+        if (letter.letter.isBlank){
+          //Popup letter choose dialog
+          this.openDialog();
+        }
 
       }
       else{
@@ -102,14 +119,31 @@ export class GridBoardComponent implements OnInit, AfterViewInit, OnDestroy {
 
         var newTile: BoardTile = new BoardTile();
         Object.assign( newTile, event.container.data);      
+        console.log('Tile :', newTile.x,newTile.y);
 
         var playAllowed = this.gameManager.updateLetterPlay(oldTile,newTile);
 
-        console.log('event.previousContainer.id :', event.previousContainer.id);
+        
       }
     }
   }
 
+  getLetter(tile:BoardTile):BoardLetter{
+    var fixed = this.boardFixedLetters.find(bl => bl.tile.x === tile.x && bl.tile.y === tile.y);
+    if (!!fixed){
+      return fixed.letter;
+    }
+
+    var temp = this.boardLetters.find(bl => bl.tile.x === tile.x && bl.tile.y === tile.y);
+    if (!!temp){
+      return temp.letter;
+    }
+    return null;
+  }
+  getLocked(tile:BoardTile):boolean{
+    var fixed = this.boardFixedLetters.find(bl => bl.tile.x === tile.x && bl.tile.y === tile.y);
+    return !!fixed;
+  }
 
   private getComponent (tile: BoardTile){
     var tileComponent:GridTileComponent = this.viewChildren.find( child => child.boardTile.x ===  tile.x && child.boardTile.y === tile.y );

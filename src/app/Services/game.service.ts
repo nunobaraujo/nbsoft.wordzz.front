@@ -16,6 +16,9 @@ import { Game } from '../Models/game';
 import { GamePlayer } from '../Models/gamePlayer';
 import { map } from 'rxjs/operators';
 import { GameManager } from '../Managers/gameManger';
+import { PlayLetter } from '../Models/playLetter';
+import { PlayRequest } from 'src/Requests/playRequest';
+import { PlayResult } from '../Models/playResult';
 
 
 
@@ -26,7 +29,7 @@ export class GameService implements OnDestroy {
   private hubConnection: HubConnection;
   private userSubscription:Subscription;
   private contactsSubscription:Subscription;
-  
+    
   currentUser: User;
   friends: string[] = [];
   
@@ -157,7 +160,7 @@ export class GameService implements OnDestroy {
     return of(null);
   }
   public getManager(gameId:string):GameManager{
-    return this.gameManagersStore.gameManagers.find(gm => gm.game.id == gameId);
+    return this.gameManagersStore.gameManagers.find(gm => gm.gameId == gameId);
   }
   public getOpponent(gameId:string):GamePlayer{
     var game = this.activeGamesStore.games.find(x => x.id == gameId);
@@ -178,8 +181,28 @@ export class GameService implements OnDestroy {
     }
   }
   
-  
-
+  public play(gameId:string, letters: PlayLetter[]):Observable<PlayResult>{
+    let request = new PlayRequest();
+    request.gameId = gameId;
+    request.userName = this.currentUser.username;
+    request.letters = letters;
+    
+    var promise = this.hubConnection    
+      .invoke<PlayResult>('play', request)
+      .then(res =>{        
+        var result = new PlayResult();
+        Object.assign(result,res);
+        return result;
+      })
+      .catch(err =>{     
+        console.log('err :>> ', err);
+        var result = new PlayResult();
+        result.moveResult = "KO";
+        return result;
+      });
+    
+    return from(promise);
+  }
 
 
   private initializeService(): void {    
@@ -209,11 +232,11 @@ export class GameService implements OnDestroy {
 
   private updateGameManagers(){
     // Check new Games
-    this.activeGamesStore.games.forEach(g =>{
-      var manager = this.gameManagersStore.gameManagers.find(gm => gm.game.id == g.id);
+    this.activeGamesStore.games.forEach(g =>{      
+      var manager = this.gameManagersStore.gameManagers.find(gm => gm.gameId == g.id);
       if (!manager){
         // No manager to this game, add it
-        var manager = new GameManager(this,g);
+        var manager = new GameManager(this,g.id);
         this.gameManagersStore.gameManagers.push(manager);
         this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
         console.log('New Game Mananager :', g.id);
@@ -223,15 +246,15 @@ export class GameService implements OnDestroy {
     // Check removed games
     let managersToRemove :string[]=[];
     this.gameManagersStore.gameManagers.forEach(gm =>{
-      var game = this.activeGamesStore.games.find(g => g.id == gm.game.id);
+      var game = this.activeGamesStore.games.find(g => g.id == gm.gameId);
       if (!game)
       {
         // No game for this manager, remove it
-        managersToRemove.push(gm.game.id);        
+        managersToRemove.push(gm.gameId);        
       }
     });
     managersToRemove.forEach(id => {
-      let index = this.gameManagersStore.gameManagers.findIndex(gm => gm.game.id == id);
+      let index = this.gameManagersStore.gameManagers.findIndex(gm => gm.gameId == id);
       if (index !== -1){
         this.gameManagersStore.gameManagers.splice(index,1);
         this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
@@ -302,9 +325,7 @@ export class GameService implements OnDestroy {
       this._sentChallengesResult.next( result);
      
     });
-    
-
-    
+        
     this.hubConnection.on('sendToAll', (name: string, message: string) => {
       var newMsg = new ChatMessage();
       newMsg.date = Date.now().toString();
@@ -315,11 +336,16 @@ export class GameService implements OnDestroy {
       this._messages.next(Object.assign({}, this.messageStore).messages);
     });
 
-    
-
-
+    this.hubConnection.on('playOk', (gameId:string ,username: string ) => {
+      let manager = this.getManager(gameId);
+      manager.playReceived(username);
+    });
   }
   private disconnect():void{
+    if(this._isConnected.getValue()=== false)
+    {
+      return ;
+    }
     if(!!this.contactsSubscription){
       this.contactsSubscription.unsubscribe();}
     

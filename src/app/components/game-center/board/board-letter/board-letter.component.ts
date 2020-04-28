@@ -8,9 +8,20 @@ import { BoardLetter } from 'src/app/Models/boardLetter';
 })
 export class BoardLetterComponent implements OnInit {
   @Input('boardLetter') boardLetter: BoardLetter;
-
+  @Input('isLocked') isLocked: boolean;
+  
   constructor() { }
 
   ngOnInit(): void {}
+  
+  getClass():string{
+    if (this.isLocked){
+      return "board-letter-locked"
+    }
+    else{
+      return "board-letter"
+    }
+  }
+  
 
 }

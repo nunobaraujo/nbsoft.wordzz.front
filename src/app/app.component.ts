@@ -7,7 +7,7 @@ import { GameService } from './Services/game.service';
 
 import { User } from './Models/user';
 import { UserService } from './Services/user.service';
-import { ThrowStmt } from '@angular/compiler';
+import {MatDialog,MatDialogRef,MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 
 @Component({

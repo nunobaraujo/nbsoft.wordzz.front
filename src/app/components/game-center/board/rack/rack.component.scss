@@ -1,9 +1,8 @@
 $game-background: #c0c0c0;
-$rack-background:  #007bff;
 
 .rack-container{
   background-color: $game-background;  
-  min-width: 810px;
+  //min-width: 810px;
   min-height: 80px;
   display: flex;
   align-items: center;
@@ -13,8 +12,7 @@ $rack-background:  #007bff;
 .flex-container {
   display: flex;    
   align-items: center;
-  justify-content: center;
-  background-color: $rack-background;  
+  justify-content: center;  
   margin-top: 3px;
   min-width: 300px;
   min-height: 50px;

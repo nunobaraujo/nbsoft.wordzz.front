@@ -20,4 +20,5 @@ export class Game {
     currentPauseStart?:Date;    
     
     playMoves: PlayMove[];    
+    availableLetters:string[]
 }
