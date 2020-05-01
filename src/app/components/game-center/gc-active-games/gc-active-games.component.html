@@ -1,0 +1,16 @@
+<div>
+    <ul class="nav nav-pills" >
+        <li class="nav-item ">
+          <a class="nav-link "  [routerLink]="['/game-center']" routerLinkActive="active"  [routerLinkActiveOptions]="{exact:true}" >Game Center</a>
+        </li>
+        
+        <li *ngFor="let game of games$ | async" class="nav-item " >            
+            <a class="nav-link " [routerLink]="[game.id]" routerLinkActive="active" >
+                {{getOpponent(game.id)}}
+            </a>
+        </li>       
+      </ul>
+</div>
+<div class="container-fluid">
+    <router-outlet></router-outlet>
+</div>

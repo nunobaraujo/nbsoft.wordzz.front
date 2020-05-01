@@ -1,0 +1,62 @@
+$selected: rgb(255, 122, 70);
+$triple-word-red: #fe704d;
+$triple-letter-blue: #0493b5;
+$double-word-pink: rgba(254, 112, 77, 0.4);
+$double-letter-blue: rgba(4, 147, 181, 0.4);
+
+$unlockedLetter: peru;
+$lockedLetter:orange;
+
+.board-letter
+{   
+   display: flex;
+   align-items: center;   
+   flex-direction: column;  /* <--- I added this */
+   width: 36px;
+   height: 36px;      
+   border-radius: 3px;
+   box-shadow: inset 0 1px 5px -2px rgba(0, 0, 0, 0.2),
+   inset 1px -2px 4px -1px rgba(0, 0, 0, 0.2);
+
+}
+
+.board-letter-unlocked
+{ 
+   background: $unlockedLetter;
+}
+.board-letter-locked
+{
+   background: $lockedLetter;
+}
+.last-word {
+   background: $selected;  
+ }
+
+.board-letter-main
+{
+   margin-top: -4px;
+   font: 700 20px "Helvetica";
+   text-align: center;   
+   color: black;
+}
+
+
+.board-letter-value{         
+   align-self: flex-end;
+   font: 12px "Helvetica";
+   padding-right: 4px;
+   padding-top: 1px; 
+   color:black  
+}
+.board-letter-value-special{
+   padding-right: 3px;
+   margin-top: -2px;
+   color: white;
+   font-size: 10px;
+   margin-right: -2px;
+}
+
+.bonus-triple-letter{
+   background: $triple-word-red;  
+   
+}

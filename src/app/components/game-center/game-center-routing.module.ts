@@ -3,40 +3,40 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { GameResolverService } from 'src/app/Services/game-resolver.service';
 
-import { GameCenterComponent } from './game-center/game-center.component';
-import { GameCenterHomeComponent } from './game-center-home/game-center-home.component';
-import { GameCenterActiveGameListComponent } from './game-center-active-game-list/game-center-active-game-list.component';
-import { GameCenterGameComponent } from './game-center-game/game-center-game.component';
-import { GameCenterNewGameComponent } from './game-center-new-game/game-center-new-game.component';
-import { GameCenterChallengeListComponent } from './game-center-challenge-list/game-center-challenge-list.component';
+import { GcRootComponent } from './gc-root/gc-root.component';
+import { GcNewGameComponent } from './gc-new-game/gc-new-game.component';
+import { GcHomeComponent } from './gc-home/gc-home.component';
+import { GcGameComponent } from './gc-game/gc-game.component';
+import { GcActiveGamesComponent } from './gc-active-games/gc-active-games.component';
+import { GcChallengesComponent } from './gc-challenges/gc-challenges.component';
 
 const gameCenterRoutes: Routes = [
   {
     path: 'game-center',
-    component: GameCenterComponent,
+    component: GcRootComponent,
     children: [
       {
         path: 'newgame',
-        component: GameCenterNewGameComponent
+        component: GcNewGameComponent
       },
       {
         path: 'challenges',
-        component: GameCenterChallengeListComponent
+        component: GcChallengesComponent
       },
       {        
         path: '',
-        component: GameCenterActiveGameListComponent,
+        component: GcActiveGamesComponent,
         children:[
         {
           path: ':id',
-          component: GameCenterGameComponent,
+          component: GcGameComponent,
           resolve: {
             game: GameResolverService
           }
         },
         {
           path:'',
-          component: GameCenterHomeComponent
+          component: GcHomeComponent
         }
         ]
       }

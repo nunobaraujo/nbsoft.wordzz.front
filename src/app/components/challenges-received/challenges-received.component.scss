@@ -1,0 +1,13 @@
+.wz-challenges-received{
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    align-content: stretch;  
+    flex-direction: column;  
+    width: 100%;
+
+}
+.wz-challenges-received-list{
+    overflow: auto;
+    max-height: 20vh;
+}

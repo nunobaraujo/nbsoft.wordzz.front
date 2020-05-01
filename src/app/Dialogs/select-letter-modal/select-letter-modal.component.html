@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Letter Selection</h1>
+<form [formGroup]="blankLetterForm">
+<div mat-dialog-content>
+  <p>Please select the letter</p>  
+    <mat-form-field>
+      <input id="letter" formControlName="letter" type="text" placeholder="letter" matInput cdkFocusInitial >
+      <mat-error *ngIf="f.letter.errors?.required">Letter is required</mat-error>
+      <mat-error *ngIf="f.letter.errors?.maxlength">Only 1 character accepted</mat-error>
+      <mat-error *ngIf="f.letter.errors?.forbiddenLetter">Character not accepted.</mat-error>
+    </mat-form-field>  
+</div>
+<div mat-dialog-actions>  
+  <!--<button mat-button [mat-dialog-close]="data.selectedLetter" cdkFocusInitial>OK</button>-->
+  <button mat-button (click)="save()" >OK</button>
+  
+</div>
+</form>

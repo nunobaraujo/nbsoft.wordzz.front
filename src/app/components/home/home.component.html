@@ -1,8 +1,39 @@
-<div id="wrapper" class="d-flex">    
-    <div id="sidebar-wrapper" class="bg-dark">        
-        <app-side-menu></app-side-menu>        
+<div class="container-fluid">
+<div class="row">
+    <div id="friendList" class="col-md-2 friend-list-container bg-dark text-white" >
+        <div class="friend-list">
+            <app-friend-list></app-friend-list>
+        </div>
     </div>
-    <div id="page-content-wrapper" class="col offset-2" >            
-        <app-dashboard></app-dashboard>
+    <div class="col-md-8">
+        <div class="wz-middle-container" >
+            <div class="row wz-middle-section" >
+                <div class="wz-center-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <app-challenges-received></app-challenges-received>
+                        </div>
+                    </div>        
+                </div>                
+                <div class="wz-center-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <!--<app-ongoing-games></app-ongoing-games>-->
+                        </div>
+                    </div>        
+                </div>                
+            </div>
+            <div class="row wz-middle-section">     
+                <div class="wz-center-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <app-chat ></app-chat>
+                        </div>
+                    </div>        
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="col-md-2" style="background-color: yellow;">3</div>
+</div>
 </div>

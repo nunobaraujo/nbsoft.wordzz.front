@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Add Friend</h1>
+<form [formGroup]="addFriendForm">
+<div mat-dialog-content>
+  <p>Insert friend user name or e-mail to add</p>  
+    <mat-form-field>
+      <input id="username" formControlName="username" type="text" placeholder="username or e-mail" matInput cdkFocusInitial >
+      <mat-error *ngIf="f.username.errors?.required">user name/e-mail required</mat-error>      
+    </mat-form-field>  
+</div>
+<div mat-dialog-actions>  
+  <!--<button mat-button [mat-dialog-close]="data.selectedLetter" cdkFocusInitial>OK</button>-->
+  <button mat-button (click)="save()" >OK</button>
+  <button mat-button (click)="cancel()" >Cancel</button>
+  
+</div>
+</form>

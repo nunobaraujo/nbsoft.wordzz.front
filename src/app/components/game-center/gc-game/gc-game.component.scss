@@ -1,0 +1,100 @@
+$game-background: #c0c0c0;
+
+.game-body{
+    min-width: 600px;
+    max-width: 810px;
+}
+.game-header{
+    background: $game-background;
+    display: flex;
+    flex-direction: row ;
+    justify-content: space-between;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.game-header-section{
+    display: flex;
+    min-width: 33%;    
+    justify-content: center;
+}
+.game-header-section-left{    
+    justify-content: flex-start;
+}
+.game-header-section-right{
+    justify-content: flex-end;    
+}
+.player-score-container{    
+    display: flex;        
+    flex-direction: row ;
+    margin: 2px;
+    width: 100%;
+    min-height: 40px;   
+    justify-content: center;
+    align-items: center;
+}
+
+.player-score{
+    display: flex;        
+    flex-direction: row ;
+}
+
+
+.user-name{
+    font-size: large;    
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+.score{
+    font-size: larger;    
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 12px;
+}
+
+.game-container{
+    display: flex;    
+}
+.game-container-board{
+    flex: 1 0 80%;
+    align-items: flex-start;
+    overflow: hidden;
+}
+.game-container-log{
+    flex: 1 0 20%;    
+    flex-direction: column ;
+    padding-left: 5px;
+    padding-right: 5px;    
+    font-size: smaller;
+    max-height: 624px;
+    border-left: 2px solid #aaa;
+    border-right: 2px solid #656565;
+    border-top: 2px solid #aaa;
+    border-bottom: 2px solid #656565;    
+}
+.game-container-log-player{
+    text-align: left;
+    color: white;
+}
+.game-container-log-opponent{
+    text-align: right;
+    color: #c0c0c0;
+}
+
+
+.game-footer{
+    background: $game-background;
+    display: flex;    
+    align-items: center;
+    justify-content: center;    
+}
+.game-footer .game-pub{    
+    padding-right: 15px;
+    align-items: center;
+    
+}
+.game-footer .game-commands{
+    padding-left: 5px;
+    align-items: flex-start;
+    
+}

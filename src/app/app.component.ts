@@ -7,7 +7,6 @@ import { GameService } from './Services/game.service';
 
 import { User } from './Models/user';
 import { UserService } from './Services/user.service';
-import {MatDialog,MatDialogRef,MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 
 @Component({
@@ -19,19 +18,21 @@ export class AppComponent  implements OnInit, OnDestroy{
   title = 'wordzz-front';  
   currentUser: User;
   onlineContacts:Observable<string[]>;
+  connecting: boolean= true;
   
   private socketsConnectedSubscription:Subscription;
   private challengeReceivedSubscription:Subscription;
   
-  constructor(private router: Router,
-    private userService: UserService,
+  constructor(private router: Router,    
     private authenticationService: AuthenticationService,
     private gameService:GameService)
   {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
     
     this.socketsConnectedSubscription = this.gameService.isConnected$.subscribe(c => {      
-      if (c == true){        
+      if (c == true){   
+        console.log('Connected!');        
+        this.connecting = false;
         this.onlineContacts = this.gameService.onlineFriends$;
         this.challengeReceivedSubscription = this.gameService.lastReceivedChallenge$.subscribe(res => {
           if (!!res){                        
@@ -44,7 +45,8 @@ export class AppComponent  implements OnInit, OnDestroy{
         });        
       }
       else{
-        this.onlineContacts = null;        
+        this.connecting = true;
+        console.log('Not connected!');        
       }
     });
 
@@ -61,6 +63,10 @@ export class AppComponent  implements OnInit, OnDestroy{
   }
   logout() {
     this.authenticationService.logout();
-    this.router.navigate(['/']);
+    setTimeout(() => {
+      console.log("Going Home");
+      this.router.navigateByUrl('/login');  
+    }, 500);
+    
 }
 }

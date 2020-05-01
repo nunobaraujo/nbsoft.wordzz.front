@@ -32,7 +32,7 @@ body {
   margin-left: 0;
 }
 
-@media (min-width: 1040px) {
+@media (min-width: 700px) {
   #sidebar-wrapper {
     margin-left: 0;
   }
@@ -60,7 +60,7 @@ body {
   top: 0em;
   background: black;
   position: fixed;
-  opacity: 50%;
+  opacity: 70%;
 }
 .wait-div {
   position: absolute;

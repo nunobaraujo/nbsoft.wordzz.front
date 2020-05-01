@@ -1,3 +1,18 @@
-.wz-chatcontainer {
-    height: 25vh;
+.wz-chat{
+    display: flex;
+    min-width:100%;    
+    flex-direction: column;    
+    height: 100%;
+}
+.wz-chat-history{
+    width: 100%;    
+    height: 25vh;            
+    color: white;
+}
+.wz-chat-history-content{    
+    padding-left: 5px;
+}
+.wz-chat-form{
+    min-width: 100%;
+    height: 100%;
 }

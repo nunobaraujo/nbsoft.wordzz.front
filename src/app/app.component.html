@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand navbar-dark bg-dark" *ngIf="currentUser">
   <ul class="navbar-nav mr-auto">
     <li class="nav-item">
-      <a class="nav-link" routerLink="/">Home</a>
+      <a class="nav-link" routerLink="/">Wordzz</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" routerLink="/game-center" routerLinkActive="active">Game Center</a>
@@ -26,4 +26,12 @@
 </nav>
 <div >
   <router-outlet></router-outlet>
+</div>
+<div *ngIf="connecting && currentUser" class="full-width-div bg-dark">
+  <div  *ngIf="connecting && currentUser"  class="spinner-border text-primary wait-div" role="status">
+      <span class="sr-only">Loading...</span>      
+  </div>
+  <div class="wait-text">
+    <span>Connecting to game server...</span>
+  </div>
 </div>

@@ -21,8 +21,12 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material.module';
-import { ModalComponent } from './modal/modal.component';
-import { SelectLetterModalComponent } from './components/select-letter-modal/select-letter-modal.component';
+import { ModalComponent } from './Dialogs/modal/modal.component';
+import { SelectLetterModalComponent } from './Dialogs/select-letter-modal/select-letter-modal.component';
+import { AllowedLetterDirective } from './shared/allowed-letter.directive';
+import { AddFriendModalComponent } from './Dialogs/add-friend-modal/add-friend-modal.component';
+import { ChallengesReceivedComponent } from './components/challenges-received/challenges-received.component';
+import { OngoingGamesComponent } from './components/ongoing-games/ongoing-games.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +39,11 @@ import { SelectLetterModalComponent } from './components/select-letter-modal/sel
     SideMenuComponent,
     DashboardComponent,
     ModalComponent,
-    SelectLetterModalComponent
+    SelectLetterModalComponent,
+    AllowedLetterDirective,
+    AddFriendModalComponent,
+    ChallengesReceivedComponent,
+    OngoingGamesComponent
   ],
   imports: [
     BrowserModule,

@@ -1,23 +1,24 @@
-<div>
-  <span><strong>Chat</strong></span>
-</div>
-<div #chatLog class="wz-chatcontainer overflow-auto bg-secondary">
-  <div *ngFor="let message of messages$ | async">
-    <span>{{message.sender}}: {{message.text}}</span>
+<div class="wz-chat">
+  <h4>Global Chat</h4>
+  <div #chatLog class="overflow-auto bg-secondary wz-chat-history">
+    <div *ngFor="let message of messages$ | async">
+      <div class="wz-chat-history-content">
+        <span><u>{{message.sender}}:</u> {{message.text}}</span>
+      </div>
+    </div>
   </div>
-</div>
-<div>    
-  <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" >
-    <div class="input-group">           
-        <input type="text" formControlName="message"  class="form-control"  />
-        <span>
-            <button type="submit" id="sendmessage" class="btn btn-info" [disabled]="!chatForm.valid">
-              <fa-icon [icon]="faShare" size="sm" ></fa-icon>
-            </button>
-        </span>            
-    </div>      
-  </form>
-</div>
-    
+  <div>    
+    <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" >
+      <div class="input-group wz-chat-form">           
+          <input type="text" formControlName="message"  class="form-control" placeholder="enter message here"  />
+          <span>
+              <button type="submit" id="sendmessage" class="btn btn-info" [disabled]="!chatForm.valid">
+                <fa-icon [icon]="faShare" size="sm" ></fa-icon>
+              </button>
+          </span>
+      </div>      
+    </form>
+  </div>
+</div>    
   
 

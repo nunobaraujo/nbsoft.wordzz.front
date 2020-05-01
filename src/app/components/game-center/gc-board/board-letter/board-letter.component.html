@@ -1,0 +1,10 @@
+<div class="board-letter" [class]="getClass()" [class.last-word]='lastPlay'>     
+    <div class="board-letter-value">
+        <strong>{{boardLetter.letter.value}}</strong>
+        <!--<span class="badge board-letter-value-special bonus-triple-letter">{{boardLetter.letter.value}}</span>-->
+    </div>
+    <div class="board-letter-main" >
+        {{boardLetter.letter.char}}
+    </div>    
+</div>
+

@@ -1,0 +1,18 @@
+<div id="gc-wrapper" class="d-flex">
+    <div id="gc-sidebar-wrapper" class="bg-dark">
+        <div class="gc-sidemenu bg-dark text-white">
+            <nav class="nav flex-column navbar-dark bg-dark ">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-link" routerLink="/game-center">Active Games</a>
+                    <a class="nav-link" routerLink="/game-center/newgame" >New Game</a>            
+                    <a class="nav-link" routerLink="/game-center/challenges" >Challenges</a>
+                </ul>
+            </nav>
+        </div>        
+    </div>
+    <div id="gc-page-content-wrapper" class="" >            
+        <div class="container-fluid">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

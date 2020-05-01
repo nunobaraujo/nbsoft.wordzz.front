@@ -1,0 +1,35 @@
+.friend-list-container{
+    /*height: calc(100% - 65px);
+    height: -o-calc(100% - 65px); // opera 
+    height: -webkit-calc(100% - 65px); // google, safari 
+    height: -moz-calc(100% - 65px); // firefox 
+    */
+    //min-height: 100vh;
+    min-height: calc(100vh - 52px);
+}
+.friend-list{
+    padding-top: 10px;
+}
+.wz-middle-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly ;
+    height: calc(100vh - 52px);
+}
+.wz-middle-section{
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    align-content: stretch;
+    height: calc((100vh - 52px)/2);
+}
+.wz-center-card{    
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    min-width: 100%;
+
+}
+
+

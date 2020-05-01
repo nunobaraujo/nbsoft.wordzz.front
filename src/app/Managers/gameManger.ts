@@ -1,4 +1,4 @@
-import { BehaviorSubject, of, Subscription } from 'rxjs';
+import { BehaviorSubject, of, Subscription, Observable, from } from 'rxjs';
 
 import { Game } from 'src/app/Models/game';
 import { GamePlayer } from 'src/app/Models/gamePlayer';
@@ -13,6 +13,8 @@ import { User } from '../Models/user';
 import { Board } from '../Models/board';
 import { GameLog } from '../Models/gameLog';
 import { GameLogDetails } from '../Models/gameLogDetails';
+import { Word } from '../Models/word';
+import { Letter } from '../Models/letter';
 
 export class GameManager{
     private gameSubscription:Subscription;
@@ -38,6 +40,12 @@ export class GameManager{
     private moveHistoryStore: { moves:  PlayMove[] } ={ moves: []};
     moveHistory$ = this._moveHistory.asObservable();
 
+    private _lastPlay = new BehaviorSubject<BoardTile[]>(null);
+    private lastPlayStore:{ tiles:  BoardTile[] } ={ tiles: []};
+    lastPlay$= this._lastPlay.asObservable();
+
+
+
     private _rackConnectedTiles = new BehaviorSubject<string[]>(null);  
     private rackConnectedTilesStore: { connections:  string[] } ={ connections: []};
     rackConnectedTiles$ = this._rackConnectedTiles.asObservable();
@@ -49,6 +57,7 @@ export class GameManager{
     private _currentPlayer = new BehaviorSubject<string>(null);  
     private  currentPlayer: string="";
     currentPlayer$ = this._currentPlayer.asObservable();
+
     
     constructor(private gameService:GameService, gameId:string){
         this.gameId = gameId;
@@ -58,14 +67,22 @@ export class GameManager{
             this.board = g.board;
             this.refreshGame(g);
         });
-
     }
 
     private refreshGame(game:Game){        
         console.log('game refresh:>> ', game);
         this.game = game;            
         this.player = this.getPlayer() ; 
-        this.opponent = this.getOpponent() ;        
+        this.opponent = this.getOpponent();        
+
+        var lastMove= this.game.playMoves[this.game.playMoves.length-1];
+        this.lastPlayStore.tiles = [];
+        lastMove?.words.forEach(Word => {
+            Word.letters.forEach(letter => this.lastPlayStore.tiles.push(letter.tile));
+        });
+        this._lastPlay.next(Object.assign({}, this.lastPlayStore).tiles);
+
+        
            
         // clean current letter moves
         this.currentPlaysStore ={ letters: []};
@@ -84,11 +101,12 @@ export class GameManager{
 
         // Update game log
         this.gameLogStore.logs = [];
-        this.moveHistoryStore.moves.forEach(m =>this.addMoveLog(m));        
+        this.moveHistoryStore.moves.forEach(m =>this.addMoveLog(m));                
         
         // Update current player
         this.currentPlayer = game.currentPlayer;
         this._currentPlayer.next(this.currentPlayer);
+        
 
         // update rack drag and drop connections
         this.updateRackConnections();
@@ -108,7 +126,7 @@ export class GameManager{
         }
 
         var play = new PlayLetter(tile,letter);
-        this.currentPlaysStore.letters.push(play);
+        this.currentPlaysStore.letters.push(play);        
         this._currentPlays.next(Object.assign({}, this.currentPlaysStore).letters);  
 
         this.removeFromRack(letter);
@@ -130,6 +148,9 @@ export class GameManager{
         this._currentPlays.next(Object.assign({}, this.currentPlaysStore).letters);
         
         // Add letter to Rack
+        if (play.letter.letter.isBlank){            
+            play.letter.letter.char = ' ';
+        }
         this.addToRack(play.letter);
         return true;
     }
@@ -139,10 +160,10 @@ export class GameManager{
         var oldPlay = this.currentPlaysStore.letters
             .find(pl => pl.tile.x === source.x && pl.tile.y === source.y);
         var letter = oldPlay.letter;
-
-        // validate id destination tile us free
-        // TODO: check play History
-
+        
+        let char  = letter.letter.char;
+        
+                
         // check current play
         var isTileUsed = this.currentPlaysStore.letters
             .find(pl => pl.tile.x === target.x && pl.tile.y === target.y);        
@@ -156,31 +177,15 @@ export class GameManager{
             return removed;
         }
         // add new play
+        var newLetter = new Letter();
+        Object.assign(newLetter,letter.letter);
+        if (letter.letter.isBlank){
+            newLetter.char = char;
+        }
+        letter.letter = newLetter;
         return this.newLetterPlay(target,letter);
     }
 
-    getCurrentPlayScore():number{
-        let result:number = -1;
-        let direction= this.getCurrentPlayDirection()
-        if (direction == GamePlayDirection.None){
-            return -1; // Invalid tile layout
-        }
-        
-
-        return result;
-    }
-    getCurrentPlayDirection():GamePlayDirection{
-        let distictX = [...new Set(this.currentPlaysStore.letters.map( p => p.tile.x))];
-        if (distictX.length = 1){
-            return GamePlayDirection.Vertical;
-        }
-        let distictY = [...new Set(this.currentPlaysStore.letters.map( p => p.tile.y))];
-        if (distictY.length = 1){
-            return GamePlayDirection.Horizontal;
-        }
-        return GamePlayDirection.None;
-    }
-    
     updateRackConnections(){
         var result = this.game.board.tiles.map(t =>{
             return this.getCoordinate(t);
@@ -245,8 +250,7 @@ export class GameManager{
       
 
     public play(){
-        this.gameService.play(this.game.id,this.currentPlaysStore.letters).subscribe(res=>{
-            console.log('res :>> ', res);
+        this.gameService.play(this.game.id,this.currentPlaysStore.letters).subscribe(res=>{            
             if(res.moveResult == "OK")
             {                
                 if (!!this.gameSubscription)
@@ -260,12 +264,26 @@ export class GameManager{
             else{
                 alert(res.moveResult);
             }
-
-
+        });
+    }
+    public pass(){
+        this.gameService.pass(this.game.id).subscribe(res=>{            
+            if(res.moveResult == "OK")
+            {                
+                if (!!this.gameSubscription)
+                {
+                    this.gameSubscription.unsubscribe();
+                }        
+                this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+                    this.refreshGame(g);
+                });
+            }
+            else{
+                alert(res.moveResult);
+            }
         });
     }
     public playReceived(userName:string){
-        console.log('play received :>> ', userName);
         if (!!this.gameSubscription)
         {
             this.gameSubscription.unsubscribe();
@@ -274,24 +292,29 @@ export class GameManager{
             this.refreshGame(g);
         });
     }
-        
+    
+
     private addMoveLog(move:PlayMove){
         var logEntry = new GameLog();
         logEntry.sender = move.player;
         logEntry.date = Date.now.toString();
         logEntry.score = move.score;
-        logEntry.details = [];
-        move.words.forEach(w => {
-            let word :string = w.letters.map(l => l.letter.letter.char).join()
-            let pWord  =  word.split(",").join("");
-            var detail = new GameLogDetails();
-            detail.word = pWord;
-            detail.title = w.description;
-            detail.score = w.score;            
-            logEntry.details.push(detail);            
-        });
+        logEntry.details = [];        
+        if (move.words.length>0){
+            move.words.forEach(w => {
+                let word :string = w.letters.map(l => l.letter.letter.char).join()
+                let pWord  =  word.split(",").join("");
+                var detail = new GameLogDetails();           
+                detail.word = pWord;
+                detail.title = w.description;
+                detail.score = w.score;            
+                logEntry.details.push(detail);              
+            });
+        }        
+        
         this.gameLogStore.logs.push(logEntry);
-        this._gameLog.next(Object.assign({}, this.gameLogStore).logs);
+        this._gameLog.next(Object.assign({}, this.gameLogStore).logs);    
+                
     }
 
     private addToRack(letter:BoardLetter):void{
@@ -305,5 +328,6 @@ export class GameManager{
             this._activeRack.next(Object.assign({}, this.activeRackStore).rack);
         }
     }
+    
 
 }

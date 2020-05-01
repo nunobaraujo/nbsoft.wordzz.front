@@ -3,33 +3,34 @@ import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
-import { GameCenterComponent } from './game-center/game-center.component';
-import { GameCenterHomeComponent } from './game-center-home/game-center-home.component';
-import { GameCenterActiveGameListComponent } from './game-center-active-game-list/game-center-active-game-list.component';
-import { GameCenterGameComponent } from './game-center-game/game-center-game.component';
 
 import { GameCenterRoutingModule } from './game-center-routing.module';
-import { GameCenterNewGameComponent } from './game-center-new-game/game-center-new-game.component';
-import { GameCenterChallengeListComponent } from './game-center-challenge-list/game-center-challenge-list.component';
-import { GridTileComponent } from './board/grid-tile/grid-tile.component';
-import { GridBoardComponent } from './board/grid-board/grid-board.component';
-import { RackComponent } from './board/rack/rack.component';
-import { BoardLetterComponent } from './board/board-letter/board-letter.component';
+import { GridTileComponent } from './gc-board/grid-tile/grid-tile.component';
+import { GridBoardComponent } from './gc-board/grid-board/grid-board.component';
+import { RackComponent } from './gc-board/rack/rack.component';
+import { BoardLetterComponent } from './gc-board/board-letter/board-letter.component';
+
+import { GcRootComponent } from './gc-root/gc-root.component';
+import { GcNewGameComponent } from './gc-new-game/gc-new-game.component';
+import { GcHomeComponent } from './gc-home/gc-home.component';
+import { GcGameComponent } from './gc-game/gc-game.component';
+import { GcChallengesComponent } from './gc-challenges/gc-challenges.component';
+import { GcActiveGamesComponent } from './gc-active-games/gc-active-games.component';
 
 
 
 @NgModule({
   declarations: [
-    GameCenterComponent,
-    GameCenterHomeComponent,
-    GameCenterActiveGameListComponent,
-    GameCenterGameComponent,
-    GameCenterNewGameComponent,
-    GameCenterChallengeListComponent,
+    GcRootComponent,
+    GcHomeComponent,
+    GcNewGameComponent,
+    GcGameComponent,    
+    GcChallengesComponent,
+    GcActiveGamesComponent,
     GridTileComponent,
     GridBoardComponent,
     RackComponent,
-    BoardLetterComponent
+    BoardLetterComponent    
   ],
   imports: [
     CommonModule,
