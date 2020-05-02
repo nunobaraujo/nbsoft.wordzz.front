@@ -96,12 +96,18 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   }
 
    getPlayerName():string{
+    if (!this.gameManager.player){
+      return "";
+    }
     if(!!this.gameManager.player.firstName ){
       return `${this.gameManager.player.firstName} ${this.gameManager.player.lastName} (${this.gameManager.player.userName})`
     }
     return this.gameManager.player.userName;
   }
    getOpponentName():string{
+    if (!this.gameManager.player){
+      return "";
+    }
     if(!!this.gameManager.opponent.firstName ){
       return `${this.gameManager.opponent.firstName} ${this.gameManager.opponent.lastName} (${this.gameManager.opponent.userName})`
     }

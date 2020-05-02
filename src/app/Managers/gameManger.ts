@@ -70,7 +70,7 @@ export class GameManager{
     }
 
     private refreshGame(game:Game){        
-        console.log('game refresh:>> ', game);
+        
         this.game = game;            
         this.player = this.getPlayer() ; 
         this.opponent = this.getOpponent();        

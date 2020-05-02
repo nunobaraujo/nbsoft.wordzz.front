@@ -1,7 +1,7 @@
 <div>
     <ul class="nav nav-pills" >
         <li class="nav-item ">
-          <a class="nav-link "  [routerLink]="['/game-center']" routerLinkActive="active"  [routerLinkActiveOptions]="{exact:true}" >Game Center</a>
+          <a class="nav-link "  [routerLink]="['/game-center']" routerLinkActive="active"  [routerLinkActiveOptions]="{exact:true}" >Game Center Home</a>
         </li>
         
         <li *ngFor="let game of games$ | async" class="nav-item " >            

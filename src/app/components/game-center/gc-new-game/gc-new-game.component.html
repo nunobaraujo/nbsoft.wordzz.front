@@ -4,7 +4,8 @@
         <div class="list-group-item d-flex justify-content-between align-items-center bg-secondary text-white">
             Solo Game
             <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
-                <button type="button" title="Start Solo Game" class="btn btn-primary  flex-row-reverse" (click)="startSoloGame($event)">
+                <button type="button" title="Start Solo Game" class="btn btn-primary  flex-row-reverse" 
+                    (click)="onStartSoloGame($event)">
                     <fa-icon [icon]="faTrophy" size="sm" ></fa-icon>
                 </button>
             </div>
@@ -12,7 +13,8 @@
         <div *ngFor="let friend of onlineFriends$ |async " class="list-group-item d-flex justify-content-between align-items-center ">
             {{friend}}
             <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
-                <button [disabled]="hasChallenge(friend)" type="button" title="Start Game with {{friend}}" class="btn btn-success  flex-row-reverse" (click)="startGame($event, friend)" >
+                <button [disabled]="hasChallenge(friend)" type="button" title="Start Game with {{friend}}" class="btn btn-success  flex-row-reverse" 
+                    (click)="onStartGame($event, friend)" >
                     <span *ngIf="hasChallenge(friend)" class="spinner-border spinner-border-sm mr-1"></span>
                     <fa-icon [icon]="faTrophy" size="sm" ></fa-icon>
                 </button>
@@ -27,3 +29,6 @@
         </div>
     </div>
 </div>
+<footer style="padding-top: 20px;">
+    <a routerLink="/game-center">Back to Game Centre</a>
+</footer>

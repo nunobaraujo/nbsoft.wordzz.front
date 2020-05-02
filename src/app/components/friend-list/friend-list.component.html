@@ -1,6 +1,6 @@
 <div class="col-12 friend-menu-header justify-content-between align-items-center">    
     <span class="d-inline-block"><strong>Friends</strong></span>
-    <button type="button" title="Add Friend" class="btn d-flex float-right btn-sm btn-success friend-menu-btn-md" (click)='openAddFriendDialog($event)'>
+    <button type="button" title="Add Friend" class="btn d-flex float-right btn-sm btn-success friend-menu-btn-md" (click)='onAddFriend($event)'>
         <fa-icon [icon]="faUserFriends" size="sm" ></fa-icon>
     </button>    
 </div>
@@ -22,15 +22,20 @@
                     <!--<i class="fas fa-fw fa-menu-dimdark fa-user-slash"></i>-->
                     <fa-icon [icon]="faUser" size="lg"></fa-icon>
                 </button>
-                <div class="dropdown-menu bg-secondary" aria-labelledby="contact">
-                    <a class="dropdown-item bg-secondary text-white" (click)="confirmRemoveFriend($event,contact)">
-                        <fa-icon class ="friend-menu-btn-sm" [icon]="faUserSlash" size="lg"></fa-icon>
-                        Remove {{contact}} from friend list
-                    </a>
-                    <a class="dropdown-item friend-menu-item bg-secondary text-white" href="#">
+                <div class="dropdown-menu bg-secondary" aria-labelledby="contact">                    
+                    <a [class.disabled] = "playerHasGame(contact)" class="dropdown-item friend-menu-item bg-secondary text-white" (click)="onStartGame($event, contact)">
                         <fa-icon class ="friend-menu-btn-sm" [icon]="faTrophy" size="lg"></fa-icon>
                         Start Game with {{contact}}
                     </a>                    
+                    <a [class.disabled] = "!playerHasGame(contact)" class="dropdown-item friend-menu-item bg-secondary text-white" (click)="onGotoGame($event, contact)">
+                        <fa-icon class ="friend-menu-btn-sm" [icon]="faTrophy" size="lg"></fa-icon>
+                        Go to game with {{contact}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item bg-secondary text-white" (click)="onRemoveFriend($event,contact)">
+                        <fa-icon class ="friend-menu-btn-sm" [icon]="faUserSlash" size="lg"></fa-icon>
+                        Remove {{contact}} from friend list
+                    </a>
                 </div>
             </div>
             {{contact}}                    
@@ -42,7 +47,7 @@
     <ul class="list-group">
         <li *ngFor="let contact of offlineContacts" class="list-group-item list-group-item-action d-flex justify-content-left align-items-center friend-menu-item bg-secondary text-dark">            
             <!--<button type="button" title="Remove Friend" class="btn d-flex flex-row-reverse btn-sm btn-danger friend-menu-btn-xs" >-->
-            <button type="button" title="Remove Friend" class="btn btn-secondary friend-menu-btn-xs" (click)="confirmRemoveFriend($event,contact)">
+            <button type="button" title="Remove Friend" class="btn btn-secondary friend-menu-btn-xs" (click)="onRemoveFriend($event,contact)">
                 <!--<i class="fas fa-fw fa-menu fa-user-slash"></i>-->
                 <fa-icon [icon]="faUserSlash" size="lg"></fa-icon>
             </button>

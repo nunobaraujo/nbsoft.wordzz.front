@@ -17,7 +17,11 @@ const gameCenterRoutes: Routes = [
     children: [
       {
         path: 'newgame',
-        component: GcNewGameComponent
+        component: GcNewGameComponent,        
+      },
+      {
+        path: 'newgame/:id',
+        component:GcNewGameComponent
       },
       {
         path: 'challenges',

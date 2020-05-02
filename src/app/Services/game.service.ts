@@ -49,10 +49,11 @@ export class GameService implements OnDestroy {
   private onlineOpponentsStore: { opponents: string[] } = { opponents: [] }; 
   onlineOpponents$ = this. _onlineOpponents.asObservable();
 
-  private _receivedChallenges = new BehaviorSubject<GameChallenge[]>(null);
-  private _lastReceivedChallenge = new BehaviorSubject<GameChallenge>(null);
+  private _receivedChallenges = new BehaviorSubject<GameChallenge[]>(null);  
   private receivedChallengeStore: { challenges:  GameChallenge[] } ={ challenges: []};
   receivedChallenges$ = this._receivedChallenges.asObservable();
+  
+  private _lastReceivedChallenge = new BehaviorSubject<GameChallenge>(null);
   lastReceivedChallenge$ = this._lastReceivedChallenge.asObservable();
 
   private _sentChallenges = new BehaviorSubject<GameChallenge[]>(null);  
@@ -105,18 +106,15 @@ export class GameService implements OnDestroy {
   {    
     try {
       let res = await this.hubConnection
-        .invoke('challengeGame', language, friend, size);
-      let result: string = res;
-
+        .invoke('challengeGame', language, friend, size)      
+      
       var c = new GameChallenge();
-      c.id = result;
-      c.challenger = friend;
-      c.language = language;
-      c.size = size;
+      Object.assign(c,res );
+      console.log('Challenge :>> ',  c);
 
       this.sentChallengeStore.challenges.push(c);
       this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
-      return result;
+      return  c.id;
     }
     catch (err) {
       console.error(err);
@@ -169,6 +167,7 @@ export class GameService implements OnDestroy {
     }
     return null;    
   }
+  
   public getGame(id: string) {
     if (this._isConnected.value == true){
       return this.getActiveGames().pipe(
@@ -208,6 +207,7 @@ export class GameService implements OnDestroy {
     }
     return null;    
   }
+  
   
   public play(gameId:string, letters: PlayLetter[]):Observable<PlayResult>{
     let request = new PlayRequest();
@@ -252,26 +252,7 @@ export class GameService implements OnDestroy {
       return from(promise);
   }
 
-
-  private initializeService(): void {    
-    this.updateOnlineContacts();
-
-    this.hubConnection.invoke('GetActiveGames')
-      .then(games=>{        
-        console.log("ActiveGames Changed");  
-        this.activeGamesStore.games = games;
-        this.updateGameManagers()
-        console.log("gameManagersStore:", this.gameManagersStore.gameManagers.length);
-        this.updateOnlineOpponents()
-      })
-      .catch(err =>  {          
-        this.activeGamesStore.games = [];
-        this.gameManagersStore.gameManagers = [];
-        this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
-      });
-  }
-
-  updateOnlineContacts(){
+  public updateOnlineContacts(){
     this.hubConnection.invoke('GetOnlineContacts')
       .then(result => {
         this.onlineFriendStore.friends = result;
@@ -282,6 +263,50 @@ export class GameService implements OnDestroy {
         this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
       });    
   }
+
+
+  private initializeService(): void {    
+    this.updateOnlineContacts();
+
+    this.hubConnection.invoke('GetActiveGames')
+      .then(games=>{        
+        console.log("ActiveGames Changed");  
+        this.activeGamesStore.games = games;
+        this.updateGameManagers()        
+        this.updateOnlineOpponents()
+      })
+      .catch(err =>  {          
+        console.error(err);
+        this.activeGamesStore.games = [];
+        this.gameManagersStore.gameManagers = [];
+        this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
+      });
+
+      this.hubConnection.invoke('GetSentChallenges').then(challenges=>{                
+        this.sentChallengeStore.challenges = challenges;        
+        console.log("sentChallengeStore:", this.sentChallengeStore.challenges);
+        this._sentChallenges.next(Object.assign({}, this.sentChallengeStore).challenges);        
+      })
+      .catch(err =>  {          
+        console.error(err);
+        this.sentChallengeStore.challenges = [];
+        this._sentChallenges.next(Object.assign({}, this.sentChallengeStore).challenges);
+      });
+
+      this.hubConnection.invoke('GetReceivedChallenges').then(challenges=>{
+        this.receivedChallengeStore.challenges = challenges;        
+        console.log("getReceivedChallenges:", this.receivedChallengeStore.challenges);
+        this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
+      })
+      .catch(err =>  {          
+        console.error(err);
+        this.receivedChallengeStore.challenges = [];
+        this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
+      });    
+
+  }
+
+  
 
   private updateGameManagers(){
     // Check new Games
@@ -398,15 +423,10 @@ export class GameService implements OnDestroy {
     });
 
     // On challenge received
-    this.hubConnection.on('newChallenge', (id:string, username:string, language:string, size :number) => {
+    this.hubConnection.on('newChallenge', (challenge:GameChallenge) => {
       
-      console.log('Challenge received from :', username);
-      var challenge = new GameChallenge();
-      challenge.id = id;
-      challenge.challenger = username;
-      challenge.language = language;
-      challenge.size = size;
-
+      console.log('Challenge received from :', challenge);
+      
       this.receivedChallengeStore.challenges.push(challenge);      
       this._receivedChallenges.next(Object.assign({},this.receivedChallengeStore).challenges);
       this._lastReceivedChallenge.next(challenge);      
@@ -419,14 +439,15 @@ export class GameService implements OnDestroy {
       result.challenge = sChallenge;
       result.accepted = accept;
       result.gameId = gameId;
+
+      console.log('challengeAccepted :>> ', result);
       
       var sChallengeIndex = this.sentChallengeStore.challenges.findIndex(c => c.id == challengeId);
       if (sChallengeIndex !== -1)
       {
         this.sentChallengeStore.challenges.splice(sChallengeIndex,1);
         this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
-      }
-      console.log('challenge result :', sChallenge.challenger, accept);
+      }      
       this._sentChallengesResult.next( result);
      
     });
@@ -451,7 +472,7 @@ export class GameService implements OnDestroy {
 
   
   private addOnlineFriend(name:string ):void{
-    console.log('User Joined :', name);
+    //console.log('User Joined :', name);
     if (this.friends.includes(name))
     {      
       this.onlineFriendStore.friends.push(name);
@@ -465,7 +486,7 @@ export class GameService implements OnDestroy {
     });
   }
   private removeOnlineFriend(name:string ):void{
-    console.log('User Left :', name);
+    //console.log('User Left :', name);
     const index: number = this.onlineFriendStore.friends.indexOf(name);
     if (index !== -1) {
         this.onlineFriendStore.friends.splice(index, 1);

@@ -21,7 +21,7 @@ export class AppComponent  implements OnInit, OnDestroy{
   connecting: boolean= true;
   
   private socketsConnectedSubscription:Subscription;
-  private challengeReceivedSubscription:Subscription;
+  //private challengeReceivedSubscription:Subscription;
   
   constructor(private router: Router,    
     private authenticationService: AuthenticationService,
@@ -34,15 +34,18 @@ export class AppComponent  implements OnInit, OnDestroy{
         console.log('Connected!');        
         this.connecting = false;
         this.onlineContacts = this.gameService.onlineFriends$;
-        this.challengeReceivedSubscription = this.gameService.lastReceivedChallenge$.subscribe(res => {
-          if (!!res){                        
-            let txt:string  = "You received a challenge from "+res.challenger+"!\nDo you accept the challenge?";            
-            var accepted = confirm(txt);
-            if (accepted) {
-              this.router.navigateByUrl("/game-center/challenges")
-            }            
-          }
-        });        
+        /*if (!!this.challengeReceivedSubscription ){
+          this.challengeReceivedSubscription = this.gameService.lastReceivedChallenge$.subscribe(res => {
+            if (!!res){                        
+              let txt:string  = "You received a challenge from "+res.challenger+"!\nDo you accept the challenge?";            
+              var accepted = confirm(txt);
+              if (accepted) {
+                this.router.navigateByUrl("/game-center/challenges")
+              }            
+            }
+          });       
+        }*/
+         
       }
       else{
         this.connecting = true;
@@ -56,10 +59,7 @@ export class AppComponent  implements OnInit, OnDestroy{
 
   }
   ngOnDestroy(): void {
-    this.socketsConnectedSubscription.unsubscribe();
-    if (!!this.challengeReceivedSubscription){
-      this.challengeReceivedSubscription.unsubscribe();
-    }
+    this.socketsConnectedSubscription.unsubscribe();    
   }
   logout() {
     this.authenticationService.logout();

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GameService } from 'src/app/Services/game.service';
-import { faThumbsUp,faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { faThumbsUp,faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+import { GameService } from 'src/app/Services/game.service';
 
 @Component({
   selector: 'app-challenges-received',
@@ -24,7 +24,7 @@ export class ChallengesReceivedComponent implements OnInit,OnDestroy {
         this.hasChallenges = c.length >0;
       }
       else{
-        this.hasChallenges = false;dfsdfssdf
+        this.hasChallenges = false;
       }
       
     });
@@ -43,7 +43,9 @@ export class ChallengesReceivedComponent implements OnInit,OnDestroy {
     this.gameService.acceptChallenge(challengeId, true).subscribe(gameId => {    
       if (!!gameId){
         let gameUrl:string = "/game-center/"+gameId;
-        this.router.navigateByUrl(gameUrl);
+        setTimeout(() => {
+          this.router.navigateByUrl(gameUrl);
+        }, 100);
       }      
     });    
   }

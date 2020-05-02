@@ -15,6 +15,9 @@
 .friend-menu-item {
     height:30px;
 }
+.friend-menu-item .disabled {
+  color:black !important;
+}
 .friend-menu-btn-xs{
   font-size: 0.6rem;
 }
@@ -25,3 +28,4 @@
 .friend-menu-btn-md{
   font-size: 1rem;
 }
+

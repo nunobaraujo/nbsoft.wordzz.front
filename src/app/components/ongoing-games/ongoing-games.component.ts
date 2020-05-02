@@ -3,6 +3,7 @@ import { GameService } from 'src/app/Services/game.service';
 import { Observable, Subscription } from 'rxjs';
 import { Game } from 'src/app/Models/game';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-ongoing-games',
@@ -13,26 +14,41 @@ export class OngoingGamesComponent implements OnInit, OnDestroy {
   faTrophy = faTrophy;
   games$: Observable<Game[]>;
   games:Game[];
+  private gameServiceConnectedSubscription:Subscription;
   private gameSubscription:Subscription;    
   
-  constructor(public gameService:GameService) {
+  constructor(private router:Router,public gameService:GameService) {
     
    }
   
   ngOnInit(): void {
-    this.games$ = this.gameService.getActiveGames();
-    this.gameSubscription = this.games$.subscribe(g =>{ 
-      this.games = g;
+    this.gameServiceConnectedSubscription = this.gameService.isConnected$.subscribe(connected => {
+      if (connected){
+        this.games$ = this.gameService.getActiveGames();
+        this.gameSubscription = this.games$.subscribe(g =>{ 
+          this.games = g;          
+        });
+      }
+      else{
+        if (!!this.gameSubscription){
+          this.gameSubscription.unsubscribe();
+        }
+      }      
     });
+    
   }
   ngOnDestroy(): void {
+    this.gameServiceConnectedSubscription.unsubscribe();
     if (!!this.gameSubscription){
       this.gameSubscription.unsubscribe();
     }
   }
 
-  gotoGame($event, gameId:string){
-    console.log('gameId :>> ', gameId);
+  gotoGame($event, gameId:string){    
+    let gameUrl:string = "/game-center/"+gameId;
+        setTimeout(() => {
+          this.router.navigateByUrl(gameUrl);  
+        }, 100);
   }
 
   getOpponent(gameId:string):string{

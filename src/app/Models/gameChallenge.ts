@@ -1,6 +1,7 @@
 export class GameChallenge {    
     id:string;
-    challenger:string;
+    origin:string;
+    destination:string;
     language:string;
     size:number;
 }

@@ -1,28 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GameService } from 'src/app/Services/game.service';
 import { Observable, Subscription } from 'rxjs';
-import { GameChallenge } from 'src/app/Models/gameChallenge';
 import { Router } from '@angular/router';
+import { faThumbsUp,faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 
-@Component({
+import { GameChallenge } from 'src/app/Models/gameChallenge';
+import { GameService } from 'src/app/Services/game.service';
+
+@Component({  
   selector: 'app-gc-challenges',
   templateUrl: './gc-challenges.component.html',
   styleUrls: ['./gc-challenges.component.scss']
 })
 export class GcChallengesComponent implements OnInit, OnDestroy {
-  private subscription:Subscription;
-  challengeList$:Observable<GameChallenge[]>  
-  challengeList:GameChallenge[];  
+  faThumbsUp = faThumbsUp;
+  faThumbsDown = faThumbsDown;
+  private receivedChallengesSubscription:Subscription;  
+  receivedChallenges$:Observable<GameChallenge[]>  
+  receivedChallenges:GameChallenge[];  
+
+  private sentChallengesSubscription:Subscription;
+  sentChallenges$:Observable<GameChallenge[]>  
+  sentChallenges:GameChallenge[];  
+
   constructor(private router:Router, private gameService:GameService) {
-    this.challengeList$ = gameService.receivedChallenges$;
-    this.subscription = this.challengeList$.subscribe(c => this.challengeList = c);
+    this.receivedChallenges$ = gameService.receivedChallenges$;
+    this.receivedChallengesSubscription = this.receivedChallenges$.subscribe(c => this.receivedChallenges = c);
     
+    this.sentChallenges$ = gameService.sentChallenges$;
+    this.sentChallengesSubscription = this.sentChallenges$.subscribe(c => this.sentChallenges = c);
    }
   
   ngOnInit(): void {
   }
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.receivedChallengesSubscription.unsubscribe();
+    this.sentChallengesSubscription.unsubscribe();
+  }
+
+  hasChallenges():boolean{
+    if (!this.receivedChallenges || this.receivedChallenges.length<1){
+      return false;
+    }
+    return true;    
+  }
+  hasSentChallenges():boolean{
+    if (!this.sentChallenges || this.sentChallenges.length<1){
+      return false;
+    }
+    return true;    
   }
 
   acceptChallenge($event: any, challengeId:string)
@@ -30,7 +55,9 @@ export class GcChallengesComponent implements OnInit, OnDestroy {
     this.gameService.acceptChallenge(challengeId, true).subscribe(gameId => {    
       if (!!gameId){
         let gameUrl:string = "/game-center/"+gameId;
-        this.router.navigateByUrl(gameUrl);
+        setTimeout(() => {
+          this.router.navigateByUrl(gameUrl);  
+        }, 1000);        
       }      
     });    
   }

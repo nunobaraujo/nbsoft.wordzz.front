@@ -4,7 +4,7 @@ import { Observable, Subscription } from 'rxjs';
 import { GameChallenge } from 'src/app/Models/gameChallenge';
 import { faTrophy} from '@fortawesome/free-solid-svg-icons';
 import { GameChallengeResult } from 'src/app/Models/gameChallengeResult';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-gc-new-game',
@@ -20,9 +20,10 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   faTrophy = faTrophy;
   onlineFriends$: Observable<string[]>;  
   sentChallengesResults: string[]=[];
-  isWaiting: string[]=[];
+  //isWaiting: string[]=[];
+  newOpponent:string;
   
-  constructor(private router:Router, private gameService:GameService) {     
+  constructor(private router:Router, private gameService:GameService, private route: ActivatedRoute) {         
     this.onlineFriends$ = this.gameService.onlineFriends$;
     this.sentChallenges$ = this.gameService.sentChallenges$;
     this.sentChallengesResult$ = this.gameService.sentChallengesResult$;
@@ -31,14 +32,10 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
     });
 
     this.sentChallengeResultsSubscription = this.sentChallengesResult$.subscribe(cres =>{
-      if (!!cres){
-        var waitingIndex = this.isWaiting.findIndex(u => u === cres.challenge.challenger);
-        if (waitingIndex !== -1){
-          this.isWaiting.splice(waitingIndex,1);
-        }
+      if (!!cres){        
 
         if (cres.accepted){
-          this.sentChallengesResults.push(cres.challenge.challenger + " accepted your challenge. Game starting in 3 seconds...");
+          this.sentChallengesResults.push(cres.challenge.destination + " accepted your challenge. Game starting in 3 seconds...");
           setTimeout(() =>{
             let gameUrl:string = "/game-center/"+cres.gameId;
             this.router.navigateByUrl(gameUrl);
@@ -46,14 +43,17 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
           ,3000);
         }
         else{
-          this.sentChallengesResults.push(cres.challenge.challenger + " refused your challenge.");
+          this.sentChallengesResults.push(cres.challenge.destination + " refused your challenge.");
         }
       }        
     });
     
   } 
-  ngOnInit(): void {
-    
+  ngOnInit(): void {   
+    this.newOpponent = this.route.snapshot.paramMap.get('id');
+    if (!!this.newOpponent) {
+      this.startGame(this.newOpponent)
+    }
   }
   ngOnDestroy(): void {
     this.sentChallengesSubscription.unsubscribe();
@@ -61,26 +61,26 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   }
 
 
-  startGame($event: any,friend:string ){
-    this.isWaiting.push(friend);
+  onStartGame($event: any,friend:string ){
+    this.startGame(friend);
+  }
+  onStartSoloGame($event: any){    
+    this.gameService.newSoloGame()
+  }
+
+  private startGame(friend:string){    
     this.gameService.challengeGame('en-us',friend,15).then(res => {
-      console.log('New Challenge :', res);
+      console.log('Sent New Challenge :', res);
     });
   }
-  startSoloGame($event: any){
-    console.log('solo game :', $event);
+  private startSoloGame($event: any){    
     this.gameService.newSoloGame()
   }
 
   hasChallenge(friendName:string):boolean
-  {    
-    var waitingIndex = this.isWaiting.findIndex(u => u === friendName);
-    if (waitingIndex !== -1){
-      return true
-    }
-
+  { 
     if (!!this.sentChallenges){
-      let isChallenge = this.sentChallenges.find((c) => c.challenger===friendName);            
+      let isChallenge = this.sentChallenges.find((c) => c.destination===friendName);            
       return  !!isChallenge;
     }
     return false;

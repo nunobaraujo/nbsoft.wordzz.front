@@ -1,0 +1,20 @@
+.wz-home-container{    
+    min-height: 400px;
+    border-radius: 6px;
+}
+.wz-home-game-item{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+.wz-home-game-item-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.wz-home-action-item{
+    max-width: 250px;
+}
