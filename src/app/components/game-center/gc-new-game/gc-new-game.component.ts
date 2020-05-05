@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GameService } from 'src/app/Services/game.service';
 import { Observable, Subscription } from 'rxjs';
 import { GameChallenge } from 'src/app/Models/gameChallenge';
-import { faTrophy} from '@fortawesome/free-solid-svg-icons';
+import { faTrophy, faUserFriends, faSearch} from '@fortawesome/free-solid-svg-icons';
 import { GameChallengeResult } from 'src/app/Models/gameChallengeResult';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -18,9 +18,10 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   private sentChallengesResult$: Observable<GameChallengeResult>
   private sentChallengeResultsSubscription: Subscription;
   faTrophy = faTrophy;
+  faUserFriends = faUserFriends;
+  faSearch = faSearch;
   onlineFriends$: Observable<string[]>;  
-  sentChallengesResults: string[]=[];
-  //isWaiting: string[]=[];
+  sentChallengesResults: string[]=[];  
   newOpponent:string;
   
   constructor(private router:Router, private gameService:GameService, private route: ActivatedRoute) {         
@@ -65,7 +66,10 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
     this.startGame(friend);
   }
   onStartSoloGame($event: any){    
-    this.gameService.newSoloGame()
+    this.startSoloGame();
+  }
+  onSearchGame($event: any){
+
   }
 
   private startGame(friend:string){    
@@ -73,7 +77,7 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
       console.log('Sent New Challenge :', res);
     });
   }
-  private startSoloGame($event: any){    
+  private startSoloGame(){    
     this.gameService.newSoloGame()
   }
 

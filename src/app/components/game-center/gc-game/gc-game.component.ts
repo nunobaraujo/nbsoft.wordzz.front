@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from 'src/app/Services/game.service';
 import { GameManager } from 'src/app/Managers/gameManger';
 import { Observable, Subscription, from } from 'rxjs';
 import { GameLog } from 'src/app/Models/gameLog';
-import { GameLogDetails } from 'src/app/Models/gameLogDetails';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-gc-game',
@@ -13,6 +13,7 @@ import { GameLogDetails } from 'src/app/Models/gameLogDetails';
 })
 export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   @ViewChild('gameLog') private myScrollContainer: ElementRef;
+  faTimesCircle = faTimesCircle;
   loading = false;
   currentUserName:string;
   gameManager:GameManager;  
@@ -20,6 +21,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   currentPlayerSubscription:Subscription;
   onlineOpponentsSubscription:Subscription;
   routeSubscription:Subscription;
+  gameOverSubscription:Subscription;
 
   gameLogs$: Observable<GameLog[]>;  
   
@@ -28,16 +30,31 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
 
   isOpponentOnline = false;
 
-  constructor(private route: ActivatedRoute, private gameService:GameService ) {    
+  constructor(private route: ActivatedRoute, private gameService:GameService, router:Router ) {    
     this.currentUserName = this.gameService.currentUser.username;
     
-
+    if(!!this.routeSubscription){
+      this.routeSubscription.unsubscribe();  
+    }
     this.routeSubscription = this.route.data
     .subscribe((data) => {
       this.loading = true;
       this.gameManager = this.gameService.getManager(data.game.id);           
       this.gameLogs$ = this.gameManager.gameLog$;         
-            
+      if (!!this.gameOverSubscription){
+        this.gameOverSubscription.unsubscribe();
+      }
+      this.gameOverSubscription = this.gameManager.gameEnded$.subscribe(e =>{
+        if(!!e){
+          alert(e);
+          this.loading = true;
+          router.navigate(['/game-center']);
+        }
+      });
+      
+      if(!!this.currentPlayerSubscription){
+        this.currentPlayerSubscription.unsubscribe();
+      }
       this.currentPlayerSubscription = this.gameManager.currentPlayer$.subscribe(p =>{ 
         this.playLocked = p !== this.currentUserName;
         this.currentPlayerName = p;
@@ -45,6 +62,9 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
           this.loading = false;      
         });          
       });      
+      if(!!this.onlineOpponentsSubscription){
+        this.onlineOpponentsSubscription.unsubscribe();
+      }
       this.onlineOpponentsSubscription = this.gameService.onlineOpponents$.subscribe(opponent =>{
         this.isOpponentOnline = opponent.findIndex(f => this.gameManager.getOpponent().userName ) !== -1;        
       }); 
@@ -60,18 +80,29 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   ngOnDestroy(): void {
     this.currentPlayerSubscription.unsubscribe();
     this.routeSubscription.unsubscribe();
+    this.gameOverSubscription.unsubscribe();
+    this.onlineOpponentsSubscription.unsubscribe();
   }
   
-  play():void{    
-    this.gameManager.play();    
+  onPlay():void{    
+    this.playLocked = true;
+    this.gameManager.play().then(() => this.playLocked = false);
+    
   }
-  pass():void{    
+  onPass():void{    
     var r = confirm("Are you sure you want to pass your turn?");
     if (r == true) {
       this.gameManager.pass();    
-    }
-    
+    }    
   }
+  onForfeit():void{
+    var r = confirm("Forfeiting a game counts as a loss.\nAre you sure you want to forfeit this game?");
+    if (r == true) {
+      this.gameManager.forfeit();    
+    }    
+
+  }
+
   getLogClass(log:GameLog):string{
     if(log.sender == this.currentUserName){
       return "game-container-log-player";

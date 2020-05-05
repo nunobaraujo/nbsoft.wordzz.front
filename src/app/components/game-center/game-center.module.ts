@@ -16,6 +16,7 @@ import { GcHomeComponent } from './gc-home/gc-home.component';
 import { GcGameComponent } from './gc-game/gc-game.component';
 import { GcChallengesComponent } from './gc-challenges/gc-challenges.component';
 import { GcActiveGamesComponent } from './gc-active-games/gc-active-games.component';
+import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component';
 
 
 
@@ -30,7 +31,8 @@ import { GcActiveGamesComponent } from './gc-active-games/gc-active-games.compon
     GridTileComponent,
     GridBoardComponent,
     RackComponent,
-    BoardLetterComponent    
+    BoardLetterComponent,
+    GcGameStatusComponent    
   ],
   imports: [
     CommonModule,

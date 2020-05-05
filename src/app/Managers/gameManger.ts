@@ -15,6 +15,8 @@ import { GameLog } from '../Models/gameLog';
 import { GameLogDetails } from '../Models/gameLogDetails';
 import { Word } from '../Models/word';
 import { Letter } from '../Models/letter';
+import { GameResult } from '../Models/gameResult';
+import { ThrowStmt } from '@angular/compiler';
 
 export class GameManager{
     private gameSubscription:Subscription;
@@ -58,6 +60,9 @@ export class GameManager{
     private  currentPlayer: string="";
     currentPlayer$ = this._currentPlayer.asObservable();
 
+    private _gameEnded = new BehaviorSubject<GameResult>(null);    
+    gameEnded$ = this._gameEnded.asObservable();
+
     
     constructor(private gameService:GameService, gameId:string){
         this.gameId = gameId;
@@ -68,50 +73,7 @@ export class GameManager{
             this.refreshGame(g);
         });
     }
-
-    private refreshGame(game:Game){        
-        
-        this.game = game;            
-        this.player = this.getPlayer() ; 
-        this.opponent = this.getOpponent();        
-
-        var lastMove= this.game.playMoves[this.game.playMoves.length-1];
-        this.lastPlayStore.tiles = [];
-        lastMove?.words.forEach(Word => {
-            Word.letters.forEach(letter => this.lastPlayStore.tiles.push(letter.tile));
-        });
-        this._lastPlay.next(Object.assign({}, this.lastPlayStore).tiles);
-
-        
-           
-        // clean current letter moves
-        this.currentPlaysStore ={ letters: []};
-        this._currentPlays.next(Object.assign({}, this.currentPlaysStore).letters);  
-    
-        // assign current rack to observable
-        this.initialRack = this.player.rack.map((l,index) =>{
-            return new BoardLetter(index,l,this.player.userName);
-        });
-        Object.assign(this.activeRackStore.rack, this.initialRack);
-        this._activeRack.next(Object.assign({}, this.activeRackStore).rack);
-
-        // assign move history to observable
-        this.moveHistoryStore.moves = this.game.playMoves;
-        this._moveHistory.next(Object.assign({}, this.moveHistoryStore).moves);
-
-        // Update game log
-        this.gameLogStore.logs = [];
-        this.moveHistoryStore.moves.forEach(m =>this.addMoveLog(m));                
-        
-        // Update current player
-        this.currentPlayer = game.currentPlayer;
-        this._currentPlayer.next(this.currentPlayer);
-        
-
-        // update rack drag and drop connections
-        this.updateRackConnections();
-    }
-        
+            
     getCoordinate(tile:BoardTile){
         return `${tile.x}-${tile.y}`
     }
@@ -238,7 +200,7 @@ export class GameManager{
         else{
           return this.game.player01;
         }
-      }
+    }
     public getPlayer():GamePlayer{        
         if( this.currentUser.username == this.game.player01.userName){
           return this.game.player01;
@@ -246,11 +208,27 @@ export class GameManager{
         else{
           return this.game.player02;
         }
-      }
+    }
       
 
-    public play(){
-        this.gameService.play(this.game.id,this.currentPlaysStore.letters).subscribe(res=>{            
+    public async play(){
+
+        var result =  await this.gameService.play(this.game.id,this.currentPlaysStore.letters);
+        if(result.moveResult == "OK")
+        {                
+            if (!!this.gameSubscription)
+            {
+                this.gameSubscription.unsubscribe();
+            }        
+            this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+                this.refreshGame(g);
+            });
+        }
+        else{
+            alert(result.moveResult);
+        }
+
+        /*this.gameService.play(this.game.id,this.currentPlaysStore.letters).then(res=>{            
             if(res.moveResult == "OK")
             {                
                 if (!!this.gameSubscription)
@@ -264,7 +242,7 @@ export class GameManager{
             else{
                 alert(res.moveResult);
             }
-        });
+        });*/
     }
     public pass(){
         this.gameService.pass(this.game.id).subscribe(res=>{            
@@ -277,13 +255,25 @@ export class GameManager{
                 this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
                     this.refreshGame(g);
                 });
+                return;
+            }            
+            if(res.moveResult == "GameOver"){
+                this.gameOver(res.gameOverResult);
+                return;
             }
-            else{
-                alert(res.moveResult);
-            }
+            console.log("Play Result:",res.moveResult);
         });
     }
-    public playReceived(userName:string){
+    public forfeit(){
+        this.gameService.forfeit(this.game.id).subscribe(res=>{            
+            if(res.moveResult == "GameOver")
+            {                
+                this.gameOver(res.gameOverResult);
+            }            
+        });
+    }
+    
+    public onPlayReceived(userName:string){
         if (!!this.gameSubscription)
         {
             this.gameSubscription.unsubscribe();
@@ -292,7 +282,57 @@ export class GameManager{
             this.refreshGame(g);
         });
     }
+
+    public onGameOverReceived(result: GameResult){
+        this.gameOver(result);
+    }
     
+    private refreshGame(game:Game){        
+        
+        this.game = game;            
+        this.player = this.getPlayer() ; 
+        this.opponent = this.getOpponent();        
+
+        var lastMove= this.game.playMoves[this.game.playMoves.length-1];
+        this.lastPlayStore.tiles = [];
+        lastMove?.words.forEach(Word => {
+            Word.letters.forEach(letter => this.lastPlayStore.tiles.push(letter.tile));
+        });
+        this._lastPlay.next(Object.assign({}, this.lastPlayStore).tiles);
+
+        
+           
+        // clean current letter moves
+        this.currentPlaysStore ={ letters: []};
+        this._currentPlays.next(Object.assign({}, this.currentPlaysStore).letters);  
+    
+        // assign current rack to observable
+        this.initialRack = this.player.rack.map((l,index) =>{
+            return new BoardLetter(index,l,this.player.userName);
+        });
+        Object.assign(this.activeRackStore.rack, this.initialRack);
+        this._activeRack.next(Object.assign({}, this.activeRackStore).rack);
+
+        // assign move history to observable
+        this.moveHistoryStore.moves = this.game.playMoves;
+        this._moveHistory.next(Object.assign({}, this.moveHistoryStore).moves);
+
+        // Update game log
+        this.gameLogStore.logs = [];
+        this.moveHistoryStore.moves.forEach(m =>this.addMoveLog(m));                
+        
+        // Update current player
+        this.currentPlayer = game.currentPlayer;
+        this._currentPlayer.next(this.currentPlayer);
+        
+
+        // update rack drag and drop connections
+        this.updateRackConnections();
+    }
+    private gameOver(result: GameResult){        
+        this._gameEnded.next(result);
+        this._gameEnded.next(null);
+    }
 
     private addMoveLog(move:PlayMove){
         var logEntry = new GameLog();

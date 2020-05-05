@@ -20,6 +20,7 @@ import { PlayLetter } from '../Models/playLetter';
 import { PlayRequest } from 'src/Requests/playRequest';
 import { PlayResult } from '../Models/playResult';
 import { Word } from '../Models/word';
+import { GameResult } from '../Models/gameResult';
 
 
 
@@ -181,6 +182,9 @@ export class GameService implements OnDestroy {
   }
   public getOpponent(gameId:string):GamePlayer{
     var game = this.activeGamesStore.games.find(x => x.id == gameId);
+    if (!game){
+      return null;
+    }
     if( this.currentUser.username == game.player01.userName){
       return game.player02;
     }
@@ -197,25 +201,15 @@ export class GameService implements OnDestroy {
       return game.player02;
     }
   }
-  public getWordInfo(language: string, word: string):Observable<Word>{
-    if (this._isConnected.value == true){
-      var promise = (this.hubConnection.invoke('GetWordInfo',language, word)
-      .then(iword=>{        
-        return iword;
-      }));    
-      return from(promise);
-    }
-    return null;    
-  }
   
   
-  public play(gameId:string, letters: PlayLetter[]):Observable<PlayResult>{
+  public async play(gameId:string, letters: PlayLetter[]):Promise<PlayResult>{
     let request = new PlayRequest();
     request.gameId = gameId;
     request.userName = this.currentUser.username;
     request.letters = letters;
     
-    var promise = this.hubConnection    
+    return await  this.hubConnection    
       .invoke<PlayResult>('play', request)
       .then(res =>{        
         var result = new PlayResult();
@@ -227,9 +221,7 @@ export class GameService implements OnDestroy {
         var result = new PlayResult();
         result.moveResult = "KO";
         return result;
-      });
-    
-    return from(promise);
+      });    
   }
   public pass(gameId:string):Observable<PlayResult>{
     let request = new PlayRequest();
@@ -250,6 +242,27 @@ export class GameService implements OnDestroy {
         return result;
       }); 
       return from(promise);
+  }
+  public forfeit(gameId:string):Observable<PlayResult>{
+    let request = new PlayRequest();
+    request.gameId = gameId;
+    request.userName = this.currentUser.username;
+
+    var promise = this.hubConnection    
+      .invoke<PlayResult>('forfeit', request)
+      .then(res =>{        
+        var result = new PlayResult();
+        Object.assign(result,res);
+        return result;
+      })
+      .catch(err =>{     
+        console.log('err :>> ', err);
+        var result = new PlayResult();
+        result.moveResult = "KO";
+        return result;
+      }); 
+      return from(promise);
+
   }
 
   public updateOnlineContacts(){
@@ -430,6 +443,7 @@ export class GameService implements OnDestroy {
       this.receivedChallengeStore.challenges.push(challenge);      
       this._receivedChallenges.next(Object.assign({},this.receivedChallengeStore).challenges);
       this._lastReceivedChallenge.next(challenge);      
+      this._lastReceivedChallenge.next(null);      
     });
 
     // On challenge accepted
@@ -449,7 +463,7 @@ export class GameService implements OnDestroy {
         this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
       }      
       this._sentChallengesResult.next( result);
-     
+      this._sentChallengesResult.next( null);     
     });
         
     // On send message to global
@@ -466,7 +480,13 @@ export class GameService implements OnDestroy {
     // On new play received
     this.hubConnection.on('playOk', (gameId:string ,username: string ) => {
       let manager = this.getManager(gameId);
-      manager.playReceived(username);
+      manager.onPlayReceived(username);
+    });
+
+    // On opposer forfeit
+    this.hubConnection.on('gameOver', (gameId:string, result: GameResult) => {
+      let manager = this.getManager(gameId);
+      manager.onGameOverReceived(result);
     });
   }
 

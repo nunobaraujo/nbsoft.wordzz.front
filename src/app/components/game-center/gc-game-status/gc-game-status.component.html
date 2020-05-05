@@ -1,0 +1,9 @@
+<div class="wz-home-game-item-header">
+    <h4><strong>{{gameManager.game.player01.userName}} x {{gameManager.game.player02.userName}}</strong></h4>
+    <div [class]="turnClass">Current Player: {{gameManager.game.currentPlayer}}</div>
+  </div>
+  <div class="wz-home-game-item">
+    <div>Language: {{gameManager.game.language}}</div>
+    <div>Score: {{gameManager.game.player01.score}} - {{gameManager.game.player02.score}}</div>
+    <div>Size: {{gameManager.game.board.boardRows}} x {{gameManager.game.board.boardColumns}}</div>
+  </div>

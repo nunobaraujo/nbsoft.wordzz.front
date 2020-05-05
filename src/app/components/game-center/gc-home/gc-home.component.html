@@ -1,20 +1,17 @@
-<div class="container-fluid" style="margin-top: 15px;">
+<div class="container-fluid" >
   <div class="row wz-home-container bg-secondary text-white">    
     <div class="col-md-6">
       <h4>Ongoing Games</h4>
       <ul class="list-group">
         <a *ngFor="let game of games$ | async" [routerLink]="[game.id]"
           class="list-group-item list-group-item-action bg-dark text-white">
-          <div class="wz-home-game-item-header">
-            <h4><strong>{{game.player01.userName}} x {{game.player02.userName}}</strong></h4>
-            <div [class]="getIsMyTurn(game)">Current Player: {{game.currentPlayer}}</div>
-          </div>
-          <div class="wz-home-game-item">
-            <div>Language: {{game.language}}</div>
-            <div>Score: {{getPlayer01Score(game)}} - {{getPlayer02Score(game)}}</div>
-            <div>Size: {{game.board.rows}} x {{game.board.columns}}</div>
-          </div>
+          <app-gc-game-status [gameManager]='getGameManager(game.id)' ></app-gc-game-status>
         </a>
+
+        <!--<a *ngFor="let game of games$ | async" [routerLink]="[game.id]"
+          class="list-group-item list-group-item-action bg-dark text-white">
+          
+        </a>-->
       </ul>
     </div>
     <div class="col-md-6">

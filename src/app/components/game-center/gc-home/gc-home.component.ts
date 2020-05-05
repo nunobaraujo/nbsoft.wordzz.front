@@ -5,6 +5,7 @@ import { faTrophy,faCrosshairs } from '@fortawesome/free-solid-svg-icons';
 import { Game } from 'src/app/Models/game';
 
 import { GameService } from 'src/app/Services/game.service';
+import { GameManager } from 'src/app/Managers/gameManger';
 
 
 @Component({
@@ -19,16 +20,24 @@ export class GcHomeComponent implements OnInit, OnDestroy {
   private activeGamesSubscription:Subscription;
   games$: Observable<Game[]>;
   games: Game[];
+
+  gamesManagers:GameManager[];
   constructor(private gameService: GameService) {    
     this.gameServiceConnected = this.gameService.isConnected$.subscribe(connected =>    {
       if (connected){        
         this.games$ = this.gameService.getActiveGames();
         this.activeGamesSubscription = this.games$.subscribe(g =>{ 
-          this.games = g;
+          this.games = g;          
+        });
+        
+        this.gameService.gameManagers$.subscribe(gm => {
+          this.gamesManagers = gm;
         });
       }      
     });
    }  
+
+
 
   ngOnInit(): void {
   }
@@ -48,15 +57,8 @@ export class GcHomeComponent implements OnInit, OnDestroy {
       .map(m => m.score)
       .reduce((a, b) => a + b, 0);
   }
-
-  getIsMyTurn(game:Game):string{    
-    if (game.currentPlayer == this.gameService.currentUser.username){
-      return "text-danger";
-    }
-    else{
-      return "text-success";
-    }
-
-
+  
+  getGameManager(gameId:string ):GameManager{
+    return this.gamesManagers?.find(gm => gm.gameId == gameId);
   }
 }

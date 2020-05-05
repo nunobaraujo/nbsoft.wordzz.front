@@ -1,7 +1,9 @@
 import { BoardTile } from './boardTile';
 
 export class Board {    
-    rows:number;
-    columns: number;
+    id:number;
+    name:string;
+    boardRows:number;
+    boardColumns: number;
     tiles:BoardTile[];
 }

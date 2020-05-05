@@ -1,9 +1,7 @@
-$game-background: #c0c0c0;
 $white: #fff;
 
 
-.board-container{
-  background: $game-background;
+.board-container{  
   display: flex;
   flex-Direction: row;
   flex-wrap: wrap;

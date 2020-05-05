@@ -1,7 +1,5 @@
-$game-background: #c0c0c0;
 
-.rack-container{
-  background-color: $game-background;  
+.rack-container{  
   //min-width: 810px;
   min-height: 80px;
   display: flex;
@@ -16,6 +14,7 @@ $game-background: #c0c0c0;
   margin-top: 3px;
   min-width: 300px;
   min-height: 50px;
+  border-radius: 6px;
 }  
   
 .cdk-drag-preview {

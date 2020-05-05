@@ -1,11 +1,12 @@
-$game-background: #c0c0c0;
+
 
 .game-body{
     min-width: 600px;
     max-width: 810px;
+    border-radius: 6px;
 }
 .game-header{
-    background: $game-background;
+    
     display: flex;
     flex-direction: row ;
     justify-content: space-between;
@@ -28,7 +29,7 @@ $game-background: #c0c0c0;
     flex-direction: row ;
     margin: 2px;
     width: 100%;
-    min-height: 40px;   
+    min-height: 40px;    
     justify-content: center;
     align-items: center;
 }
@@ -66,7 +67,7 @@ $game-background: #c0c0c0;
     padding-left: 5px;
     padding-right: 5px;    
     font-size: smaller;
-    max-height: 624px;
+    max-height: 534px;
     border-left: 2px solid #aaa;
     border-right: 2px solid #656565;
     border-top: 2px solid #aaa;
@@ -82,11 +83,10 @@ $game-background: #c0c0c0;
 }
 
 
-.game-footer{
-    background: $game-background;
+.game-footer{    
     display: flex;    
     align-items: center;
-    justify-content: center;    
+    justify-content: space-evenly;    
 }
 .game-footer .game-pub{    
     padding-right: 15px;
