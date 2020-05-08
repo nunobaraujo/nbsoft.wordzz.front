@@ -28,4 +28,11 @@ export class GcGameStatusComponent implements OnInit, AfterViewInit {
       });  
     });
   }
+  public getPlayer(){
+    if (this.gameManager.game.currentPlayer == this.gameManager.currentUser.username)
+    {
+      return `${this.gameManager.game.currentPlayer} (YOU)`;
+    }
+    return this.gameManager.game.currentPlayer;
+  }
 }

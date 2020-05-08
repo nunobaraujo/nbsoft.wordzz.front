@@ -1,10 +1,13 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from 'src/app/Services/game.service';
 import { GameManager } from 'src/app/Managers/gameManger';
-import { Observable, Subscription, from } from 'rxjs';
+import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { GameLog } from 'src/app/Models/gameLog';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { MatDialog } from '@angular/material/dialog';
+import { GameoverModalComponent } from 'src/app/Dialogs/gameover-modal/gameover-modal.component';
+import { GameOver } from 'src/app/Models/gameOver';
 
 @Component({
   selector: 'app-gc-game',
@@ -29,8 +32,10 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   playLocked:boolean;
 
   isOpponentOnline = false;
+  private _status = new BehaviorSubject<string>(null);
+  status$ = this._status.asObservable();
 
-  constructor(private route: ActivatedRoute, private gameService:GameService, router:Router ) {    
+  constructor(private route: ActivatedRoute, private gameService:GameService, router:Router ,public dialog: MatDialog) {    
     this.currentUserName = this.gameService.currentUser.username;
     
     if(!!this.routeSubscription){
@@ -46,7 +51,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
       }
       this.gameOverSubscription = this.gameManager.gameEnded$.subscribe(e =>{
         if(!!e){
-          alert(e);
+          this.onGameOver(e);
           this.loading = true;
           router.navigate(['/game-center']);
         }
@@ -85,8 +90,16 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   }
   
   onPlay():void{    
+    this._status.next("Waiting...");
     this.playLocked = true;
-    this.gameManager.play().then(() => this.playLocked = false);
+    this.gameManager.play().then(res =>{ 
+      console.log('res :>> ', res);      
+      this._status.next(res);
+      this.playLocked = false
+      setTimeout(() => {
+        this._status.next("");
+      }, 8000);
+    });
     
   }
   onPass():void{    
@@ -125,25 +138,43 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
         this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
     } catch(err) { }                 
   }
-
-   getPlayerName():string{
+  getPlayerUserName():string{
+    if (!this.gameManager.player){
+      return "";
+    }
+    return this.gameManager.player.userName;
+  }
+   getPlayerFullName():string{
     if (!this.gameManager.player){
       return "";
     }
     if(!!this.gameManager.player.firstName ){
-      return `${this.gameManager.player.firstName} ${this.gameManager.player.lastName} (${this.gameManager.player.userName})`
+      return `${this.gameManager.player.firstName} ${this.gameManager.player.lastName}`
     }
     return this.gameManager.player.userName;
   }
-   getOpponentName():string{
+  getOpponentUserName():string{
+    if (!this.gameManager.player){
+      return "";
+    }    
+    return this.gameManager.opponent.userName;
+  }
+
+   getOpponentFullName():string{
     if (!this.gameManager.player){
       return "";
     }
     if(!!this.gameManager.opponent.firstName ){
-      return `${this.gameManager.opponent.firstName} ${this.gameManager.opponent.lastName} (${this.gameManager.opponent.userName})`
+      return `${this.gameManager.opponent.firstName} ${this.gameManager.opponent.lastName}`
     }
     return this.gameManager.opponent.userName;
   }
 
+  onGameOver(result:GameOver){
+    const dialogRef = this.dialog.open(GameoverModalComponent, {
+      width: '600px',      
+      data: result
+    });
+  }
   
 }

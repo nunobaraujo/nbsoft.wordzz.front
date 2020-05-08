@@ -85,16 +85,36 @@
 
 .game-footer{    
     display: flex;    
-    align-items: center;
-    justify-content: space-evenly;    
+    align-items: center;    
 }
 .game-footer .game-pub{    
-    padding-right: 15px;
+    display: flex;  
+    flex-direction: column;
     align-items: center;
-    
+    justify-content:center;
+    width: 30%;
+    min-height: 120px;
+}
+.game-footer .game-rack{    
+    display: flex;  
+    flex-direction: column;
+    align-items: flex-start;
+    width: 40%;
 }
 .game-footer .game-commands{
-    padding-left: 5px;
-    align-items: flex-start;
+    display: flex;  
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 30%;
     
+}
+
+.game-footer .game-commands .status {
+    overflow: auto;
+    font-size: small;
+    min-height: 40px;
+}
+.game-footer .game-commands .btn{
+    min-width: 80px;
 }

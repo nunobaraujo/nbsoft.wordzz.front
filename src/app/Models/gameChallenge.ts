@@ -3,5 +3,5 @@ export class GameChallenge {
     origin:string;
     destination:string;
     language:string;
-    size:number;
+    boardId:number;
 }

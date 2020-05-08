@@ -72,4 +72,9 @@ body {
   height: 100px;
 }
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+//body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.wz-footer{
+  align-self: flex-end;
+  padding: 15px;
+}

@@ -3,6 +3,7 @@ import { environment } from 'src/environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { Settings } from '../Models/settings';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class UserService {
 
   
 
-  constructor(private http: HttpClient, private router:Router) 
+  constructor(private http: HttpClient) 
   {
     
   } 
@@ -19,13 +20,21 @@ export class UserService {
 
 
   signUp(username: string, email:string ,password: string) {
-    return this.http.post<any>(`${environment.apiUrl}/user/create`, { username, email, password })
+    return this.http.post<any>(`${environment.apiUrl}/user`, { username, email, password })
         .pipe(map(user => {
             return user;
         }));
   }
   getSettings(){
-    return this.http.get<any>(`${environment.apiUrl}/user/mainsettings`)
+    return this.http.get<any>(`${environment.apiUrl}/user/settings/main`)
+    .pipe(map(settings => {      
+      let s = new Settings();
+      Object.assign(s, settings)
+      return s;
+    }));
+  }
+  setSettings(settings:Settings){
+    return this.http.put<any>(`${environment.apiUrl}/user/settings/main`,settings)
     .pipe(map(settings => {      
       return settings;
     }));

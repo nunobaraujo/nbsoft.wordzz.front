@@ -1,12 +1,12 @@
 <div class="container-fluid " >
     
     <div class="row  wz-new-game-container bg-secondary text-white">    
-        <div class="col-md-6">
-            <h4>Nem Game</h4>
+        <div class="col-md-6">            
+            <h4>Nem Game</h4>            
             <div class="list-group-item d-flex justify-content-between align-items-center  text-dark ">
                 Solo Game
                 <div class="btn-group btn-group-sm" role="group" aria-label="Active Friend Toolbox">                    
-                    <button type="button" title="Start Solo Game" class="btn btn-primary  flex-row-reverse" 
+                    <button type="button" title="Start Solo Game" class="btn btn-primary  flex-row-reverse wz-new-game-action-button" 
                         (click)="onStartSoloGame($event)">
                         <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
                     </button>
@@ -15,11 +15,16 @@
             <div class="list-group-item d-flex justify-content-between align-items-center  text-dark ">
                 Search Game
                 <div class="btn-group btn-group-sm" >
-                    <button type="button" title="Start Game Search" class="btn btn-primary  flex-row-reverse" 
+                    <button [disabled]="isSearchingGame" type="button" title="Start Game Search" 
+                    class="btn btn-primary  flex-row-reverse wz-new-game-action-button" 
                         (click)="onSearchGame($event)">
+                        <span *ngIf="isSearchingGame" class="spinner-border spinner-border-sm mr-1"></span>
                         <fa-icon [icon]="faSearch" size="lg" ></fa-icon>
                     </button>
                 </div>
+            </div>
+            <div *ngIf="gameFound" class="text-white bg-success">
+                <h4>{{gameFound}}</h4>
             </div>
         </div>
         <div class="col-md-6">
@@ -27,8 +32,9 @@
                 <h4>Challenge friends</h4>
                 <div *ngFor="let friend of onlineFriends$ |async " class="list-group-item d-flex justify-content-between align-items-center  text-dark ">
                     {{friend}}
-                    <div class="btn-group btn-group-sm"  >
-                        <button [disabled]="hasChallenge(friend)" type="button" title="Start Game with {{friend}}" class="btn btn-success  flex-row-reverse" 
+                    <div class="btn-group btn-group-sm "  >
+                        <button [disabled]="hasChallenge(friend)" type="button" title="Start Game with {{friend}}" 
+                            class="btn btn-success flex-row-reverse wz-new-game-action-button" 
                             (click)="onStartGame($event, friend)" >
                             <span *ngIf="hasChallenge(friend)" class="spinner-border spinner-border-sm mr-1"></span>
                             <fa-icon [icon]="faUserFriends" size="lg" ></fa-icon>
@@ -40,8 +46,10 @@
                 </div>
             </div>
         </div>
+        <footer class="wz-footer">
+            <a class="btn btn-primary" role="button" routerLink="/game-center">Back to Game Centre</a>
+        </footer>
     </div>    
 </div>
-<footer style="padding-top: 20px;">
-    <a routerLink="/game-center">Back to Game Centre</a>
-</footer>
+
+

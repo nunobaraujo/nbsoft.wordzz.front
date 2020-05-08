@@ -1,6 +1,19 @@
 <div class="container-fluid" >
   <div class="row wz-home-container bg-secondary text-white">    
-    <div class="col-md-6">
+    <div class="col-md-4">
+      <h4>Actions</h4>
+      <div class="list-group">       
+        <a class="btn btn-primary wz-home-action-item" role="button" routerLink="/game-center/newgame" >
+          <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
+          Start a new Game
+        </a>
+        <a class="btn btn-primary wz-home-action-item" role="button" routerLink="/game-center/challenges" >
+          <fa-icon [icon]="faCrosshairs" size="lg" ></fa-icon>
+          View Received Challenges
+        </a>
+      </div>
+    </div>
+    <div class="col-md-8">
       <h4>Ongoing Games</h4>
       <ul class="list-group">
         <a *ngFor="let game of games$ | async" [routerLink]="[game.id]"
@@ -13,19 +26,6 @@
           
         </a>-->
       </ul>
-    </div>
-    <div class="col-md-6">
-      <h4>Actions</h4>
-      <div class="list-group">       
-        <a class="list-group-item list-group-item-action wz-home-action-item" routerLink="/game-center/newgame" >
-          <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
-          Start a new Game
-        </a>
-        <a class="list-group-item list-group-item-action wz-home-action-item" routerLink="/game-center/challenges" >
-          <fa-icon [icon]="faCrosshairs" size="lg" ></fa-icon>
-          View Received Challenges
-        </a>
-      </div>
     </div>
   </div>
 </div>

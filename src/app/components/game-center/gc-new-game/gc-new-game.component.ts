@@ -20,9 +20,12 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   faTrophy = faTrophy;
   faUserFriends = faUserFriends;
   faSearch = faSearch;
+  
   onlineFriends$: Observable<string[]>;  
   sentChallengesResults: string[]=[];  
   newOpponent:string;
+  isSearchingGame:boolean = false;
+  gameFound:string = null;
   
   constructor(private router:Router, private gameService:GameService, private route: ActivatedRoute) {         
     this.onlineFriends$ = this.gameService.onlineFriends$;
@@ -48,6 +51,23 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
         }
       }        
     });
+
+    this.gameService.searchingGame$.subscribe(s => {
+      if (s ==="searching"){
+        this.isSearchingGame = true;
+        this.gameFound = null;
+      }
+      else {
+        this.isSearchingGame = false;
+        if (!!s && s !== ""){          
+          this.gameFound = "Game match found, starting game in a few seconds...";
+          setTimeout(() => {
+            let gameUrl:string = "/game-center/"+s;            
+            this.router.navigateByUrl(gameUrl);
+          }, 5000);
+        }
+      }
+    });
     
   } 
   ngOnInit(): void {   
@@ -69,16 +89,19 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
     this.startSoloGame();
   }
   onSearchGame($event: any){
-
+    this.searchGame("en-us",0);    
   }
 
   private startGame(friend:string){    
-    this.gameService.challengeGame('en-us',friend,15).then(res => {
+    this.gameService.challengeGame('en-us',0,friend).then(res => {
       console.log('Sent New Challenge :', res);
     });
   }
   private startSoloGame(){    
     this.gameService.newSoloGame()
+  }
+  private searchGame(language:string, boardId:number ){    
+    this.gameService.searchGame(language,boardId);
   }
 
   hasChallenge(friendName:string):boolean

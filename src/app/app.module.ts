@@ -27,6 +27,8 @@ import { AllowedLetterDirective } from './shared/allowed-letter.directive';
 import { AddFriendModalComponent } from './Dialogs/add-friend-modal/add-friend-modal.component';
 import { ChallengesReceivedComponent } from './components/challenges-received/challenges-received.component';
 import { OngoingGamesComponent } from './components/ongoing-games/ongoing-games.component';
+import { GameoverModalComponent } from './Dialogs/gameover-modal/gameover-modal.component';
+import { UserStatsComponent } from './components/user-stats/user-stats.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +45,9 @@ import { OngoingGamesComponent } from './components/ongoing-games/ongoing-games.
     AllowedLetterDirective,
     AddFriendModalComponent,
     ChallengesReceivedComponent,
-    OngoingGamesComponent
+    OngoingGamesComponent,
+    GameoverModalComponent,
+    UserStatsComponent
   ],
   imports: [
     BrowserModule,
@@ -60,6 +64,6 @@ import { OngoingGamesComponent } from './components/ongoing-games/ongoing-games.
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ModalComponent,SelectLetterModalComponent]
+  entryComponents: [ModalComponent,SelectLetterModalComponent,GameoverModalComponent]
 })
 export class AppModule { }

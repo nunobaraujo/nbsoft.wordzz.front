@@ -143,6 +143,7 @@ export class GridBoardComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (event.previousContainer.id == "list-rack")
       {
+        
         // Arrived from Player Rack                  
         var letter:BoardLetter = new BoardLetter(-1,null,null);
         Object.assign(letter, event.item.data);      

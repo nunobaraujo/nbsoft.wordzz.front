@@ -1,0 +1,17 @@
+.wz-go-container{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    
+}
+.wz-go-container-stats{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+.wz-go-title-win{
+    color: green;
+}
+.wz-go-title-lose{
+    color: red;
+}

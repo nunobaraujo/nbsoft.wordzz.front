@@ -3,7 +3,7 @@
         <div class="game-header-section game-header-section-left bg-primary">
             <div class="player-score-container text-white">
                 <span *ngIf="!playLocked" class="spinner-border spinner-border-sm mr-1"></span>
-                <div class="user-name">{{this.getPlayerName()}}</div>    
+                <div class="user-name" ><p [title]="getPlayerFullName()">{{this.getPlayerUserName()}}</p></div>    
                 <div class="score"><strong>{{this.gameManager.player?.score}}</strong></div>                
             </div>            
         </div>
@@ -13,7 +13,7 @@
         <div class="game-header-section game-header-section-right" [class.bg-danger]="!isOpponentOnline" [class.bg-success]="isOpponentOnline" >
             <div class="player-score-container text-white">                                
                 <span *ngIf="playLocked" class="spinner-border spinner-border-sm mr-1"></span>
-                <div class="user-name">{{this.getOpponentName()}}</div>
+                <div class="user-name" ><p [title]="getOpponentFullName()">{{this.getOpponentUserName()}}</p></div>
                 <div class="score"><strong>{{this.gameManager.opponent?.score}}</strong></div>        
                 <div >
                     <span *ngIf="!isOpponentOnline"><small>offline</small></span>
@@ -34,14 +34,19 @@
     </div>
     <div id="footer" class="game-footer" >
         <div id="gameinfo" class="game-pub">    
-            <h3>WORDZZ - NBsoft</h3>   
+            <p>WORDZZ - NBsoft</p>
             <button class="btn btn-danger btn-sm"  (click)="onForfeit()">
                 <fa-icon [icon]="faTimesCircle" size="sm" ></fa-icon>
                 Forfeit Game
             </button>        
         </div>
-        <app-rack [gameManager]='gameManager'></app-rack>
+        <div class="game-rack">
+            <app-rack [gameManager]='gameManager'></app-rack>
+        </div>
         <div id="gamecommands" class="game-commands">
+            <div class="text-white status">
+                {{status$ | async}}
+            </div>
             <div class="btn-group" >
                 <button class="btn btn-success btn-md" [disabled]="playLocked" (click)="onPlay()">
                     <span *ngIf="playLocked" class="spinner-border spinner-border-sm mr-1"></span>
@@ -49,6 +54,7 @@
                 </button>
                 <button class="btn btn-warning btn-md" [disabled]="playLocked" (click)="onPass()">Pass</button>
             </div>
+            
         </div>
     </div>
 </div>

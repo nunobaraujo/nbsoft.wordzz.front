@@ -17,6 +17,7 @@ import { Word } from '../Models/word';
 import { Letter } from '../Models/letter';
 import { GameResult } from '../Models/gameResult';
 import { ThrowStmt } from '@angular/compiler';
+import { GameOver } from '../Models/gameOver';
 
 export class GameManager{
     private gameSubscription:Subscription;
@@ -46,8 +47,6 @@ export class GameManager{
     private lastPlayStore:{ tiles:  BoardTile[] } ={ tiles: []};
     lastPlay$= this._lastPlay.asObservable();
 
-
-
     private _rackConnectedTiles = new BehaviorSubject<string[]>(null);  
     private rackConnectedTilesStore: { connections:  string[] } ={ connections: []};
     rackConnectedTiles$ = this._rackConnectedTiles.asObservable();
@@ -60,7 +59,7 @@ export class GameManager{
     private  currentPlayer: string="";
     currentPlayer$ = this._currentPlayer.asObservable();
 
-    private _gameEnded = new BehaviorSubject<GameResult>(null);    
+    private _gameEnded = new BehaviorSubject<GameOver>(null);    
     gameEnded$ = this._gameEnded.asObservable();
 
     
@@ -84,6 +83,19 @@ export class GameManager{
             .find(pl => pl.tile.x === tile.x && pl.tile.y === tile.y);
         
         if (!!isTileUsed){
+            return false;
+        }
+
+        //check history
+        var isTaken:Boolean = false;
+        this.moveHistoryStore.moves.forEach(m => {
+            var index = m.letters.findIndex(l => l.tile.x === tile.x && l.tile.y === tile.y);
+            if (index !== -1)
+            {
+                isTaken = true;                
+            }
+        });
+        if (isTaken){
             return false;
         }
 
@@ -133,6 +145,19 @@ export class GameManager{
             return false;
         }
 
+        //check history
+        var isTaken:Boolean = false;
+        this.moveHistoryStore.moves.forEach(m => {
+            var index = m.letters.findIndex(l => l.tile.x === target.x && l.tile.y === target.y);
+            if (index !== -1)
+            {
+                isTaken = true;                
+            }
+        });
+        if (isTaken){
+            return false;
+        }
+
         // remove old play
         var removed = this.removeLetterPlay(source);
         if (!removed){
@@ -166,6 +191,8 @@ export class GameManager{
         this.rackConnectedTilesStore.connections = result;
         this._rackConnectedTiles.next(Object.assign({}, this.rackConnectedTilesStore).connections);  
     }
+    
+    
     getTileConnections(tile:BoardTile):string[]{
         var result = this.game.board.tiles.map(t =>{
             return this.getCoordinate(t);
@@ -211,7 +238,7 @@ export class GameManager{
     }
       
 
-    public async play(){
+    public async play():Promise<string>{
 
         var result =  await this.gameService.play(this.game.id,this.currentPlaysStore.letters);
         if(result.moveResult == "OK")
@@ -221,11 +248,13 @@ export class GameManager{
                 this.gameSubscription.unsubscribe();
             }        
             this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+                console.log('refresGamme :>> ');
                 this.refreshGame(g);
             });
+            return "OK"
         }
         else{
-            alert(result.moveResult);
+            return result.moveResult;
         }
 
         /*this.gameService.play(this.game.id,this.currentPlaysStore.letters).then(res=>{            
@@ -329,8 +358,12 @@ export class GameManager{
         // update rack drag and drop connections
         this.updateRackConnections();
     }
-    private gameOver(result: GameResult){        
-        this._gameEnded.next(result);
+    private gameOver(result: GameResult){
+        let gameResult:GameOver = new GameOver();
+        gameResult.game = this.game;
+        gameResult.result = result;
+
+        this._gameEnded.next(gameResult);
         this._gameEnded.next(null);
     }
 
