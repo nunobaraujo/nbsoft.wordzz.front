@@ -1,31 +1,82 @@
 <div class="container-fluid" >
   <div class="row wz-home-container bg-secondary text-white">    
-    <div class="col-md-4">
-      <h4>Actions</h4>
-      <div class="list-group">       
-        <a class="btn btn-primary wz-home-action-item" role="button" routerLink="/game-center/newgame" >
-          <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
-          Start a new Game
-        </a>
-        <a class="btn btn-primary wz-home-action-item" role="button" routerLink="/game-center/challenges" >
-          <fa-icon [icon]="faCrosshairs" size="lg" ></fa-icon>
-          View Received Challenges
-        </a>
-      </div>
+    <div class="col-md-6">      
+      <div>               
+        <h4>New Game</h4> 
+        <div class="row">
+          <div class="col-md-7" >
+            <button class="btn btn-primary wz-home-action-item" role="button" [disabled]="searchingForGame" (click)="onSearchGame($event)" >
+              <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
+              Start a new Game
+            </button>
+          </div>
+          <div class="col-md-5 wz-home-action-description">
+            <div *ngIf="searchingForGame" >
+              <p><span  class="spinner-border spinner-border-sm mr-1"></span>Searching for a game...</p>
+            </div>
+            <div *ngIf="gameFound">
+              <p>{{gameFound}}</p>
+            </div>
+          </div>
+        </div>        
+        <div class="row">
+          <div class="col-md-7" >
+            <button class="btn btn-primary wz-home-action-item" role="button" routerLink="/game-center/newgame"  >
+              <fa-icon [icon]="faUsers" size="lg" ></fa-icon>
+              Challenge a friend 
+            </button>
+          </div>          
+        </div>
+        <h4><a href="#gameSettings" class="text-white" data-toggle="collapse" >
+          Game Settings
+          <fa-icon [icon]="faSortDown" size="sm" ></fa-icon>
+        </a></h4>
+        <div id="gameSettings" class="collapse">
+          <div class="row">
+            <div class="col-md-6">            
+              <div class="form-group">
+                <label for="languageSelector">Language</label>
+                <select class="form-control bg-dark text-white" id="languageSelector" title="{{selectedLexicon?.language}}" [(ngModel)]="selectedLexicon">
+                  <option *ngFor="let l of availableLexicons" [value]="l" title="{{l.language}}" >{{l.description}}</option>
+                </select>
+              </div>            
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="boardSelector">Board</label>
+                <select class="form-control bg-dark text-white" id="boardSelector" [(ngModel)]="selectedBoard">
+                  <option *ngFor="let b of availableBoards" [value]="b" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
+                </select>
+              </div>
+            </div>
+          </div>          
+        </div>
+        <h4>Received Challenges</h4>
+      </div>      
     </div>
-    <div class="col-md-8">
-      <h4>Ongoing Games</h4>
-      <ul class="list-group">
-        <a *ngFor="let game of games$ | async" [routerLink]="[game.id]"
-          class="list-group-item list-group-item-action bg-dark text-white">
-          <app-gc-game-status [gameManager]='getGameManager(game.id)' ></app-gc-game-status>
-        </a>
-
-        <!--<a *ngFor="let game of games$ | async" [routerLink]="[game.id]"
-          class="list-group-item list-group-item-action bg-dark text-white">
-          
-        </a>-->
-      </ul>
+    <div class="col-md-6">      
+      <div>
+        <h4>Ongoing Games</h4>
+        <div *ngIf="hasGames">
+          <ul class="list-group">
+            <a *ngFor="let gameManager of gamesManagers$ | async" [routerLink]="[gameManager.gameId]"
+              class="list-group-item list-group-item-action bg-dark text-white">
+              <app-gc-game-status [gameManager]='gameManager' ></app-gc-game-status>
+            </a>
+          </ul>
+        </div>
+        <div *ngIf="!hasGames" style="padding-left: 20px;">
+          <h3><p>You have no ongoing games =(</p></h3>
+        </div>
+        
+      </div>
+      <div>
+        <h4>Finished Games</h4>
+        <ul class="list-group">
+          <a *ngFor="let endedGame of endedGames$ | async" class="list-group-item list-group-item-action list-group-item-dark" (click)="onShowGameResult($event, endedGame.gameId)" >{{endedGame.player1}} VS {{endedGame.player2}}</a>
+        </ul>
+      </div>
+      
     </div>
   </div>
 </div>

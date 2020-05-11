@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 
 
 @Component({
@@ -11,15 +11,15 @@ import { GameService } from 'src/app/Services/game.service';
 export class GcRootComponent implements OnInit,OnDestroy {
   private receivedChallengesSubscription:Subscription
   lastChallengeId:string = null;
-  constructor(gameService:GameService) {
-    this.receivedChallengesSubscription = gameService.lastReceivedChallenge$.subscribe(challenge =>{
+  constructor(gameHub:GameHub) {
+    this.receivedChallengesSubscription = gameHub.lastReceivedChallenge$.subscribe(challenge =>{
       if(!!challenge  && challenge.id !== this.lastChallengeId){
         this.lastChallengeId = challenge.id;
         alert(`Received new challenge from ${challenge.origin}`);
       } 
     });
    }
-  
+   
   ngOnInit(): void {
   }
   ngOnDestroy(): void {

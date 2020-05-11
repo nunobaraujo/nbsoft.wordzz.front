@@ -8,7 +8,7 @@ import { Observable, of, EMPTY }  from 'rxjs';
 import { mergeMap, take }         from 'rxjs/operators';
 
 import { Game } from 'src/app/Models/game';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 
 
 @Injectable({
@@ -16,7 +16,7 @@ import { GameService } from 'src/app/Services/game.service';
 })
 export class GameResolverService implements Resolve<Game> {
 
-  constructor(private gs: GameService, private router: Router) { }
+  constructor(private gs: GameHub, private router: Router) { }
   
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<Game> | Observable<never> {    
     let id = route.paramMap.get('id');

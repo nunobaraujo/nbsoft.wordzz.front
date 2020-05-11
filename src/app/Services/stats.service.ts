@@ -21,7 +21,10 @@ export class StatsService {
   }
   getUserStats(userName:string){
     return this.http.get<UserStats>(`${environment.apiUrl}/stats/${userName}`)
-    .pipe(map(stats => {      
+    .pipe(map(stats => {     
+      if (!stats){
+        return null;
+      }
       let retval:UserStats = new UserStats();
       Object.assign(retval, stats)
       return retval;

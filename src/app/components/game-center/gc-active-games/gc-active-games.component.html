@@ -1,12 +1,12 @@
 <div>
-    <ul class="nav nav-tabs bg-dark" >
+    <ul class="nav nav-tabs bg-dark text-white" >
         <li class="nav-item" style="padding-left: 30px;">
-          <a class="nav-link text-secondary"  [routerLink]="['/game-center']" routerLinkActive="active"  [routerLinkActiveOptions]="{exact:true}" >Game Center Home</a>
+          <a class="nav-link "  [routerLink]="['/game-center']" routerLinkActive="active"  [routerLinkActiveOptions]="{exact:true}" >Game Center Home</a>
         </li>
         
-        <li *ngFor="let game of games$ | async" class="nav-item" >            
-            <a class="nav-link text-secondary" [routerLink]="[game.id]" routerLinkActive="active" >
-                {{getOpponent(game.id)}}
+        <li *ngFor="let game of gamesManagers$ | async" class="nav-item" >            
+            <a class="nav-link " [routerLink]="[game.gameId]" routerLinkActive="active" >
+                {{game.getPlayer()?.userName}} VS {{game.getOpponent()?.userName}}
             </a>
         </li>       
       </ul>

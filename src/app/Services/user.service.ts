@@ -4,20 +4,38 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Settings } from '../Models/settings';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-
   
-
+  private currentUserSubject =  new BehaviorSubject<Settings>(null);
+  private userSettings$ = this.currentUserSubject.asObservable();
+  private userSettings:Settings = null;
+  
   constructor(private http: HttpClient) 
   {
     
   } 
-
-
+  
+  loadSettings(){
+    this.getSettings().subscribe(s => {
+      this.userSettings = s;
+      this.currentUserSubject.next(this.userSettings);
+    });    
+  }
+  clearSettings(){
+    this.userSettings = null;
+  }
+  settings():Observable<Settings>{
+    if (this.userSettings == null){
+      this.loadSettings();
+    }
+    return  this.userSettings$;
+  }
+  
 
   signUp(username: string, email:string ,password: string) {
     return this.http.post<any>(`${environment.apiUrl}/user`, { username, email, password })
@@ -28,6 +46,9 @@ export class UserService {
   getSettings(){
     return this.http.get<any>(`${environment.apiUrl}/user/settings/main`)
     .pipe(map(settings => {      
+      if (!settings){
+        return null;
+      }
       let s = new Settings();
       Object.assign(s, settings)
       return s;

@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { GameManager } from 'src/app/Managers/gameManger';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { GameLog } from 'src/app/Models/gameLog';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { MatDialog } from '@angular/material/dialog';
 import { GameoverModalComponent } from 'src/app/Dialogs/gameover-modal/gameover-modal.component';
-import { GameOver } from 'src/app/Models/gameOver';
+import { GameResult } from 'src/app/Models/gameResult';
 
 @Component({
   selector: 'app-gc-game',
@@ -35,8 +35,9 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   private _status = new BehaviorSubject<string>(null);
   status$ = this._status.asObservable();
 
-  constructor(private route: ActivatedRoute, private gameService:GameService, router:Router ,public dialog: MatDialog) {    
-    this.currentUserName = this.gameService.currentUser.username;
+  constructor(private route: ActivatedRoute, private gameHub:GameHub, router:Router ,public dialog: MatDialog) {    
+    this.currentUserName = this.gameHub.currentUser.username;
+    console.log('this.gameHub :>> ', this.gameHub);
     
     if(!!this.routeSubscription){
       this.routeSubscription.unsubscribe();  
@@ -44,7 +45,9 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
     this.routeSubscription = this.route.data
     .subscribe((data) => {
       this.loading = true;
-      this.gameManager = this.gameService.getManager(data.game.id);           
+      console.log('data.game.id :>> ', data.game.id);
+      this.gameManager = this.gameHub.getManager(data.game.id);   
+      console.log('this.gameManager :>> ', this.gameManager);
       this.gameLogs$ = this.gameManager.gameLog$;         
       if (!!this.gameOverSubscription){
         this.gameOverSubscription.unsubscribe();
@@ -70,7 +73,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
       if(!!this.onlineOpponentsSubscription){
         this.onlineOpponentsSubscription.unsubscribe();
       }
-      this.onlineOpponentsSubscription = this.gameService.onlineOpponents$.subscribe(opponent =>{
+      this.onlineOpponentsSubscription = this.gameHub.onlineOpponents$.subscribe(opponent =>{
         this.isOpponentOnline = opponent.findIndex(f => this.gameManager.getOpponent().userName ) !== -1;        
       }); 
     });     
@@ -170,7 +173,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
     return this.gameManager.opponent.userName;
   }
 
-  onGameOver(result:GameOver){
+  onGameOver(result:GameResult){
     const dialogRef = this.dialog.open(GameoverModalComponent, {
       width: '600px',      
       data: result

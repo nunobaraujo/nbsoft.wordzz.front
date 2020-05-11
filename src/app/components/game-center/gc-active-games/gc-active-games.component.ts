@@ -2,37 +2,29 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription} from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
 
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { Game } from 'src/app/Models/game';
+import { GameManager } from 'src/app/Managers/gameManger';
 
 @Component({
   selector: 'app-gc-active-games',
   templateUrl: './gc-active-games.component.html',
   styleUrls: ['./gc-active-games.component.scss']
 })
-export class GcActiveGamesComponent implements OnInit, OnDestroy {  
-  private gameServiceConnected:Subscription;  
-  private gameSubscription:Subscription;    
-  games$: Observable<Game[]>;
-  games: Game[];
+export class GcActiveGamesComponent implements OnInit, OnDestroy {    
+  gamesManagers$ : Observable<GameManager[]>;
 
-  constructor(private gameService:GameService) {
-    console.log('CONSTR  Active Games');
+  constructor(private gameHub:GameHub) {    
+    this.gamesManagers$ = this.gameHub.gameManagers$;
   }  
 
   ngOnInit(): void {        
-    console.log('INIT  Active Games');
-    this.refreshData();
   }
-  ngOnDestroy(): void {
-    this.gameServiceConnected.unsubscribe();
-    if(!!this.gameSubscription){
-      this.gameSubscription.unsubscribe();
-    }
+  ngOnDestroy(): void {   
     
   }   
   getOpponent(gameId:string):string{
-    var player = this.gameService.getOpponent(gameId);
+    var player = this.gameHub.getOpponent(gameId);    
     if (!!player ){
       if (player.firstName !== ""){
         return `${player.firstName} ${player.lastName}`
@@ -42,24 +34,8 @@ export class GcActiveGamesComponent implements OnInit, OnDestroy {
       }
     }
     else{
-      this.refreshData();
+      //this.refreshData();
     }
     
-  }
-  private refreshData(){
-    if (!!this.gameServiceConnected){
-      this.gameServiceConnected.unsubscribe();
-    }
-    this.gameServiceConnected = this.gameService.isConnected$.subscribe(connected =>    {
-      if (connected){        
-        console.log('Get Active Games');
-        setTimeout(() => {
-          this.games$ = this.gameService.getActiveGames();
-          this.gameSubscription = this.games$.subscribe(g =>{ 
-            this.games = g;
-          });  
-        });
-      }      
-    });    
-  }
+  } 
 }

@@ -5,6 +5,11 @@
 
 
 .wz-home-action-item{
-    max-width: 250px;
+    width: 100%;
     margin-bottom: 10px;
+    max-height: 250px;
+}
+.wz-home-action-description{
+    display: flex;
+    align-items: center;
 }

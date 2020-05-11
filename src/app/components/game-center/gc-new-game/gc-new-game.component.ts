@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { Observable, Subscription } from 'rxjs';
 import { GameChallenge } from 'src/app/Models/gameChallenge';
 import { faTrophy, faUserFriends, faSearch} from '@fortawesome/free-solid-svg-icons';
@@ -27,10 +27,10 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   isSearchingGame:boolean = false;
   gameFound:string = null;
   
-  constructor(private router:Router, private gameService:GameService, private route: ActivatedRoute) {         
-    this.onlineFriends$ = this.gameService.onlineFriends$;
-    this.sentChallenges$ = this.gameService.sentChallenges$;
-    this.sentChallengesResult$ = this.gameService.sentChallengesResult$;
+  constructor(private router:Router, private gameHub:GameHub, private route: ActivatedRoute) {         
+    this.onlineFriends$ = this.gameHub.onlineFriends$;
+    this.sentChallenges$ = this.gameHub.sentChallenges$;
+    this.sentChallengesResult$ = this.gameHub.sentChallengesResult$;
     this.sentChallengesSubscription = this.sentChallenges$.subscribe(chall =>{      
       this.sentChallenges = chall;
     });
@@ -52,7 +52,7 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
       }        
     });
 
-    this.gameService.searchingGame$.subscribe(s => {
+    this.gameHub.searchingGame$.subscribe(s => {
       if (s ==="searching"){
         this.isSearchingGame = true;
         this.gameFound = null;
@@ -89,19 +89,19 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
     this.startSoloGame();
   }
   onSearchGame($event: any){
-    this.searchGame("en-us",0);    
+    this.searchGame("en-US",0);    
   }
 
   private startGame(friend:string){    
-    this.gameService.challengeGame('en-us',0,friend).then(res => {
+    this.gameHub.challengeGame('en-US',0,friend).then(res => {
       console.log('Sent New Challenge :', res);
     });
   }
   private startSoloGame(){    
-    this.gameService.newSoloGame()
+    this.gameHub.newSoloGame()
   }
   private searchGame(language:string, boardId:number ){    
-    this.gameService.searchGame(language,boardId);
+    this.gameHub.searchGame(language,boardId);
   }
 
   hasChallenge(friendName:string):boolean

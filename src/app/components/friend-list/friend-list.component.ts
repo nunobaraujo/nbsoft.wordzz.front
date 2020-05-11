@@ -3,7 +3,7 @@ import { Subscription, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 
 import { UserService } from 'src/app/Services/user.service';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { faUser,faTrophy,faUserSlash,faUserFriends } from '@fortawesome/free-solid-svg-icons';
 import { AddFriendModalComponent } from 'src/app/Dialogs/add-friend-modal/add-friend-modal.component';
 import { catchError } from 'rxjs/operators';
@@ -35,14 +35,14 @@ export class FriendListComponent implements OnInit,OnDestroy {
 
   constructor(private router:Router,
     private userService:UserService,
-    private gameService:GameService,
+    private gameHub:GameHub,
     public dialog: MatDialog) 
   { 
       this.refreshContacts()
 
-      this.gameServiceConnectedSubscription = this.gameService.isConnected$.subscribe(connected => {
+      this.gameServiceConnectedSubscription = this.gameHub.isConnected$.subscribe(connected => {
         if (connected){          
-          this.gameSubscription = this.gameService.getActiveGames().subscribe(g =>{ 
+          this.gameSubscription = this.gameHub.getActiveGames().subscribe(g =>{ 
             this.games = g;            
           });
         }
@@ -126,9 +126,9 @@ export class FriendListComponent implements OnInit,OnDestroy {
           this.contacts = c;
           
           // after all contacts are received start socket subscription
-          this.socketsConnectedSubscription = this.gameService.isConnected$.subscribe(c => {
+          this.socketsConnectedSubscription = this.gameHub.isConnected$.subscribe(c => {
             if (c == true){              
-              this.onlineContactsSubscription = this.gameService.onlineFriends$.subscribe(o => {
+              this.onlineContactsSubscription = this.gameHub.onlineFriends$.subscribe(o => {
                 this.onlineContacts = o;
                 this.offlineContacts = this.contacts.filter(x => !this.isOnline(x));                
               });
@@ -171,7 +171,7 @@ export class FriendListComponent implements OnInit,OnDestroy {
           console.log('contact added :>> ', u);
           this.killSubscriptions();
           this.refreshContacts();
-          this.gameService.updateOnlineContacts();
+          this.gameHub.updateOnlineContacts();
         }         
       });    
   }
@@ -186,7 +186,7 @@ export class FriendListComponent implements OnInit,OnDestroy {
           console.log('contact removed :>> ', u);
           this.killSubscriptions();
           this.refreshContacts();
-          this.gameService.updateOnlineContacts();
+          this.gameHub.updateOnlineContacts();
         }
       });    
   }

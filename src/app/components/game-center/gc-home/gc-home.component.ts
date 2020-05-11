@@ -1,11 +1,20 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription, Observable } from 'rxjs';
-import { faTrophy,faCrosshairs } from '@fortawesome/free-solid-svg-icons';
+import { faTrophy,faCrosshairs,faUsers,faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 import { Game } from 'src/app/Models/game';
 
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { GameManager } from 'src/app/Managers/gameManger';
+import { UserService } from 'src/app/Services/user.service';
+import { LexiconService } from 'src/app/Services/lexicon.service';
+import { Lexicon } from 'src/app/Models/lexicon';
+import { GameResult } from 'src/app/Models/gameResult';
+import { MatDialog } from '@angular/material/dialog';
+import { GameoverModalComponent } from 'src/app/Dialogs/gameover-modal/gameover-modal.component';
+import { BoardService } from 'src/app/Services/board.service';
+import { Board } from 'src/app/Models/board';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -16,25 +25,76 @@ import { GameManager } from 'src/app/Managers/gameManger';
 export class GcHomeComponent implements OnInit, OnDestroy {
   faTrophy = faTrophy;
   faCrosshairs = faCrosshairs;
-  private gameServiceConnected:Subscription;  
-  private activeGamesSubscription:Subscription;
-  games$: Observable<Game[]>;
-  games: Game[];
+  faUsers = faUsers;
+  faSortDown = faSortDown;
 
-  gamesManagers:GameManager[];
-  constructor(private gameService: GameService) {    
-    this.gameServiceConnected = this.gameService.isConnected$.subscribe(connected =>    {
-      if (connected){        
-        this.games$ = this.gameService.getActiveGames();
-        this.activeGamesSubscription = this.games$.subscribe(g =>{ 
-          this.games = g;          
-        });
-        
-        this.gameService.gameManagers$.subscribe(gm => {
-          this.gamesManagers = gm;
-        });
-      }      
+  private settingsSubscription:Subscription;  
+  private boardSubscription:Subscription;
+  private lexiconSubscription:Subscription;
+  private searchGameSubscription:Subscription;
+  private gameManagerSubscription:Subscription;
+  
+  availableLexicons:Lexicon[];
+  selectedLexicon:Lexicon;
+
+  availableBoards:Board[];
+  selectedBoard:Board;
+  
+  gamesManagers$:Observable<GameManager[]>;
+  endedGames$:Observable<GameResult[]>;
+
+  searchingForGame:boolean = false;
+  gameFound:string = null;
+
+  hasGames:boolean = false;
+
+  constructor(private router:Router,
+    private userService:UserService, 
+    private gameHub: GameHub, 
+    lexiconService:LexiconService, 
+    boardService:BoardService, 
+    public dialog: MatDialog) {  
+    
+    
+    this.settingsSubscription = this.userService.settings().subscribe(s => {      
+      this.lexiconSubscription = lexiconService.getLexicons().subscribe(ls => {
+        this.availableLexicons = ls;
+        if (!!s){
+          this.selectedLexicon = this.availableLexicons.find(l => l.language.toLowerCase() === s.language.toLowerCase());
+        }
+      });
+      this.boardSubscription = boardService.getBoards().subscribe(bs =>{
+        this.availableBoards = bs;
+        if (!!s){
+          this.selectedBoard = this.availableBoards.find(b => b.id == s.defaultBoard);
+        }
+      });
     });
+    this.gamesManagers$ = this.gameHub.gameManagers$;
+    this.endedGames$ = this.gameHub.endedGames$;
+
+    this.gameManagerSubscription = this.gamesManagers$.subscribe(gm => {
+      this.hasGames  = (!!gm && gm.length>0);
+    });
+
+
+    this. searchGameSubscription = this.gameHub.searchingGame$.subscribe(s => {
+      if (s ==="searching"){
+        this.searchingForGame = true;
+        this.gameFound = null;
+      }
+      else {
+        this.searchingForGame = false;
+        if (!!s && s !== ""){          
+          this.gameFound = "Game match found, starting game in a few seconds...";
+          setTimeout(() => {
+            let gameUrl:string = "/game-center/"+s;            
+            this.router.navigateByUrl(gameUrl);
+          }, 5000);
+        }
+      }
+    });
+    
    }  
 
 
@@ -42,10 +102,16 @@ export class GcHomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
   ngOnDestroy(): void {
-    this.gameServiceConnected.unsubscribe();
-    if(!!this.activeGamesSubscription){
-      this.activeGamesSubscription.unsubscribe();
-    }    
+    this.settingsSubscription.unsubscribe();
+    if (!!this.lexiconSubscription){
+      this.lexiconSubscription.unsubscribe();
+    }
+    if (!!this.boardSubscription){
+      this.boardSubscription.unsubscribe();
+    }
+    if (!!this.searchGameSubscription){
+      this. searchGameSubscription.unsubscribe();
+    }
   }
   getPlayer01Score(game:Game):number{
     return game.playMoves.filter(g => g.player == game.player01.userName)
@@ -57,8 +123,19 @@ export class GcHomeComponent implements OnInit, OnDestroy {
       .map(m => m.score)
       .reduce((a, b) => a + b, 0);
   }
-  
-  getGameManager(gameId:string ):GameManager{
-    return this.gamesManagers?.find(gm => gm.gameId == gameId);
+
+  onSearchGame($event: any){
+    console.log('searching for game');
+    var language = this.selectedLexicon.language;
+    this.gameHub.searchGame(language,0);
+  }
+  onShowGameResult($event: any, gameId:string){
+    var result = this.gameHub.getGameResult(gameId);
+
+    const dialogRef = this.dialog.open(GameoverModalComponent, {
+      width: '600px',      
+      data: result
+    });
+
   }
 }

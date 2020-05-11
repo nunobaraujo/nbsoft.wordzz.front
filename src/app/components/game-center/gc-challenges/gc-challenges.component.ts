@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { faThumbsUp,faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 
 import { GameChallenge } from 'src/app/Models/gameChallenge';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 
 @Component({  
   selector: 'app-gc-challenges',
@@ -22,11 +22,11 @@ export class GcChallengesComponent implements OnInit, OnDestroy {
   sentChallenges$:Observable<GameChallenge[]>  
   sentChallenges:GameChallenge[];  
 
-  constructor(private router:Router, private gameService:GameService) {
-    this.receivedChallenges$ = gameService.receivedChallenges$;
+  constructor(private router:Router, private gameHub:GameHub) {
+    this.receivedChallenges$ = gameHub.receivedChallenges$;
     this.receivedChallengesSubscription = this.receivedChallenges$.subscribe(c => this.receivedChallenges = c);
     
-    this.sentChallenges$ = gameService.sentChallenges$;
+    this.sentChallenges$ = gameHub.sentChallenges$;
     this.sentChallengesSubscription = this.sentChallenges$.subscribe(c => this.sentChallenges = c);
    }
   
@@ -52,7 +52,7 @@ export class GcChallengesComponent implements OnInit, OnDestroy {
 
   acceptChallenge($event: any, challengeId:string)
   {
-    this.gameService.acceptChallenge(challengeId, true).subscribe(gameId => {    
+    this.gameHub.acceptChallenge(challengeId, true).subscribe(gameId => {    
       if (!!gameId){
         let gameUrl:string = "/game-center/"+gameId;
         setTimeout(() => {
@@ -62,7 +62,7 @@ export class GcChallengesComponent implements OnInit, OnDestroy {
     });    
   }
   refuseChallenge($event: any, challengeId:string){
-    this.gameService.acceptChallenge(challengeId, false);
+    this.gameHub.acceptChallenge(challengeId, false);
   }
 
 }

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -36,10 +37,10 @@ import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component
   ],
   imports: [
     CommonModule,
+    FormsModule,
     FontAwesomeModule,
     DragDropModule,
-    GameCenterRoutingModule,
-    
+    GameCenterRoutingModule
   ]
 })
 export class GameCenterModule { }

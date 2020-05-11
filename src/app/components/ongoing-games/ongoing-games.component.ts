@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { Observable, Subscription } from 'rxjs';
 import { Game } from 'src/app/Models/game';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons';
@@ -17,14 +17,14 @@ export class OngoingGamesComponent implements OnInit, OnDestroy {
   private gameServiceConnectedSubscription:Subscription;
   private gameSubscription:Subscription;    
   
-  constructor(private router:Router,public gameService:GameService) {
+  constructor(private router:Router,public gameHub:GameHub) {
     
    }
   
   ngOnInit(): void {
-    this.gameServiceConnectedSubscription = this.gameService.isConnected$.subscribe(connected => {
+    this.gameServiceConnectedSubscription = this.gameHub.isConnected$.subscribe(connected => {
       if (connected){
-        this.games$ = this.gameService.getActiveGames();
+        this.games$ = this.gameHub.getActiveGames();
         this.gameSubscription = this.games$.subscribe(g =>{ 
           this.games = g;          
         });
@@ -52,7 +52,10 @@ export class OngoingGamesComponent implements OnInit, OnDestroy {
   }
 
   getOpponent(gameId:string):string{
-    var player = this.gameService.getOpponent(gameId);
+    var player = this.gameHub.getOpponent(gameId);
+    if (!player){
+      return "";
+    }
     if (player.firstName !== ""){
       return `${player.firstName} ${player.lastName}`
     }

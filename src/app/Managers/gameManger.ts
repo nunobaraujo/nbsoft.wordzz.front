@@ -4,20 +4,17 @@ import { Game } from 'src/app/Models/game';
 import { GamePlayer } from 'src/app/Models/gamePlayer';
 import { BoardLetter } from 'src/app/Models/boardLetter';
 
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { PlayLetter } from '../Models/playLetter';
 import { BoardTile } from '../Models/boardTile';
-import { GamePlayDirection } from '../Enums/gamePlayDirection';
 import { PlayMove } from '../Models/playMove';
 import { User } from '../Models/user';
 import { Board } from '../Models/board';
 import { GameLog } from '../Models/gameLog';
 import { GameLogDetails } from '../Models/gameLogDetails';
-import { Word } from '../Models/word';
 import { Letter } from '../Models/letter';
 import { GameResult } from '../Models/gameResult';
-import { ThrowStmt } from '@angular/compiler';
-import { GameOver } from '../Models/gameOver';
+
 
 export class GameManager{
     private gameSubscription:Subscription;
@@ -59,15 +56,15 @@ export class GameManager{
     private  currentPlayer: string="";
     currentPlayer$ = this._currentPlayer.asObservable();
 
-    private _gameEnded = new BehaviorSubject<GameOver>(null);    
+    private _gameEnded = new BehaviorSubject<GameResult>(null);    
     gameEnded$ = this._gameEnded.asObservable();
 
     
-    constructor(private gameService:GameService, gameId:string){
+    constructor(private gameHub:GameHub, gameId:string){
         this.gameId = gameId;
-        this.currentUser = gameService.currentUser;        
+        this.currentUser = gameHub.currentUser;        
         
-        this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{
+        this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{
             this.board = g.board;
             this.refreshGame(g);
         });
@@ -220,7 +217,9 @@ export class GameManager{
     }
 
     public getOpponent():GamePlayer{
-        
+        if (!this.game){
+            return null;
+        }
         if( this.currentUser.username == this.game.player01.userName){
           return this.game.player02;
         }
@@ -229,6 +228,9 @@ export class GameManager{
         }
     }
     public getPlayer():GamePlayer{        
+        if (!this.game){
+            return null;
+        }
         if( this.currentUser.username == this.game.player01.userName){
           return this.game.player01;
         }
@@ -240,14 +242,14 @@ export class GameManager{
 
     public async play():Promise<string>{
 
-        var result =  await this.gameService.play(this.game.id,this.currentPlaysStore.letters);
+        var result =  await this.gameHub.play(this.game.id,this.currentPlaysStore.letters);
         if(result.moveResult == "OK")
         {                
             if (!!this.gameSubscription)
             {
                 this.gameSubscription.unsubscribe();
             }        
-            this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+            this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{                   
                 console.log('refresGamme :>> ');
                 this.refreshGame(g);
             });
@@ -274,14 +276,14 @@ export class GameManager{
         });*/
     }
     public pass(){
-        this.gameService.pass(this.game.id).subscribe(res=>{            
+        this.gameHub.pass(this.game.id).subscribe(res=>{            
             if(res.moveResult == "OK")
             {                
                 if (!!this.gameSubscription)
                 {
                     this.gameSubscription.unsubscribe();
                 }        
-                this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+                this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{                   
                     this.refreshGame(g);
                 });
                 return;
@@ -294,7 +296,7 @@ export class GameManager{
         });
     }
     public forfeit(){
-        this.gameService.forfeit(this.game.id).subscribe(res=>{            
+        this.gameHub.forfeit(this.game.id).subscribe(res=>{            
             if(res.moveResult == "GameOver")
             {                
                 this.gameOver(res.gameOverResult);
@@ -307,7 +309,7 @@ export class GameManager{
         {
             this.gameSubscription.unsubscribe();
         }        
-        this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+        this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{                   
             this.refreshGame(g);
         });
     }
@@ -358,12 +360,8 @@ export class GameManager{
         // update rack drag and drop connections
         this.updateRackConnections();
     }
-    private gameOver(result: GameResult){
-        let gameResult:GameOver = new GameOver();
-        gameResult.game = this.game;
-        gameResult.result = result;
-
-        this._gameEnded.next(gameResult);
+    private gameOver(result: GameResult){        
+        this._gameEnded.next(result);
         this._gameEnded.next(null);
     }
 

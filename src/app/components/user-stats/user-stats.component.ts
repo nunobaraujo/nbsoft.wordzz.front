@@ -11,12 +11,15 @@ import { Subscription } from 'rxjs';
 })
 export class UserStatsComponent implements OnInit , OnDestroy{
   statsSubscription: Subscription;
-  stats:UserStats;
+  stats:UserStats = null;
   constructor(statsService:StatsService, authService:AuthenticationService ) 
   {
-    this.statsSubscription = statsService.getUserStats( authService.currentUserValue.username).subscribe(us =>this.stats = us);
-
-   } 
+    if (!!authService.currentUserValue){
+      this.statsSubscription = statsService.getUserStats( authService.currentUserValue.username).subscribe(us =>{
+        this.stats = us
+      });
+    }
+  }
 
   ngOnInit(): void {
   }
