@@ -12,6 +12,7 @@ import { Game } from '../Models/game';
 import { GamePlayer } from '../Models/gamePlayer';
 import { User } from '../Models/user';
 import { AuthenticationService } from './authentication.service';
+import { GameHub } from '../Managers/gameHub';
 
 
 @Injectable({
@@ -24,49 +25,86 @@ export class GameService {
   currentUser: User;
   gameManagers$ = this._gameManagers.asObservable();
 
-  constructor(private http: HttpClient, authenticationService:AuthenticationService) { 
+  constructor(private http: HttpClient,private gameHub:GameHub, authenticationService:AuthenticationService) { 
     authenticationService.currentUser.subscribe(u => this.currentUser = u);
+    
+    this.apiGetQueuedGames(this.currentUser.username)
+      .then(q => {
+        if (q.length>0){
+          this.gameHub.waitForGame()
+        }
+    });
+
+    this.registerPlayReceived();
+
+    
+
+  }
+  private registerPlayReceived(){
+    this.gameHub.playReceived$.subscribe(play => {
+      if(!play) { return; }
+      
+      var manager = this.gameManagersStore.gameManagers.find(gm => gm.gameId == play.gameId);
+      if(!!manager){
+        manager.onPlayReceived(play.userName); 
+      }
+      this.gameHub.clearPlayReceived();
+    });    
+  }
+  private registerGameOver(){
+    this.gameHub.endedGames$.subscribe(gameResult => {
+      if(!play) { return; }
+      
+      var manager = this.gameManagersStore.gameManagers.find(gm => gm.gameId == play.gameId);
+      if(!!manager){
+        manager.onPlayReceived(play.userName); 
+      }
+      this.gameHub.clearPlayReceived();
+    });    
   }
 
   public getActiveGames():Observable<Game[]>{
+    return from(this.refreshGames());
+  }
+
+  public getGame(id: string):Observable<Game> {    
+    return this.getActiveGames().pipe(
+      map(games => games.find(game => game.id === id))
+    );
+  }
+  public refreshGames():Promise<Game[]>{
     var promise = this.apiGetGames(this.currentUser?.username)
       .then(gms => {
         this.updateGameManagers(gms);
         return gms;
       });
-    
-    return from(promise);
+    return promise;
   }
 
-  public getGame(id: string) {    
-    return this.getActiveGames().pipe(
-      map(games => games.find(game => game.id === id))
-    );
-  }
+
   public getManager(gameId:string):GameManager{    
     return this.gameManagersStore.gameManagers.find(gm => gm.gameId == gameId);
   }
   public getOpponent(gameId:string):GamePlayer{
-
-    var game = this.activeGamesStore.games.find(x => x.id == gameId);
-    if (!game){
-      return null;
-    }
-    if( this.currentUser.username == game.player01.userName){
-      return game.player02;
-    }
-    else{
-      return game.player01;
-    }
+    var manager = this.gameManagersStore.gameManagers.find(x => x.gameId == gameId);
+    return manager?.getOpponent();
   }
   public getPlayer(gameId:string):GamePlayer{    
-    var game = this.activeGamesStore.games.find(x => x.id == gameId);
-    if( this.currentUser.username == game.player01.userName){
-      return game.player01;
+    var manager = this.gameManagersStore.gameManagers.find(x => x.gameId == gameId);
+    return manager.getPlayer();
+  }
+  public async searchGame(language:string, boardId:number):Promise<string>{
+    try {
+      let gameQueue = await this.apiQueueGame(language,boardId);
+      console.log('gameQueue :>> ', gameQueue);
+      this.gameHub.waitForGame();
+      return gameQueue.id;     
     }
-    else{
-      return game.player02;
-    }
+    catch (err) {
+      console.error(err);
+      return "";
+    }      
+
   }  
 
   private updateGameManagers(games:Game[]){    
@@ -77,7 +115,7 @@ export class GameService {
       var manager = this.gameManagersStore.gameManagers.find(gm => gm.gameId == g.id);
       if (!manager){
         // No manager to this game, add it
-        var manager = new GameManager(this,g.id);
+        var manager = new GameManager(this.gameHub,g.id);
         this.gameManagersStore.gameManagers.push(manager);
         this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
         console.log('New Game Mananager :', g.id);

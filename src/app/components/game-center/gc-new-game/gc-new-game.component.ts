@@ -30,7 +30,7 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   constructor(private router:Router, private gameHub:GameHub, private route: ActivatedRoute) {         
     this.onlineFriends$ = this.gameHub.onlineFriends$;
     this.sentChallenges$ = this.gameHub.sentChallenges$;
-    this.sentChallengesResult$ = this.gameHub.sentChallengesResult$;
+    this.sentChallengesResult$ = this.gameHub.challengeResult$;
     this.sentChallengesSubscription = this.sentChallenges$.subscribe(chall =>{      
       this.sentChallenges = chall;
     });

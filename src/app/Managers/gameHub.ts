@@ -22,6 +22,7 @@ import { PlayRequest } from 'src/Requests/playRequest';
 import { PlayResult } from '../Models/playResult';
 import { GameResult } from '../Models/gameResult';
 import { GameService } from '../Services/game.service';
+import { PlayReceived } from '../Models/playReceived';
 
 @Injectable({
   providedIn: 'root'
@@ -60,10 +61,13 @@ export class GameHub implements OnDestroy {
   private sentChallengeStore: { challenges:  GameChallenge[] } ={ challenges: []};
   sentChallenges$ = this._sentChallenges.asObservable();
 
-  private _sentChallengesResult = new BehaviorSubject<GameChallengeResult>(null);  
-  sentChallengesResult$ = this._sentChallengesResult.asObservable();
+  private _challengeResult = new BehaviorSubject<GameChallengeResult>(null);  
+  challengeResult$ = this._challengeResult.asObservable();
   
   
+  private _playReceived = new BehaviorSubject<PlayReceived>(null);  
+  playReceived$ = this. _playReceived.asObservable();
+
   private _searchingGame = new BehaviorSubject<string>(null);  
   private searchingGame:string = "";
   searchingGame$ = this._searchingGame.asObservable();
@@ -100,19 +104,7 @@ export class GameHub implements OnDestroy {
       this.contactsSubscription.unsubscribe();}
   } 
 
-  public updateOnlineContacts(){
-    if (this._isConnected.value !== true){ return; }
-
-    this.getOnlineContacts()
-      .then(result => {
-        this.onlineFriendStore.friends = result;
-        this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
-      })
-      .catch(err =>  {          
-        this.onlineFriendStore.friends = [];
-        this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
-      });
-  }
+  
   public sendMessage(message: string): void {
     if (this._isConnected.value !== true){ return null; }
     this.hubConnection
@@ -124,20 +116,7 @@ export class GameHub implements OnDestroy {
     return ""
   }  
 
-  public async searchGame(language:string, boardId:number){
-    try {
-      let gameQueue = await this.gameService.queueGame(language,boardId);
-      console.log('gameQueue :>> ', gameQueue);
-      this.waitForGame();
-
-      return gameQueue.id;     
-    }
-    catch (err) {
-      console.error(err);
-      return "";
-    }      
-
-  }
+  
   
   public async challengeGame(language:string, boardId:number , challengedPlayer:string):Promise<string>
   {    
@@ -204,11 +183,7 @@ export class GameHub implements OnDestroy {
     
     return await  this.hubConnection    
       .invoke<PlayResult>('play', request)
-      .then(res =>{        
-        var result = new PlayResult();
-        Object.assign(result,res);
-        return result;
-      })
+      .then(res =>res)
       .catch(err =>{     
         console.log('err :>> ', err);
         var result = new PlayResult();
@@ -216,64 +191,46 @@ export class GameHub implements OnDestroy {
         return result;
       });    
   }
-  public pass(gameId:string):Observable<PlayResult>{
+  public async pass(gameId:string):Promise<PlayResult>{
     if (this._isConnected.value !== true){ return null; }
 
     let request = new PlayRequest();
     request.gameId = gameId;
     request.userName = this.currentUser.username;
     
-    var promise = this.hubConnection    
+    return await this.hubConnection    
       .invoke<PlayResult>('pass', request)
-      .then(res =>{        
-        var result = new PlayResult();
-        Object.assign(result,res);
-        return result;
-      })
+      .then(res =>res)
       .catch(err =>{     
         console.log('err :>> ', err);
         var result = new PlayResult();
         result.moveResult = "KO";
         return result;
       }); 
-      return from(promise);
   }
-  public forfeit(gameId:string):Observable<PlayResult>{
+  public async forfeit(gameId:string):Promise<PlayResult>{
     if (this._isConnected.value !== true){ return null; }
     
     let request = new PlayRequest();
     request.gameId = gameId;
     request.userName = this.currentUser.username;
 
-    var promise = this.hubConnection    
+    return await this.hubConnection    
       .invoke<PlayResult>('forfeit', request)
-      .then(res =>{        
-        
-        this.loadActiveGames().then( g => {console.log('Games:', g)});
-        
-        var result = new PlayResult();
-        Object.assign(result,res);
-        return result;
-      })
+      .then(res =>res)
       .catch(err =>{     
         console.log('err :>> ', err);
         var result = new PlayResult();
         result.moveResult = "KO";
         return result;
       }); 
-      return from(promise);
-
   }
   
 
 
   private async initializeService() {
-    var gameQueues = await this.gameService.getQueuedGames(this.currentUser.username);
-    if (gameQueues.length>0){
-      this.waitForGame()
-    }
-
-    this.updateOnlineContacts();
+    
+    await this.updateOnlineContacts();
 
     this.hubConnection.invoke('GetSentChallenges').then(challenges=>{                
       this.sentChallengeStore.challenges = challenges;        
@@ -299,7 +256,7 @@ export class GameHub implements OnDestroy {
 
   }
 
-  private waitForGame(){
+  public async waitForGame(){
     this.searchingGame = "searching";
     this._searchingGame.next(this.searchingGame);
     this.stopSearch = false;
@@ -313,7 +270,7 @@ export class GameHub implements OnDestroy {
           searchGameSubscription.unsubscribe();
           if (!getMatchResult.startsWith("Error")){
             console.log('Match Found!',getMatchResult);
-            this.loadActiveGames().then( g => {console.log('Games:', g)});              
+            await this.gameService.refreshGames();              
             setTimeout(() => {
               this.searchingGame = getMatchResult;
               this._searchingGame.next(this.searchingGame);              
@@ -328,27 +285,23 @@ export class GameHub implements OnDestroy {
     });
   }
 
-  public updateOnlineOpponents(){
+  public async updateOnlineOpponents(){
     if (this._isConnected.value !== true){ return; }
 
-    this.getOnlineOpponents()
-    .then(opponents=>{
-      this.onlineOpponentsStore.opponents = opponents;
-      this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
-    })
-    .catch(err =>  {          
-      this.onlineOpponentsStore.opponents = [];          
-      this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
-    });
+    this.onlineOpponentsStore.opponents = await this.getOnlineOpponents();
+    this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
   }
-  
+  public async updateOnlineContacts(){
+    if (this._isConnected.value !== true){ return; }
 
+    this.onlineFriendStore.friends = await this.getOnlineContacts();
+    this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);    
+  }
   private getOnlineContacts():Promise<string[]>{
     if (this._isConnected.value !== true){ return null; }
 
     return this.hubConnection.invoke('GetOnlineContacts');
   }
-  
   private getOnlineOpponents():Promise<string[]>{
     if (this._isConnected.value !== true){ return null; }
 
@@ -375,12 +328,15 @@ export class GameHub implements OnDestroy {
       this.onlineFriendStore.friends.push(name);
       this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
     }
+    //TODO
+    /*
     this.activeGamesStore.games.forEach(g => {
       if(g.player01.userName === name || g.player02.userName === name){
         this.onlineOpponentsStore.opponents.push(name);
         this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
       }
     });
+    */
   }
   private removeOnlineFriend(name:string ):void{
     if (this._isConnected.value !== true){ return; }
@@ -441,6 +397,12 @@ export class GameHub implements OnDestroy {
     this.hubConnection.stop();
   }
 
+  clearChallengeResult(){
+    this._challengeResult.next( null);
+  }
+  clearPlayReceived(){
+    this._playReceived.next(null);
+  }
   private registerGameHubEvents():void{
     console.log('Registering GameHub Events ');
     
@@ -482,9 +444,7 @@ export class GameHub implements OnDestroy {
 
     // On challenge accepted
     this.hubConnection.on('challengeAccepted', (challengeId:string,  accept:boolean, gameId:string) => {            
-      if (accept=== true){
-        this.loadActiveGames().then( g => {console.log('Games:', g)});
-      }
+      
       var sChallenge = this.sentChallengeStore.challenges.find(c => c.id == challengeId);      
       var result = new GameChallengeResult(); 
       result.challenge = sChallenge;
@@ -493,14 +453,15 @@ export class GameHub implements OnDestroy {
 
       console.log('challengeAccepted :>> ', result);
       
+      // Remove challenge from sent challenge store
       var sChallengeIndex = this.sentChallengeStore.challenges.findIndex(c => c.id == challengeId);
       if (sChallengeIndex !== -1)
       {
         this.sentChallengeStore.challenges.splice(sChallengeIndex,1);
         this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
       }      
-      this._sentChallengesResult.next( result);
-      this._sentChallengesResult.next( null);     
+      this._challengeResult.next(result);
+           
     });
         
     // On send message to global
@@ -516,18 +477,16 @@ export class GameHub implements OnDestroy {
 
     // On new play received
     this.hubConnection.on('playOk', (gameId:string ,username: string ) => {
-      let manager = this.getManager(gameId);
-      manager.onPlayReceived(username);
+      let play = new PlayReceived();
+      play.gameId = gameId;
+      play.userName = username;
+      this._playReceived.next(play);
     });
 
     // On opposer forfeit
     this.hubConnection.on('gameOver', (gameId:string, result: GameResult) => {
       this.endedGamesStore.games.push(result);      
       this._endedGames.next(Object.assign({},this.endedGamesStore).games);
-
-      this.loadActiveGames().then( g => {console.log('Games:', g)});
-      let manager = this.getManager(gameId);
-      manager.onGameOverReceived(result);
     });    
   }  
 }
