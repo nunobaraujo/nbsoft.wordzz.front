@@ -8,6 +8,7 @@ import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { MatDialog } from '@angular/material/dialog';
 import { GameoverModalComponent } from 'src/app/Dialogs/gameover-modal/gameover-modal.component';
 import { GameResult } from 'src/app/Models/gameResult';
+import { GameService } from 'src/app/Services/game.service';
 
 @Component({
   selector: 'app-gc-game',
@@ -35,9 +36,8 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   private _status = new BehaviorSubject<string>(null);
   status$ = this._status.asObservable();
 
-  constructor(private route: ActivatedRoute, private gameHub:GameHub, router:Router ,public dialog: MatDialog) {    
-    this.currentUserName = this.gameHub.currentUser.username;
-    console.log('this.gameHub :>> ', this.gameHub);
+  constructor(private route: ActivatedRoute, private gameHub:GameHub, private gameService:GameService, router:Router ,public dialog: MatDialog) {    
+    this.currentUserName = this.gameService.currentUser.username;
     
     if(!!this.routeSubscription){
       this.routeSubscription.unsubscribe();  
@@ -46,7 +46,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
     .subscribe((data) => {
       this.loading = true;
       console.log('data.game.id :>> ', data.game.id);
-      this.gameManager = this.gameHub.getManager(data.game.id);   
+      this.gameManager = this.gameService.getManager(data.game.id);   
       console.log('this.gameManager :>> ', this.gameManager);
       this.gameLogs$ = this.gameManager.gameLog$;         
       if (!!this.gameOverSubscription){
@@ -73,7 +73,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
       if(!!this.onlineOpponentsSubscription){
         this.onlineOpponentsSubscription.unsubscribe();
       }
-      this.onlineOpponentsSubscription = this.gameHub.onlineOpponents$.subscribe(opponent =>{
+      this.onlineOpponentsSubscription = this.gameService.onlineOpponents$.subscribe(opponent =>{
         this.isOpponentOnline = opponent.findIndex(f => this.gameManager.getOpponent().userName ) !== -1;        
       }); 
     });     

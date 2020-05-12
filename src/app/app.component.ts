@@ -5,9 +5,10 @@ import { Subscription } from 'rxjs';
 import { faUser,faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthenticationService } from './Services/authentication.service';
-import { GameHub } from './Managers/gameHub';
 
 import { User } from './Models/user';
+import { GameService } from './Services/game.service';
+import { GameHub } from './Managers/gameHub';
 
 
 @Component({
@@ -28,13 +29,9 @@ export class AppComponent  implements OnInit, OnDestroy{
   
   constructor(private router: Router,    
     private authenticationService: AuthenticationService,
-    private gameHub:GameHub)
+    private gameHub: GameHub,
+    gameService: GameService)
   {
-    this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
-    gameHub.getActiveGames().subscribe(gms => {
-      console.log('Loaded Games :>> ', gms);
-    });
-    
     this.socketsConnectedSubscription = this.gameHub.isConnected$.subscribe(c => {      
       if (c == true){   
         console.log('Connected!');
@@ -42,11 +39,24 @@ export class AppComponent  implements OnInit, OnDestroy{
       }
       else{
         this.connecting = true;
-        console.log('Not connected!');        
+        console.log('Disconnected!');
       }
     });
 
-    
+    this.authenticationService.currentUser.subscribe(x => {      
+      this.currentUser = x;
+      if (!!this.currentUser){
+        gameService.refreshGames()
+          .then(gms =>{ 
+            console.log('Loaded Games :>> ', gms);
+            gameHub.connect();                 
+          })
+          .catch(err =>{
+            console.log('err >', err);
+            gameHub.disconnect();
+          });         
+      }      
+    });
   }
   ngOnInit(): void {
 
@@ -54,6 +64,7 @@ export class AppComponent  implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.socketsConnectedSubscription.unsubscribe();    
   }
+
   logout() {
     this.authenticationService.logout();    
     this.router.navigateByUrl('/login');

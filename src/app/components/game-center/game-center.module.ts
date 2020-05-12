@@ -15,7 +15,6 @@ import { GcRootComponent } from './gc-root/gc-root.component';
 import { GcNewGameComponent } from './gc-new-game/gc-new-game.component';
 import { GcHomeComponent } from './gc-home/gc-home.component';
 import { GcGameComponent } from './gc-game/gc-game.component';
-import { GcChallengesComponent } from './gc-challenges/gc-challenges.component';
 import { GcActiveGamesComponent } from './gc-active-games/gc-active-games.component';
 import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component';
 
@@ -26,8 +25,7 @@ import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component
     GcRootComponent,
     GcHomeComponent,
     GcNewGameComponent,
-    GcGameComponent,    
-    GcChallengesComponent,
+    GcGameComponent,
     GcActiveGamesComponent,
     GridTileComponent,
     GridBoardComponent,

@@ -4,7 +4,6 @@ import { Game } from 'src/app/Models/game';
 import { GamePlayer } from 'src/app/Models/gamePlayer';
 import { BoardLetter } from 'src/app/Models/boardLetter';
 
-import { GameHub } from 'src/app/Managers/gameHub';
 import { PlayLetter } from '../Models/playLetter';
 import { BoardTile } from '../Models/boardTile';
 import { PlayMove } from '../Models/playMove';
@@ -14,6 +13,8 @@ import { GameLog } from '../Models/gameLog';
 import { GameLogDetails } from '../Models/gameLogDetails';
 import { Letter } from '../Models/letter';
 import { GameResult } from '../Models/gameResult';
+import { GameService } from '../Services/game.service';
+import { PlayResult } from '../Models/playResult';
 
 
 export class GameManager{
@@ -60,11 +61,11 @@ export class GameManager{
     gameEnded$ = this._gameEnded.asObservable();
 
     
-    constructor(private gameHub:GameHub, gameId:string){
+    constructor(private gameService:GameService, gameId:string){
         this.gameId = gameId;
-        this.currentUser = gameHub.currentUser;        
+        this.currentUser = gameService.currentUser;        
         
-        this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{
+        this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{
             this.board = g.board;
             this.refreshGame(g);
         });
@@ -242,14 +243,14 @@ export class GameManager{
 
     public async play():Promise<string>{
 
-        var result =  await this.gameHub.play(this.game.id,this.currentPlaysStore.letters);
+        var result =  await this.gameService.play(this.game.id,this.currentPlaysStore.letters);
         if(result.moveResult == "OK")
         {                
             if (!!this.gameSubscription)
             {
                 this.gameSubscription.unsubscribe();
             }        
-            this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{                   
+            this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
                 console.log('refresGamme :>> ');
                 this.refreshGame(g);
             });
@@ -258,50 +259,32 @@ export class GameManager{
         else{
             return result.moveResult;
         }
-
-        /*this.gameService.play(this.game.id,this.currentPlaysStore.letters).then(res=>{            
-            if(res.moveResult == "OK")
-            {                
-                if (!!this.gameSubscription)
-                {
-                    this.gameSubscription.unsubscribe();
-                }        
-                this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
-                    this.refreshGame(g);
-                });
-            }
-            else{
-                alert(res.moveResult);
-            }
-        });*/
     }
-    public pass(){
-        this.gameHub.pass(this.game.id).subscribe(res=>{            
-            if(res.moveResult == "OK")
-            {                
-                if (!!this.gameSubscription)
-                {
-                    this.gameSubscription.unsubscribe();
-                }        
-                this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{                   
-                    this.refreshGame(g);
-                });
-                return;
-            }            
-            if(res.moveResult == "GameOver"){
-                this.gameOver(res.gameOverResult);
-                return;
-            }
-            console.log("Play Result:",res.moveResult);
-        });
+    public async pass():Promise<PlayResult>{
+        var res = await this.gameService.pass(this.game.id);
+        if(res.moveResult == "OK")
+        {                
+            if (!!this.gameSubscription)
+            {
+                this.gameSubscription.unsubscribe();
+            }        
+            this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+                this.refreshGame(g);
+            });            
+        }            
+        if(res.moveResult == "GameOver"){
+            this.gameOver(res.gameOverResult);         
+        }
+        console.log("Play Result:",res.moveResult);
+        return res;
     }
-    public forfeit(){
-        this.gameHub.forfeit(this.game.id).subscribe(res=>{            
-            if(res.moveResult == "GameOver")
-            {                
-                this.gameOver(res.gameOverResult);
-            }            
-        });
+    public async forfeit(){
+        var result = await this.gameService.forfeit(this.game.id);
+        if( result.moveResult == "GameOver")
+        {                
+            this.gameOver(result.gameOverResult);
+        }            
+        return result;
     }
     
     public onPlayReceived(userName:string){
@@ -309,7 +292,7 @@ export class GameManager{
         {
             this.gameSubscription.unsubscribe();
         }        
-        this.gameSubscription = this.gameHub.getGame(this.gameId).subscribe(g =>{                   
+        this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
             this.refreshGame(g);
         });
     }

@@ -12,7 +12,7 @@ export class GcRootComponent implements OnInit,OnDestroy {
   private receivedChallengesSubscription:Subscription
   lastChallengeId:string = null;
   constructor(gameHub:GameHub) {
-    this.receivedChallengesSubscription = gameHub.lastReceivedChallenge$.subscribe(challenge =>{
+    this.receivedChallengesSubscription = gameHub.receivedChallenge$.subscribe(challenge =>{
       if(!!challenge  && challenge.id !== this.lastChallengeId){
         this.lastChallengeId = challenge.id;
         alert(`Received new challenge from ${challenge.origin}`);

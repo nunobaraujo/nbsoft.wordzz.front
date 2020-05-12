@@ -13,56 +13,40 @@ import { User } from '../Models/user';
 import { ChatMessage } from '../Models/chatMessage';
 import { GameChallenge } from '../Models/gameChallenge';
 import { GameChallengeResult } from '../Models/gameChallengeResult';
-import { Game } from '../Models/game';
-import { GamePlayer } from '../Models/gamePlayer';
 
-import { GameManager } from './gameManger';
+
 import { PlayLetter } from '../Models/playLetter';
 import { PlayRequest } from 'src/Requests/playRequest';
 import { PlayResult } from '../Models/playResult';
 import { GameResult } from '../Models/gameResult';
-import { GameService } from '../Services/game.service';
+
 import { PlayReceived } from '../Models/playReceived';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameHub implements OnDestroy {
-  private hubConnection: HubConnection;
-  private userSubscription:Subscription;
-  private contactsSubscription:Subscription;
-    
-  currentUser: User;
-  friends: string[] = [];
-  
+  private hubConnection: HubConnection;  
+      
+  currentUser: User;    
   private _messages = new BehaviorSubject<ChatMessage[]>([]);
   private messageStore: { messages: ChatMessage[] } = { messages: [] }; // store our data in memory
   messages$ = this._messages.asObservable();
 
   private _isConnected = new BehaviorSubject<boolean>(false);
   isConnected$ = this._isConnected.asObservable();
+  isConnected:boolean;
   
-  private _onlineFriends = new BehaviorSubject<string[]>([]);
-  private onlineFriendStore: { friends: string[] } = { friends: [] }; 
-  onlineFriends$ = this. _onlineFriends.asObservable();
+    
+  private _receivedChallenge = new BehaviorSubject<GameChallenge>(null);
+  receivedChallenge$ = this._receivedChallenge.asObservable();
 
-  private _onlineOpponents = new BehaviorSubject<string[]>([]);
-  private onlineOpponentsStore: { opponents: string[] } = { opponents: [] }; 
-  onlineOpponents$ = this. _onlineOpponents.asObservable();
-
-  private _receivedChallenges = new BehaviorSubject<GameChallenge[]>(null);  
-  private receivedChallengeStore: { challenges:  GameChallenge[] } ={ challenges: []};
-  receivedChallenges$ = this._receivedChallenges.asObservable();
+ 
+  private _challengeAccepted = new BehaviorSubject<GameChallengeResult>(null);  
+  challengeAccepted$ = this._challengeAccepted.asObservable();
   
-  private _lastReceivedChallenge = new BehaviorSubject<GameChallenge>(null);
-  lastReceivedChallenge$ = this._lastReceivedChallenge.asObservable();
-
-  private _sentChallenges = new BehaviorSubject<GameChallenge[]>(null);  
-  private sentChallengeStore: { challenges:  GameChallenge[] } ={ challenges: []};
-  sentChallenges$ = this._sentChallenges.asObservable();
-
-  private _challengeResult = new BehaviorSubject<GameChallengeResult>(null);  
-  challengeResult$ = this._challengeResult.asObservable();
+  private _challengeCanceled = new BehaviorSubject<string>(null);  
+  challengeCanceled$ = this._challengeCanceled.asObservable();
   
   
   private _playReceived = new BehaviorSubject<PlayReceived>(null);  
@@ -72,109 +56,54 @@ export class GameHub implements OnDestroy {
   private searchingGame:string = "";
   searchingGame$ = this._searchingGame.asObservable();
   
-  private _endedGames = new BehaviorSubject<GameResult[]>(null);  
-  private endedGamesStore: { games:  GameResult[] } ={ games: []};
+  private _endedGames = new BehaviorSubject<GameResult>(null);    
   endedGames$ = this._endedGames.asObservable();
+
+  private _userArrived = new BehaviorSubject<string>(null);    
+  userArrived$ = this._userArrived.asObservable();
+
+  private _userLeft = new BehaviorSubject<string>(null);    
+  userLeft$ = this._userLeft.asObservable();
   
   private stopSearch:boolean;
   
-  constructor(private router:Router,
-    private gameService:GameService,
-    private authenticationService: AuthenticationService, 
-    private userService:UserService) {
-    this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}/hubs/game`, { accessTokenFactory: () => this.currentUser.token })
-      .build();
-    
-    this.userSubscription = this.authenticationService.currentUser.subscribe(x =>{
-      this.currentUser = x;
-      if (!this.currentUser?.username) {
-        this.disconnect();
+  constructor(authService:AuthenticationService) {
+    authService.currentUser.subscribe(u =>{
+      this.currentUser = u;
+      if (!!u){
+        this.hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(`${environment.apiUrl}/hubs/game`, { accessTokenFactory: () => this.currentUser.token })
+        .build();
       }
-      else {
-        console.log("GameHub.Connect");
-        this.connect();
+      else
+      {
+        try{this.disconnect();}
+        catch{ ex=>console.log('Error ', ex); }        
       }
+
     });
+
+    
   }
   ngOnDestroy(): void {
-    this.userSubscription.unsubscribe();
-
-    if(!!this.contactsSubscription){
-      this.contactsSubscription.unsubscribe();}
+ 
   } 
 
   
   public sendMessage(message: string): void {
-    if (this._isConnected.value !== true){ return null; }
+    if (this.isConnected !== true){ return null; }
     this.hubConnection
-      .invoke('sendToAll', this.currentUser.username, message)
+      .invoke('broadCastMessage', this.currentUser.username, message)
       .catch(err => console.error(err));
   }
-  public newSoloGame():string
-  {
-    return ""
-  }  
-
-  
-  
-  public async challengeGame(language:string, boardId:number , challengedPlayer:string):Promise<string>
-  {    
-    if (this._isConnected.value !== true){ return null; }
-    try {
-      let res = await this.hubConnection.invoke('challengeGame', language, boardId ,challengedPlayer)      
-      
-      var c = new GameChallenge();
-      Object.assign(c,res );
-      console.log('Challenge :>> ',  c);
-
-      this.sentChallengeStore.challenges.push(c);
-      this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
-      return  c.id;
-    }
-    catch (err) {
-      console.error(err);
-      return "";
-    }      
-  }  
-  public acceptChallenge(challengeId:string , accept: boolean):Observable<string>{
-    if (this._isConnected.value !== true){ return null; }
-
-    var promise = (this.hubConnection.invoke('challengeAccept', challengeId, accept)
-      .then<string>(gameId =>{
-        const index:number = this.receivedChallengeStore.challenges.findIndex(({id})=> id === challengeId);
-        if (index!==-1) {
-          console.log('Removing Challenge :', index);
-          this.receivedChallengeStore.challenges.splice(index, 1);
-          this._receivedChallenges.next(Object.assign({},this.receivedChallengeStore).challenges);          
-        }
-        if (accept === true){
-          this.router.navigateByUrl("/game-center/challenges")
-          return gameId
-        }
-        else
-          return null;
-      })
-      .catch(err => {
-        console.error(err)
-        return null
-      }));
-    return from(promise);
+        
+  public acceptChallengeOls(challengeId:string , accept: boolean):Promise<string>{
+    return this.hubConnection.invoke('challengeAccept', challengeId, accept);
   }
-
-
-  public getGameResult(gameId:string):GameResult{
-    if (this._isConnected.value !== true){ return null; }
-
-    var game = this.endedGamesStore.games.find(g => g.gameId == gameId);
-    var index = this.endedGamesStore.games.findIndex(g => g.gameId == gameId);
-    this.endedGamesStore.games.splice(index,1);
-    this._endedGames.next(Object.assign({},this.endedGamesStore).games);
-    return game;
-  }
+  
   
   public async play(gameId:string, letters: PlayLetter[]):Promise<PlayResult>{
-    if (this._isConnected.value !== true){ return null; }
+    if (this.isConnected !== true){ return null; }
 
     let request = new PlayRequest();
     request.gameId = gameId;
@@ -192,7 +121,7 @@ export class GameHub implements OnDestroy {
       });    
   }
   public async pass(gameId:string):Promise<PlayResult>{
-    if (this._isConnected.value !== true){ return null; }
+    if (this.isConnected !== true){ return null; }
 
     let request = new PlayRequest();
     request.gameId = gameId;
@@ -209,7 +138,7 @@ export class GameHub implements OnDestroy {
       }); 
   }
   public async forfeit(gameId:string):Promise<PlayResult>{
-    if (this._isConnected.value !== true){ return null; }
+    if (this.isConnected !== true){ return null; }
     
     let request = new PlayRequest();
     request.gameId = gameId;
@@ -228,11 +157,11 @@ export class GameHub implements OnDestroy {
   
 
 
-  private async initializeService() {
+  private initializeService() {
     
-    await this.updateOnlineContacts();
-
-    this.hubConnection.invoke('GetSentChallenges').then(challenges=>{                
+    console.log('initializeService :>> ');
+    
+    /*this.hubConnection.invoke('GetSentChallenges').then(challenges=>{                
       this.sentChallengeStore.challenges = challenges;        
       console.log("sentChallengeStore:", this.sentChallengeStore.challenges);
       this._sentChallenges.next(Object.assign({}, this.sentChallengeStore).challenges);        
@@ -252,7 +181,7 @@ export class GameHub implements OnDestroy {
       console.error(err);
       this.receivedChallengeStore.challenges = [];
       this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
-    });    
+    });    */
 
   }
 
@@ -270,7 +199,7 @@ export class GameHub implements OnDestroy {
           searchGameSubscription.unsubscribe();
           if (!getMatchResult.startsWith("Error")){
             console.log('Match Found!',getMatchResult);
-            await this.gameService.refreshGames();              
+            //await this.gameService.refreshGames();              
             setTimeout(() => {
               this.searchingGame = getMatchResult;
               this._searchingGame.next(this.searchingGame);              
@@ -284,32 +213,20 @@ export class GameHub implements OnDestroy {
         }
     });
   }
-
-  public async updateOnlineOpponents(){
-    if (this._isConnected.value !== true){ return; }
-
-    this.onlineOpponentsStore.opponents = await this.getOnlineOpponents();
-    this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
-  }
-  public async updateOnlineContacts(){
-    if (this._isConnected.value !== true){ return; }
-
-    this.onlineFriendStore.friends = await this.getOnlineContacts();
-    this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);    
-  }
-  private getOnlineContacts():Promise<string[]>{
-    if (this._isConnected.value !== true){ return null; }
+  
+  public getOnlineContacts():Promise<string[]>{
+    if (this.isConnected !== true){ return null; }
 
     return this.hubConnection.invoke('GetOnlineContacts');
   }
-  private getOnlineOpponents():Promise<string[]>{
-    if (this._isConnected.value !== true){ return null; }
+  public getOnlineOpponents():Promise<string[]>{
+    if (this.isConnected !== true){ return null; }
 
     return this.hubConnection.invoke('GetOnlineOpponents');    
   }
 
   private async getGameMatch():Promise<string>{
-    if (this._isConnected.value !== true){ return null; }
+    if (this.isConnected !== true){ return null; }
 
     return await this.hubConnection.invoke<string>('getGameMatch')
       .catch(err=> {
@@ -320,73 +237,43 @@ export class GameHub implements OnDestroy {
   
 
 
-  private addOnlineFriend(name:string ):void{
-    if (this._isConnected.value !== true){ return; }
-    
-    if (this.friends.includes(name))
-    {      
-      this.onlineFriendStore.friends.push(name);
-      this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
-    }
-    //TODO
-    /*
-    this.activeGamesStore.games.forEach(g => {
-      if(g.player01.userName === name || g.player02.userName === name){
-        this.onlineOpponentsStore.opponents.push(name);
-        this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
-      }
-    });
-    */
-  }
-  private removeOnlineFriend(name:string ):void{
-    if (this._isConnected.value !== true){ return; }
-    
-    const index: number = this.onlineFriendStore.friends.indexOf(name);
-    if (index !== -1) {
-        this.onlineFriendStore.friends.splice(index, 1);
-        this._onlineFriends.next(Object.assign({}, this.onlineFriendStore).friends);
-    }
-
-    const indexOp: number = this.onlineOpponentsStore.opponents.indexOf(name);
-    if (indexOp !== -1) {
-      this.onlineOpponentsStore.opponents.splice(index, 1);
-      this._onlineOpponents.next(Object.assign({}, this.onlineOpponentsStore).opponents);
-    }
-  }
+  
  
   
 
-  private reconnect(milliseconds:number):void {
+  public reconnect(milliseconds:number):void {       
+    if (!this.currentUser){
+      return;
+    }
     setTimeout(() => {
       console.log('Reconnecting...');
       this.connect();
     }, milliseconds);
   }
-  private connect():void{
-
-    this.contactsSubscription = this.userService.getContacts()
-        .subscribe(c => this.friends = c);    
+  public connect():void{
+    
 
     this.hubConnection.start()
-      .then(async () => {
-        await this.initializeService();
+      .then(async () => {        
         console.log('WebSocks connection state :>> ', this.hubConnection.state);   
+        this.isConnected = true;
         this.registerGameHubEvents();
-        this._isConnected.next(true);
+        await this.initializeService();
+        this._isConnected.next(this.isConnected);
       })
       .catch(err =>{ 
-        this._isConnected.next(false);
+        this.isConnected = false;
+        this._isConnected.next(this.isConnected);
         console.log('WebSocks Error while establishing connection. Retry in 3 seconds');
         this.reconnect(3000);        
       });
   }
-  private disconnect():void{    
-    if(this._isConnected.getValue()=== false)
+  public disconnect():void{    
+    if(this.isConnected === false)
     {
       return ;
     }
-    if(!!this.contactsSubscription){
-      this.contactsSubscription.unsubscribe();}
+    
     
     console.log('Disconnecting from WebSockets...');    
     this.hubConnection.off("start");
@@ -396,76 +283,60 @@ export class GameHub implements OnDestroy {
     this.hubConnection.off("disconnected");
     this.hubConnection.stop();
   }
-
-  clearChallengeResult(){
-    this._challengeResult.next( null);
-  }
-  clearPlayReceived(){
-    this._playReceived.next(null);
-  }
+  
   private registerGameHubEvents():void{
     console.log('Registering GameHub Events ');
     
     // On Close
     this.hubConnection.onclose(res =>{
       console.log('Connection Lost :', res);
-      this._isConnected.next(false);
-      if (!this.authenticationService.currentUserValue){
-        // User logged out
-        console.log('WebSocks Connection Canceled!');
-      }
-      else
-      {
-        console.log('WebSocks Connection Lost. Retry in 3 seconds');
-        this.reconnect(3000);
-      }      
+      this.isConnected = false;
+      this._isConnected.next(this.isConnected);
+      this.reconnect(3000);
     });
 
     // On user connected
     this.hubConnection.on('connected', (name: string) => {
-      this.addOnlineFriend(name);      
+      console.log('User Connected :>> ', name);
+      this._userArrived.next(name);
+      this._userArrived.next(null);      
     });
 
     // On user disconnected
     this.hubConnection.on('disconnected', (name: string) => {      
-      this.removeOnlineFriend(name);
+      console.log('User Disconnected :>> ', name);
+      this._userLeft.next(name);
+      this._userLeft.next(null);      
     });
 
     // On challenge received
-    this.hubConnection.on('newChallenge', (challenge:GameChallenge) => {
-      
-      console.log('Challenge received from :', challenge);
-      
-      this.receivedChallengeStore.challenges.push(challenge);      
-      this._receivedChallenges.next(Object.assign({},this.receivedChallengeStore).challenges);
-      this._lastReceivedChallenge.next(challenge);      
-      this._lastReceivedChallenge.next(null);      
+    this.hubConnection.on('newChallenge', (challenge:GameChallenge) => {            
+      this._receivedChallenge.next(challenge);      
+      this._receivedChallenge.next(null);      
     });
 
     // On challenge accepted
     this.hubConnection.on('challengeAccepted', (challengeId:string,  accept:boolean, gameId:string) => {            
-      
-      var sChallenge = this.sentChallengeStore.challenges.find(c => c.id == challengeId);      
+      console.log('challengeAccepted :>> ',challengeId);
+
       var result = new GameChallengeResult(); 
-      result.challenge = sChallenge;
+      result.challengeId = challengeId;
       result.accepted = accept;
       result.gameId = gameId;
-
-      console.log('challengeAccepted :>> ', result);
-      
-      // Remove challenge from sent challenge store
-      var sChallengeIndex = this.sentChallengeStore.challenges.findIndex(c => c.id == challengeId);
-      if (sChallengeIndex !== -1)
-      {
-        this.sentChallengeStore.challenges.splice(sChallengeIndex,1);
-        this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
-      }      
-      this._challengeResult.next(result);
+      this._challengeAccepted.next(result);
+      this._challengeAccepted.next(null);    
+           
+    });
+     // On challenge Canceled
+     this.hubConnection.on('challengeCanceled', (challengeId:string) => {
+      console.log('challengeCanceled:>> ',challengeId);
+      this._challengeCanceled.next(challengeId)
+      this._challengeCanceled.next(null);    
            
     });
         
     // On send message to global
-    this.hubConnection.on('sendToAll', (name: string, message: string) => {
+    this.hubConnection.on('broadCastMessage', (name: string, message: string) => {
       var newMsg = new ChatMessage();
       newMsg.date = Date.now().toString();
       newMsg.sender = name;
@@ -481,12 +352,17 @@ export class GameHub implements OnDestroy {
       play.gameId = gameId;
       play.userName = username;
       this._playReceived.next(play);
+      this._playReceived.next(null);
     });
 
     // On opposer forfeit
-    this.hubConnection.on('gameOver', (gameId:string, result: GameResult) => {
-      this.endedGamesStore.games.push(result);      
-      this._endedGames.next(Object.assign({},this.endedGamesStore).games);
+    this.hubConnection.on('gameOver', (gameId:string, result: GameResult) => {      
+      this._endedGames.next(Object.assign({},result));
+      this._endedGames.next(null);
+    });      
+    // On match found
+    this.hubConnection.on('gameMatchFound', (gameId:string) => {      
+      console.log('gameMatchFound :>> ', gameId);
     });    
   }  
 }

@@ -1,10 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription} from 'rxjs';
 import { Observable } from 'rxjs/internal/Observable';
-
-import { GameHub } from 'src/app/Managers/gameHub';
-import { Game } from 'src/app/Models/game';
 import { GameManager } from 'src/app/Managers/gameManger';
+import { GameService } from 'src/app/Services/game.service';
 
 @Component({
   selector: 'app-gc-active-games',
@@ -14,8 +11,8 @@ import { GameManager } from 'src/app/Managers/gameManger';
 export class GcActiveGamesComponent implements OnInit, OnDestroy {    
   gamesManagers$ : Observable<GameManager[]>;
 
-  constructor(private gameHub:GameHub) {    
-    this.gamesManagers$ = this.gameHub.gameManagers$;
+  constructor(private gameService:GameService) {    
+    this.gamesManagers$ = this.gameService.gameManagers$;
   }  
 
   ngOnInit(): void {        
@@ -24,7 +21,7 @@ export class GcActiveGamesComponent implements OnInit, OnDestroy {
     
   }   
   getOpponent(gameId:string):string{
-    var player = this.gameHub.getOpponent(gameId);    
+    var player = this.gameService.getOpponent(gameId);    
     if (!!player ){
       if (player.firstName !== ""){
         return `${player.firstName} ${player.lastName}`

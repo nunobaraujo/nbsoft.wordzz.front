@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription, Observable } from 'rxjs';
-import { faTrophy,faCrosshairs,faUsers,faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { faTrophy,faCrosshairs,faUsers,faSortDown,faThumbsUp,faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 
 import { Game } from 'src/app/Models/game';
 
@@ -15,6 +15,8 @@ import { GameoverModalComponent } from 'src/app/Dialogs/gameover-modal/gameover-
 import { BoardService } from 'src/app/Services/board.service';
 import { Board } from 'src/app/Models/board';
 import { Router } from '@angular/router';
+import { GameService } from 'src/app/Services/game.service';
+import { GameChallenge } from 'src/app/Models/gameChallenge';
 
 
 @Component({
@@ -27,6 +29,8 @@ export class GcHomeComponent implements OnInit, OnDestroy {
   faCrosshairs = faCrosshairs;
   faUsers = faUsers;
   faSortDown = faSortDown;
+  faThumbsUp = faThumbsUp;
+  faThumbsDown = faThumbsDown;
 
   private settingsSubscription:Subscription;  
   private boardSubscription:Subscription;
@@ -42,15 +46,18 @@ export class GcHomeComponent implements OnInit, OnDestroy {
   
   gamesManagers$:Observable<GameManager[]>;
   endedGames$:Observable<GameResult[]>;
+  receivedChallenges$:Observable<GameChallenge[]>;
 
   searchingForGame:boolean = false;
   gameFound:string = null;
 
   hasGames:boolean = false;
+  hasChallenges:boolean = false;
 
   constructor(private router:Router,
     private userService:UserService, 
     private gameHub: GameHub, 
+    private gameService: GameService, 
     lexiconService:LexiconService, 
     boardService:BoardService, 
     public dialog: MatDialog) {  
@@ -70,16 +77,20 @@ export class GcHomeComponent implements OnInit, OnDestroy {
         }
       });
     });
-    this.gamesManagers$ = this.gameHub.gameManagers$;
-    this.endedGames$ = this.gameHub.endedGames$;
+    this.gamesManagers$ = this.gameService.gameManagers$;
+    this.endedGames$ = this.gameService.endedGames$;
+    this.receivedChallenges$ = this.gameService.receivedChallenges$;
 
     this.gameManagerSubscription = this.gamesManagers$.subscribe(gm => {
       this.hasGames  = (!!gm && gm.length>0);
     });
+    this.receivedChallenges$.subscribe( ch => {
+      this.hasChallenges = (!!ch && ch.length>0);
+    }) ;
 
 
     this. searchGameSubscription = this.gameHub.searchingGame$.subscribe(s => {
-      if (s ==="searching"){
+      if (s ==="searching"){        
         this.searchingForGame = true;
         this.gameFound = null;
       }
@@ -127,15 +138,24 @@ export class GcHomeComponent implements OnInit, OnDestroy {
   onSearchGame($event: any){
     console.log('searching for game');
     var language = this.selectedLexicon.language;
-    this.gameHub.searchGame(language,0);
+    this.gameService.searchGame(language,0);
   }
   onShowGameResult($event: any, gameId:string){
-    var result = this.gameHub.getGameResult(gameId);
+    var result = this.gameService.getGameResult(gameId);
 
     const dialogRef = this.dialog.open(GameoverModalComponent, {
       width: '600px',      
       data: result
     });
 
+  }
+
+  onAcceptChallenge($event: any, challengeId:string){
+    console.log('onAcceptChallenge :>> ', challengeId);
+    this.gameService.acceptChallenge(challengeId,true);
+  }
+  onDeclineChallenge($event: any, challengeId:string){
+    console.log('onDeclineChallenge :>> ', challengeId);
+    this.gameService.acceptChallenge(challengeId,false);
   }
 }

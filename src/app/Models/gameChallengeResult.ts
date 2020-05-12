@@ -1,7 +1,8 @@
 import { GameChallenge } from './gameChallenge';
 
 export class GameChallengeResult {    
-    challenge:GameChallenge;
+    challengeId:string;
     accepted: boolean;
     gameId: string;
+    challenge:GameChallenge;
 }

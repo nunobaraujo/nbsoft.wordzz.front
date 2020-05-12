@@ -2,9 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GameHub } from 'src/app/Managers/gameHub';
 import { Observable, Subscription } from 'rxjs';
 import { GameChallenge } from 'src/app/Models/gameChallenge';
-import { faTrophy, faUserFriends, faSearch} from '@fortawesome/free-solid-svg-icons';
+import { faTrophy, faUserFriends, faSearch, faBan} from '@fortawesome/free-solid-svg-icons';
 import { GameChallengeResult } from 'src/app/Models/gameChallengeResult';
 import { Router, ActivatedRoute } from '@angular/router';
+import { GameService } from 'src/app/Services/game.service';
 
 @Component({
   selector: 'app-gc-new-game',
@@ -12,34 +13,39 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./gc-new-game.component.scss']
 })
 export class GcNewGameComponent implements OnInit, OnDestroy {    
-  private sentChallenges$: Observable<GameChallenge[]>
   private sentChallengesSubscription: Subscription;
+  private sentChallengeResultsSubscription: Subscription;
+  private onlineFriendsSubscription: Subscription;
+  
+  private sentChallenges$: Observable<GameChallenge[]>  
   private sentChallenges: GameChallenge[];
   private sentChallengesResult$: Observable<GameChallengeResult>
-  private sentChallengeResultsSubscription: Subscription;
+  
   faTrophy = faTrophy;
   faUserFriends = faUserFriends;
   faSearch = faSearch;
+  faBan = faBan;
   
   onlineFriends$: Observable<string[]>;  
   sentChallengesResults: string[]=[];  
   newOpponent:string;
+  hasOnlineFriends:boolean = false;
   isSearchingGame:boolean = false;
   gameFound:string = null;
   
-  constructor(private router:Router, private gameHub:GameHub, private route: ActivatedRoute) {         
-    this.onlineFriends$ = this.gameHub.onlineFriends$;
-    this.sentChallenges$ = this.gameHub.sentChallenges$;
-    this.sentChallengesResult$ = this.gameHub.challengeResult$;
-    this.sentChallengesSubscription = this.sentChallenges$.subscribe(chall =>{      
-      this.sentChallenges = chall;
-    });
+  constructor(private router:Router, private gameHub:GameHub,private gameService:GameService, private route: ActivatedRoute) {         
+    this.onlineFriends$ = this.gameService.onlineFriends$;
+    this.onlineFriendsSubscription = this.onlineFriends$.subscribe(f => this.hasOnlineFriends = f.length > 0);
+    
+    this.sentChallenges$ = this.gameService.sentChallenges$;    
+    this.sentChallengesSubscription = this.sentChallenges$.subscribe(chall => this.sentChallenges = chall);
 
+    this.sentChallengesResult$ = this.gameService.challengeResults$;
     this.sentChallengeResultsSubscription = this.sentChallengesResult$.subscribe(cres =>{
       if (!!cres){        
-
         if (cres.accepted){
           this.sentChallengesResults.push(cres.challenge.destination + " accepted your challenge. Game starting in 3 seconds...");
+
           setTimeout(() =>{
             let gameUrl:string = "/game-center/"+cres.gameId;
             this.router.navigateByUrl(gameUrl);
@@ -60,8 +66,9 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
       else {
         this.isSearchingGame = false;
         if (!!s && s !== ""){          
-          this.gameFound = "Game match found, starting game in a few seconds...";
+          this.gameFound = "Game match found, starting game in a few seconds...";          
           setTimeout(() => {
+            
             let gameUrl:string = "/game-center/"+s;            
             this.router.navigateByUrl(gameUrl);
           }, 5000);
@@ -79,30 +86,21 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.sentChallengesSubscription.unsubscribe();
     this.sentChallengeResultsSubscription.unsubscribe();
+    this.onlineFriendsSubscription.unsubscribe();
   }
 
 
   onStartGame($event: any,friend:string ){
     this.startGame(friend);
-  }
-  onStartSoloGame($event: any){    
-    this.startSoloGame();
-  }
-  onSearchGame($event: any){
-    this.searchGame("en-US",0);    
+  }  
+  onCancelChallenge(event: any,friend:string ){
+    this.gameService.cancelChallenge(friend);
   }
 
   private startGame(friend:string){    
-    this.gameHub.challengeGame('en-US',0,friend).then(res => {
-      console.log('Sent New Challenge :', res);
-    });
+    this.gameService.challengeGame('en-US',0,friend);
   }
-  private startSoloGame(){    
-    this.gameHub.newSoloGame()
-  }
-  private searchGame(language:string, boardId:number ){    
-    this.gameHub.searchGame(language,boardId);
-  }
+  
 
   hasChallenge(friendName:string):boolean
   { 

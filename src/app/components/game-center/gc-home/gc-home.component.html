@@ -4,13 +4,13 @@
       <div>               
         <h4>New Game</h4> 
         <div class="row">
-          <div class="col-md-7" >
+          <div class="col-md-6" >
             <button class="btn btn-primary wz-home-action-item" role="button" [disabled]="searchingForGame" (click)="onSearchGame($event)" >
               <fa-icon [icon]="faTrophy" size="lg" ></fa-icon>
               Start a new Game
             </button>
           </div>
-          <div class="col-md-5 wz-home-action-description">
+          <div class="col-md-6 wz-home-action-description">
             <div *ngIf="searchingForGame" >
               <p><span  class="spinner-border spinner-border-sm mr-1"></span>Searching for a game...</p>
             </div>
@@ -20,7 +20,7 @@
           </div>
         </div>        
         <div class="row">
-          <div class="col-md-7" >
+          <div class="col-md-6" >
             <button class="btn btn-primary wz-home-action-item" role="button" routerLink="/game-center/newgame"  >
               <fa-icon [icon]="faUsers" size="lg" ></fa-icon>
               Challenge a friend 
@@ -52,6 +52,26 @@
           </div>          
         </div>
         <h4>Received Challenges</h4>
+        <div>
+          <div *ngIf="!hasChallenges" style="padding-left: 20px;">
+            <h3><p>You don't have any pending challenges</p></h3>
+          </div>
+          <div *ngIf="hasChallenges">
+            <ul class="list-group text-dark">
+              <li *ngFor="let challenge of receivedChallenges$ | async" class="list-group-item wz-challenges-item">
+                <div>{{challenge.origin}}</div>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button class="btn btn-success " (click)="onAcceptChallenge($event, challenge.id)">
+                    <fa-icon [icon]="faThumbsUp" size="sm" ></fa-icon>
+                  </button>
+                  <button class="btn btn-danger "(click)="onDeclineChallenge($event, challenge.id)" >
+                    <fa-icon [icon]="faThumbsDown" size="sm" ></fa-icon>
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>      
     </div>
     <div class="col-md-6">      
