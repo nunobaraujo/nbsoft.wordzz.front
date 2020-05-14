@@ -55,7 +55,7 @@ export class AppComponent  implements OnInit, OnDestroy{
             console.log('err >', err);
             gameHub.disconnect();
           });         
-      }      
+      }
     });
   }
   ngOnInit(): void {

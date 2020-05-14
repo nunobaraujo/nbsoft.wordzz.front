@@ -34,17 +34,14 @@ export class AuthenticationService {
     }
 
     logout() {
+        let current = localStorage.getItem('currentUser');
+        localStorage.removeItem('currentUser');        
+        this.currentUserSubject.next(null);        
         // remove user from local storage to log user out
         console.log("Logged out")
-        if (!!localStorage.getItem('currentUser'))   {
-            this.http.delete(`${environment.apiUrl}/session`).subscribe(() => {                
-                localStorage.removeItem('currentUser');        
-                this.currentUserSubject.next(null);        
+        if (!!current)   {
+            this.http.delete(`${environment.apiUrl}/session`).subscribe(() => {
             });
-        }
-        else{            
-            localStorage.removeItem('currentUser');        
-            this.currentUserSubject.next(null);        
         }
     }
 }
