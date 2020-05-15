@@ -4,20 +4,18 @@ import { Game } from 'src/app/Models/game';
 import { GamePlayer } from 'src/app/Models/gamePlayer';
 import { BoardLetter } from 'src/app/Models/boardLetter';
 
-import { GameService } from 'src/app/Services/game.service';
 import { PlayLetter } from '../Models/playLetter';
 import { BoardTile } from '../Models/boardTile';
-import { GamePlayDirection } from '../Enums/gamePlayDirection';
 import { PlayMove } from '../Models/playMove';
 import { User } from '../Models/user';
 import { Board } from '../Models/board';
 import { GameLog } from '../Models/gameLog';
 import { GameLogDetails } from '../Models/gameLogDetails';
-import { Word } from '../Models/word';
 import { Letter } from '../Models/letter';
 import { GameResult } from '../Models/gameResult';
-import { ThrowStmt } from '@angular/compiler';
-import { GameOver } from '../Models/gameOver';
+import { GameService } from '../Services/game.service';
+import { PlayResult } from '../Models/playResult';
+
 
 export class GameManager{
     private gameSubscription:Subscription;
@@ -59,7 +57,7 @@ export class GameManager{
     private  currentPlayer: string="";
     currentPlayer$ = this._currentPlayer.asObservable();
 
-    private _gameEnded = new BehaviorSubject<GameOver>(null);    
+    private _gameEnded = new BehaviorSubject<GameResult>(null);    
     gameEnded$ = this._gameEnded.asObservable();
 
     
@@ -220,7 +218,9 @@ export class GameManager{
     }
 
     public getOpponent():GamePlayer{
-        
+        if (!this.game){
+            return null;
+        }
         if( this.currentUser.username == this.game.player01.userName){
           return this.game.player02;
         }
@@ -229,6 +229,9 @@ export class GameManager{
         }
     }
     public getPlayer():GamePlayer{        
+        if (!this.game){
+            return null;
+        }
         if( this.currentUser.username == this.game.player01.userName){
           return this.game.player01;
         }
@@ -256,50 +259,32 @@ export class GameManager{
         else{
             return result.moveResult;
         }
-
-        /*this.gameService.play(this.game.id,this.currentPlaysStore.letters).then(res=>{            
-            if(res.moveResult == "OK")
-            {                
-                if (!!this.gameSubscription)
-                {
-                    this.gameSubscription.unsubscribe();
-                }        
-                this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
-                    this.refreshGame(g);
-                });
-            }
-            else{
-                alert(res.moveResult);
-            }
-        });*/
     }
-    public pass(){
-        this.gameService.pass(this.game.id).subscribe(res=>{            
-            if(res.moveResult == "OK")
-            {                
-                if (!!this.gameSubscription)
-                {
-                    this.gameSubscription.unsubscribe();
-                }        
-                this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
-                    this.refreshGame(g);
-                });
-                return;
-            }            
-            if(res.moveResult == "GameOver"){
-                this.gameOver(res.gameOverResult);
-                return;
-            }
-            console.log("Play Result:",res.moveResult);
-        });
+    public async pass():Promise<PlayResult>{
+        var res = await this.gameService.pass(this.game.id);
+        if(res.moveResult == "OK")
+        {                
+            if (!!this.gameSubscription)
+            {
+                this.gameSubscription.unsubscribe();
+            }        
+            this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
+                this.refreshGame(g);
+            });            
+        }            
+        if(res.moveResult == "GameOver"){
+            this.gameOver(res.gameOverResult);         
+        }
+        console.log("Play Result:",res.moveResult);
+        return res;
     }
-    public forfeit(){
-        this.gameService.forfeit(this.game.id).subscribe(res=>{            
-            if(res.moveResult == "GameOver")
-            {                
-                this.gameOver(res.gameOverResult);
-            }            
-        });
+    public async forfeit(){
+        var result = await this.gameService.forfeit(this.game.id);
+        if( result.moveResult == "GameOver")
+        {                
+            this.gameOver(result.gameOverResult);
+        }            
+        return result;
     }
     
     public onPlayReceived(userName:string){
@@ -358,12 +343,8 @@ export class GameManager{
         // update rack drag and drop connections
         this.updateRackConnections();
     }
-    private gameOver(result: GameResult){
-        let gameResult:GameOver = new GameOver();
-        gameResult.game = this.game;
-        gameResult.result = result;
-
-        this._gameEnded.next(gameResult);
+    private gameOver(result: GameResult){        
+        this._gameEnded.next(result);
         this._gameEnded.next(null);
     }
 

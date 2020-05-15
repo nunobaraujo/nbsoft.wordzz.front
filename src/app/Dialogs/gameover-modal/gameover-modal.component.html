@@ -4,24 +4,24 @@
   </div>
   <div mat-dialog-content>
     <div>
-      <h4>{{data.result.winner}} won the game</h4>
-      <p>{{finishReason}} - Game Duration: {{data.result.duration}}minutes</p>
+      <h4>{{data.winner}} won the game</h4>
+      <p>{{finishReason}} - Game Duration: {{data.duration}}minutes</p>
     </div>            
     <div class="card" style="width: 34rem;">
       <div class="card-body wz-go-container-stats">
         <h4 class="card-title">Game Stats</h4>
         <div class="row">    
           <div class="col-sm-6">
-            <h5 class="card-subtitle text-muted">{{data.game.player01.userName}}</h5>
-            <div>Final Score: {{data.result.p1Score}}</div>
-            <div>Number of plays: {{data.result.p1PlayCount}}</div>
-            <div>Average score/play: {{data.result.p1Average}}</div>
+            <h5 class="card-subtitle text-muted">{{data.player1}}</h5>
+            <div>Final Score: {{data.p1Score}}</div>
+            <div>Number of plays: {{data.p1PlayCount}}</div>
+            <div>Average score/play: {{data.p1Average}}</div>
           </div>
           <div class="col-sm-6">
-            <h5 class="card-subtitle text-muted">{{data.game.player02.userName}}</h5>
-            <div>Final Score: {{data.result.p2Score}}</div>
-            <div>Number of plays: {{data.result.p2PlayCount}}</div>
-            <div>Average score/play: {{data.result.p2Average}}</div>      
+            <h5 class="card-subtitle text-muted">{{data.player2}}</h5>
+            <div>Final Score: {{data.p2Score}}</div>
+            <div>Number of plays: {{data.p2PlayCount}}</div>
+            <div>Average score/play: {{data.p2Average}}</div>      
           </div>
         </div>
       </div>       

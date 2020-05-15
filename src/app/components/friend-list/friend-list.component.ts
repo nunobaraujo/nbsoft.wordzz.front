@@ -3,13 +3,14 @@ import { Subscription, throwError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 
 import { UserService } from 'src/app/Services/user.service';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { faUser,faTrophy,faUserSlash,faUserFriends } from '@fortawesome/free-solid-svg-icons';
 import { AddFriendModalComponent } from 'src/app/Dialogs/add-friend-modal/add-friend-modal.component';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Game } from 'src/app/Models/game';
 import { Router } from '@angular/router';
+import { GameService } from 'src/app/Services/game.service';
 
 
 @Component({
@@ -29,39 +30,27 @@ export class FriendListComponent implements OnInit,OnDestroy {
   games:Game[];
   private contactsSubscription:Subscription;
   private socketsConnectedSubscription:Subscription;
-  private onlineContactsSubscription:Subscription;
-  private gameServiceConnectedSubscription:Subscription;
+  private onlineContactsSubscription:Subscription;  
   private gameSubscription:Subscription;    
 
   constructor(private router:Router,
     private userService:UserService,
     private gameService:GameService,
+    private gameHub:GameHub,
     public dialog: MatDialog) 
   { 
       this.refreshContacts()
-
-      this.gameServiceConnectedSubscription = this.gameService.isConnected$.subscribe(connected => {
-        if (connected){          
-          this.gameSubscription = this.gameService.getActiveGames().subscribe(g =>{ 
-            this.games = g;            
-          });
-        }
-        else{
-          if (!!this.gameSubscription){
-            this.gameSubscription.unsubscribe();
-          }
-        }      
+      this.gameSubscription = this.gameService.getActiveGames().subscribe(g =>{ 
+        this.games = g;            
       });
   }
   
   ngOnInit(): void {
-    
-
   }
 
   ngOnDestroy(): void {
     this.killSubscriptions();
-    this.gameServiceConnectedSubscription.unsubscribe();
+    this.gameSubscription.unsubscribe();
   }
 
   onAddFriend($event): void {
@@ -92,10 +81,8 @@ export class FriendListComponent implements OnInit,OnDestroy {
       this.router.navigateByUrl(gameUrl);  
     }, 100);
   }
-  onGotoGame($event, username:string):void{    
-    //console.log(this.games);    
-    var game = this.getGameByUser(username);
-    console.log(username,game);    
+  onGotoGame($event, username:string):void{        
+    var game = this.getGameByUser(username);    
     if (!!game){
       let gameUrl:string = "/game-center/"+game.id;
       setTimeout(() => {
@@ -108,6 +95,7 @@ export class FriendListComponent implements OnInit,OnDestroy {
   playerHasGame(username:string): boolean{
       if (!!this.games){
         var hasGame = this.getGameByUser(username);
+        
         return !!hasGame;
       }
       return false;
@@ -119,17 +107,16 @@ export class FriendListComponent implements OnInit,OnDestroy {
   }  
   private refreshContacts(){
    
-    console.log('refresh contacts!');
+    
 
     this.contactsSubscription = this.userService.getContacts()
         .subscribe(c => {
-          this.contacts = c;
-          
+          this.contacts = c;          
           // after all contacts are received start socket subscription
-          this.socketsConnectedSubscription = this.gameService.isConnected$.subscribe(c => {
+          this.socketsConnectedSubscription = this.gameHub.isConnected$.subscribe(c => {
             if (c == true){              
-              this.onlineContactsSubscription = this.gameService.onlineFriends$.subscribe(o => {
-                this.onlineContacts = o;
+              this.onlineContactsSubscription = this.gameService.onlineFriends$.subscribe(o => {                
+                this.onlineContacts = o;                
                 this.offlineContacts = this.contacts.filter(x => !this.isOnline(x));                
               });
             }

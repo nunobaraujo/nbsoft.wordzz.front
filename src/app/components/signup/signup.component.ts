@@ -15,6 +15,7 @@ export class SignupComponent implements OnInit {
   submitted = false;
   returnUrl: string;
   error = '';
+  created:string=null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -27,9 +28,9 @@ export class SignupComponent implements OnInit {
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      username: ['', [Validators.required,Validators.minLength(6)]],
       email: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', [Validators.required,Validators.minLength(8)]]
   });
 
   // get return url from route parameters or default to '/'
@@ -43,6 +44,7 @@ export class SignupComponent implements OnInit {
 
     // stop here if form is invalid
     if (this.loginForm.invalid) {
+      console.log('object :>> ', this.loginForm.errors);
         return;
     }
 
@@ -51,7 +53,11 @@ export class SignupComponent implements OnInit {
         .pipe(first())
         .subscribe(
             data => {
-                this.router.navigate([this.returnUrl]);
+              if (!!data){
+                console.log('data :>> ', data);
+                this.created= `User ${data.userName} created successfully`;
+                console.log('text :>> ', this.created);
+              }
             },
             error => {
                 this.error = error;

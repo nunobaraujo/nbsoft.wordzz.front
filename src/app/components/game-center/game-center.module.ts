@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -14,7 +15,6 @@ import { GcRootComponent } from './gc-root/gc-root.component';
 import { GcNewGameComponent } from './gc-new-game/gc-new-game.component';
 import { GcHomeComponent } from './gc-home/gc-home.component';
 import { GcGameComponent } from './gc-game/gc-game.component';
-import { GcChallengesComponent } from './gc-challenges/gc-challenges.component';
 import { GcActiveGamesComponent } from './gc-active-games/gc-active-games.component';
 import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component';
 
@@ -25,8 +25,7 @@ import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component
     GcRootComponent,
     GcHomeComponent,
     GcNewGameComponent,
-    GcGameComponent,    
-    GcChallengesComponent,
+    GcGameComponent,
     GcActiveGamesComponent,
     GridTileComponent,
     GridBoardComponent,
@@ -36,10 +35,10 @@ import { GcGameStatusComponent } from './gc-game-status/gc-game-status.component
   ],
   imports: [
     CommonModule,
+    FormsModule,
     FontAwesomeModule,
     DragDropModule,
-    GameCenterRoutingModule,
-    
+    GameCenterRoutingModule
   ]
 })
 export class GameCenterModule { }

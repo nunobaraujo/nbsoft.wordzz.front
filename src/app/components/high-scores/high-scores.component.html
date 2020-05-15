@@ -1,0 +1,27 @@
+<div>
+    <div class="card" style="width: 100%;">        
+        <div class="card-body">
+            <h3 class="card-title">High Scores</h3>
+            <table class="table table-striped" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Highest Scoring Word</th>                    
+                        <th>Most Used Word</th>
+                        <th>High Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let stat of highScores; let i = index">
+                        <th scope="row">{{i+1}}</th>
+                        <td>{{stat.userName}}</td>
+                        <td>{{stat.highScoreWordName}} ({{stat.highScoreWord}})</td>
+                        <td>{{stat.mostUsedWord}}</td>
+                        <td>{{stat.highScoreGame}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

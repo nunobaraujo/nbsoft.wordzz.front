@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { GameService } from 'src/app/Services/game.service';
+import { GameHub } from 'src/app/Managers/gameHub';
 import { ChatMessage } from 'src/app/Models/chatMessage';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
 
@@ -21,9 +21,9 @@ export class ChatComponent implements OnInit,AfterViewChecked  {
   messages$:Observable<ChatMessage[]>;
     
   constructor(private formBuilder: FormBuilder,    
-    private gameService: GameService) 
+    private gameHub: GameHub) 
   {
-    this.messages$  = gameService.messages$;
+    this.messages$  = gameHub.messages$;
   }
   
   ngOnInit(): void {    
@@ -46,7 +46,7 @@ export class ChatComponent implements OnInit,AfterViewChecked  {
   }
 
   public sendMessage(): void {
-    this.gameService.sendMessage(this.f.message.value);
+    this.gameHub.sendMessage(this.f.message.value);
     this.f.message.setValue("");
   }
 

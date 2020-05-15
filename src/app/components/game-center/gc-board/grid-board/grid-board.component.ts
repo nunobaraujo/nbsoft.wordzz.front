@@ -7,12 +7,10 @@ import { BoardTile } from 'src/app/Models/boardTile';
 import { BoardLetter } from 'src/app/Models/boardLetter';
 import { GamePlayer } from 'src/app/Models/gamePlayer';
 
-import { GameService } from 'src/app/Services/game.service';
 import { GameManager } from 'src/app/Managers/gameManger';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { SelectLetterModalComponent } from 'src/app/Dialogs/select-letter-modal/select-letter-modal.component';
-import { MapOperator } from 'rxjs/internal/operators/map';
 
 @Component({
   selector: 'app-grid-board',

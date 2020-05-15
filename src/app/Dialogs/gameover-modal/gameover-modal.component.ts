@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GameOver } from 'src/app/Models/gameOver';
 
 import { AuthenticationService } from 'src/app/Services/authentication.service';
 import { FinishReason } from 'src/app/Enums/finishReason';
+import { GameResult } from 'src/app/Models/gameResult';
 
 
 
@@ -20,9 +20,9 @@ export class GameoverModalComponent implements OnInit {
   finishReason: string;
 
   constructor(public authService:AuthenticationService, public dialogRef: MatDialogRef<GameoverModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: GameOver) { 
+    @Inject(MAT_DIALOG_DATA) public data: GameResult) { 
       console.log('data :>> ', data);
-      if (data.result.winner == authService.currentUserValue.username){
+      if (data.winner == authService.currentUserValue.username){
         this.headText = "WINNER";
         this.gameClass = "wz-go-title-win";        
       }
@@ -30,9 +30,9 @@ export class GameoverModalComponent implements OnInit {
         this.headText = "YOU LOSE";
         this.gameClass = "wz-go-title-lose";
       }
-      var looser = data.result.winner == data.game.player01.userName ? data.game.player02.userName : data.game.player01.userName;
+      var looser = data.winner == data.player1? data.player2 : data.player1;
 
-      this.finishReason = data.result.reason == FinishReason.Forfeit ? `Player ${looser} forfeited` :"Game Over";
+      this.finishReason = data.reason == FinishReason.Forfeit ? `Player ${looser} forfeited` :"Game Over";
 
     }
 

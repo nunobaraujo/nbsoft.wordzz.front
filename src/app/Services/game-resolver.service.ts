@@ -8,7 +8,8 @@ import { Observable, of, EMPTY }  from 'rxjs';
 import { mergeMap, take }         from 'rxjs/operators';
 
 import { Game } from 'src/app/Models/game';
-import { GameService } from 'src/app/Services/game.service';
+
+import { GameService } from './game.service';
 
 
 @Injectable({
@@ -16,12 +17,12 @@ import { GameService } from 'src/app/Services/game.service';
 })
 export class GameResolverService implements Resolve<Game> {
 
-  constructor(private gs: GameService, private router: Router) { }
+  constructor(private gameService: GameService, private router: Router) { }
   
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):  Observable<Game> | Observable<never> {    
     let id = route.paramMap.get('id');
  
-    return this.gs.getGame(id).pipe(
+    return this.gameService.getGame(id).pipe(
       take(1),
       mergeMap(g => {
         if (g) {
