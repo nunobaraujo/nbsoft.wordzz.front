@@ -191,8 +191,7 @@ export class GameHub implements OnDestroy {
     this.stopSearch = false;
     var searchGameSubscription = interval(3000)
       .pipe(takeWhile(() => !this.stopSearch))
-      .subscribe(async () => {
-        
+      .subscribe(async () => {        
         var getMatchResult = await this.getGameMatch();
         if (!!getMatchResult){            
           this.stopSearch == true;            
@@ -226,8 +225,7 @@ export class GameHub implements OnDestroy {
   }
 
   private async getGameMatch():Promise<string>{
-    if (this.isConnected !== true){ return null; }
-
+    if (this.isConnected !== true){ return null; }    
     return await this.hubConnection.invoke<string>('getGameMatch')
       .catch(err=> {
         return `Error: ${err}`

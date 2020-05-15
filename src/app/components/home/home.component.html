@@ -1,41 +1,55 @@
 <div class="container-fluid">
-<div class="row">
-    <div id="friendList" class="col-md-2 friend-list-container bg-dark text-white" >
-        <div class="friend-list">
-            <app-friend-list></app-friend-list>
-        </div>
-    </div>
-    <div class="col-md-8">
-        <div class="wz-middle-container" >
-            <div class="row wz-middle-section" >
-                <div class="wz-center-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <!--<app-ongoing-games></app-ongoing-games>-->
-                        </div>
-                    </div>        
-                </div>                
-                <div class="wz-center-card">
-                    <div class="card">
-                        <div class="card-body">
-                            
-                        </div>
-                    </div>        
-                </div>                
+    <div class="row">
+        <div id="friendList" class="col-md-3 friend-list-container bg-dark text-white" >
+            <div class="friend-list">
+                <app-friend-list></app-friend-list>
             </div>
-            <div class="row wz-middle-section">     
-                <div class="wz-center-card">
+        </div>
+        <div class="col-md-9">
+            <div class="row">
+                <div class="col-md-8" style="margin-top: 10px;">
+                    <app-high-scores></app-high-scores>
+                </div>
+                <div class="col-md-4">
+                    <app-user-stats></app-user-stats>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" style="margin-top: 10px;">
                     <div class="card">
                         <div class="card-body">
                             <app-chat ></app-chat>
                         </div>
-                    </div>        
+                    </div>
                 </div>
             </div>
+        </div>      
+    </div>
+</div>
+<!--<div class="wz-middle-container" >
+    <div class="row wz-middle-section" >
+        <div class="wz-center-card">
+            <div class="card">
+                <div class="card-body">
+                    <app-ongoing-games></app-ongoing-games>
+                </div>
+            </div>        
+        </div>                
+        <div class="wz-center-card">
+            <div class="card">
+                <div class="card-body">
+                    
+                </div>
+            </div>        
+        </div>                
+    </div>
+    <div class="row wz-middle-section">     
+        <div class="wz-center-card">
+            <div class="card">
+                <div class="card-body">
+                    <app-chat ></app-chat>
+                </div>
+            </div>        
         </div>
     </div>
-    <div class="col-md-2">
-        <app-user-stats></app-user-stats>
-    </div>
-</div>
-</div>
+</div>-->

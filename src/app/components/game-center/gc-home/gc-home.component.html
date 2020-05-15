@@ -90,7 +90,7 @@
         </div>
         
       </div>
-      <div>
+      <div style="margin-top: 50px;">
         <h4>Finished Games</h4>
         <ul class="list-group">
           <a *ngFor="let endedGame of endedGames$ | async" class="list-group-item list-group-item-action list-group-item-dark" (click)="onShowGameResult($event, endedGame.gameId)" >{{endedGame.player1}} VS {{endedGame.player2}}</a>

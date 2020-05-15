@@ -1,0 +1,19 @@
+<form  (ngSubmit)="onSubmit()" #settingsForm="ngForm">
+    <div class="form-group">
+        <label for="uiLanguage">UI Language</label>
+        <input type="text" class="form-control" id="uiLanguage" placeholder="Last Name" disabled value="en-US">
+    </div>
+    <div class="form-group">
+        <label for="languageSelector">Default Game Language</label>
+        <select class="form-control" id="languageSelector" [(ngModel)]="mainSettings.language" name="postalCode">
+            <option *ngFor="let l of availableLexicons" [value]="l" title="{{l.language}}" >{{l.description}}</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="boardSelector">Default Game Board</label>
+        <select class="form-control" id="boardSelector" [(ngModel)]="mainSettings.defaultBoard" name="defaultBoard">
+            <option *ngFor="let b of availableBoards" [value]="b" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
+        </select>
+    </div>                   
+    <button type="submit" [disabled]="!hasChanges" class="btn btn-primary">Save Settings</button>
+  </form>

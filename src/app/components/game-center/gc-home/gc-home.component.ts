@@ -123,6 +123,9 @@ export class GcHomeComponent implements OnInit, OnDestroy {
     if (!!this.searchGameSubscription){
       this. searchGameSubscription.unsubscribe();
     }
+    if(!!this.gameManagerSubscription){
+      this.gameManagerSubscription.unsubscribe();
+    }
   }
   getPlayer01Score(game:Game):number{
     return game.playMoves.filter(g => g.player == game.player01.userName)

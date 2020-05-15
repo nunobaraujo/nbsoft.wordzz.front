@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Settings } from '../Models/settings';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { UserDetails } from '../Models/userDetails';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +44,30 @@ export class UserService {
             return user;
         }));
   }
+
+  getDetails(){
+    return this.http.get<any>(`${environment.apiUrl}/user/details`)
+    .pipe(map(d => {      
+      if (!d){
+        return null;
+      }
+      let userDetails = new UserDetails();
+      Object.assign(userDetails, d)
+      return userDetails;
+    }));
+  }
+  setDetails(userDetails:UserDetails){
+    return this.http.put<UserDetails>(`${environment.apiUrl}/user/details`,userDetails)
+    .pipe(map(d => {      
+      if (!d){
+        return null;
+      }
+      let userDetails = new UserDetails();
+      Object.assign(userDetails, d)
+      return userDetails;
+    }));
+  }
+
   getSettings(){
     return this.http.get<any>(`${environment.apiUrl}/user/settings/main`)
     .pipe(map(settings => {      

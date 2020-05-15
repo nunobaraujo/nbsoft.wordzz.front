@@ -1,7 +1,32 @@
 <div class="container-fluid " >
     
     <div class="row  wz-new-game-container bg-secondary text-white">            
-        <div class="col-md-12">
+        <div class="col-md-6">
+            <h4>
+                Game Settings
+            </h4>
+            <div id="gameSettings" >
+                <div class="row">
+                    <div class="col-md-6">            
+                        <div class="form-group">
+                        <label for="languageSelector">Language</label>
+                        <select class="form-control bg-dark text-white" id="languageSelector" title="{{selectedLexicon?.language}}" [(ngModel)]="selectedLexicon">
+                            <option *ngFor="let l of availableLexicons" [value]="l" title="{{l.language}}" >{{l.description}}</option>
+                        </select>
+                        </div>            
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        <label for="boardSelector">Board</label>
+                        <select class="form-control bg-dark text-white" id="boardSelector" [(ngModel)]="selectedBoard">
+                            <option *ngFor="let b of availableBoards" [value]="b" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
+                        </select>
+                        </div>
+                    </div>
+                </div>          
+            </div>
+        </div>
+        <div class="col-md-6">
             <div>
                 <h4>Challenge friends</h4>
                 <div *ngIf="hasOnlineFriends">
@@ -9,7 +34,7 @@
                         {{friend}}
                         <div class="btn-group btn-group-sm "  >                            
                             <button *ngIf="hasChallenge(friend)" type="button" title="Cancel Challenge" 
-                                class="btn btn-warning flex-row-reverse wz-new-game-action-button" 
+                                class="btn btn-danger flex-row-reverse wz-new-game-action-button" 
                                 (click)="onCancelChallenge($event, friend)" >                            
                                 <fa-icon [icon]="faBan" size="lg" ></fa-icon>
                             </button>
@@ -29,7 +54,7 @@
                     <div >{{challengeResult}}</div>
                 </div>
             </div>
-        </div>
+        </div>        
         <footer class="wz-footer">
             <a class="btn btn-primary" role="button" routerLink="/game-center">Back to Game Centre</a>
         </footer>

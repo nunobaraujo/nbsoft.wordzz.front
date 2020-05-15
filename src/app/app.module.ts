@@ -20,13 +20,16 @@ import { HomeComponent } from './components/home/home.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { FriendListComponent } from './components/friend-list/friend-list.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { UserStatsComponent } from './components/user-stats/user-stats.component';
 
 import { AddFriendModalComponent } from './Dialogs/add-friend-modal/add-friend-modal.component';
 import { GameoverModalComponent } from './Dialogs/gameover-modal/gameover-modal.component';
 import { ModalComponent } from './Dialogs/modal/modal.component';
 import { SelectLetterModalComponent } from './Dialogs/select-letter-modal/select-letter-modal.component';
+import { HighScoresComponent } from './components/high-scores/high-scores.component';
+import { UserPageComponent } from './components/user-page/user-page.component';
+import { UserPageDetailsComponent } from './components/user-page-details/user-page-details.component';
+import { UserPageSettingsComponent } from './components/user-page-settings/user-page-settings.component';
 
 @NgModule({
   declarations: [
@@ -36,13 +39,16 @@ import { SelectLetterModalComponent } from './Dialogs/select-letter-modal/select
     SignupComponent,
     ChatComponent,
     FriendListComponent,
-    DashboardComponent,
     ModalComponent,
     SelectLetterModalComponent,
     AllowedLetterDirective,
     UserStatsComponent,
     AddFriendModalComponent,
-    GameoverModalComponent    
+    GameoverModalComponent,
+    HighScoresComponent,    
+    UserPageComponent,
+    UserPageDetailsComponent,
+    UserPageSettingsComponent    
   ],
   imports: [
     BrowserModule,

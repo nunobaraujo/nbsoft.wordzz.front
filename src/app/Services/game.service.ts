@@ -300,9 +300,7 @@ export class GameService {
     return null;
   }
 
-  private updateGameManagers(games:Game[]){    
-    console.log('updateGameManagers!');
-
+  private updateGameManagers(games:Game[]){
     // Check new Games
     games.forEach(g =>{      
       var manager = this.gameManagersStore.gameManagers.find(gm => gm.gameId == g.id);
