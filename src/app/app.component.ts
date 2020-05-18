@@ -47,8 +47,7 @@ export class AppComponent  implements OnInit, OnDestroy{
       this.currentUser = x;
       if (!!this.currentUser){
         gameService.refreshGames()
-          .then(gms =>{ 
-            console.log('Loaded Games :>> ', gms);
+          .then(() =>{ 
             gameHub.connect();                 
           })
           .catch(err =>{

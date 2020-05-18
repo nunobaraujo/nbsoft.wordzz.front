@@ -44,10 +44,8 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
     }
     this.routeSubscription = this.route.data
     .subscribe((data) => {
-      this.loading = true;
-      console.log('data.game.id :>> ', data.game.id);
-      this.gameManager = this.gameService.getManager(data.game.id);   
-      console.log('this.gameManager :>> ', this.gameManager);
+      this.loading = true;      
+      this.gameManager = this.gameService.getManager(data.game.id);
       this.gameLogs$ = this.gameManager.gameLog$;         
       if (!!this.gameOverSubscription){
         this.gameOverSubscription.unsubscribe();

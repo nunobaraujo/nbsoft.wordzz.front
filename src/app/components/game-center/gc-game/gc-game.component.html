@@ -28,7 +28,7 @@
         <div #gameLog class="game-container-log bg-dark overflow-auto ">
             <div *ngFor="let log of gameLogs$ | async" [class]="getLogClass(log)" >
                 <div><span>{{getLogLine(log)}}</span></div>
-                <div *ngFor="let detail of log.details"><span [title]="detail.title" ><u>{{detail.word}}</u>= {{detail.score}}</span></div>
+                <div *ngFor="let detail of log.details"><span [title]="gameManager.getWordDescription(detail.word)" ><u>{{detail.word}}</u>= {{detail.score}}</span></div>
             </div>
         </div>
     </div>
