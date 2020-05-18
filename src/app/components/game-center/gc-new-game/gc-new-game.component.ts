@@ -33,10 +33,10 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   faBan = faBan;
 
   availableLexicons:Lexicon[];
-  selectedLexicon:Lexicon;
+  selectedLanguage:string;
 
   availableBoards:Board[];
-  selectedBoard:Board;
+  selectedBoardId:number;
   
   onlineFriends$: Observable<string[]>;  
   sentChallengesResults: string[]=[];  
@@ -46,7 +46,7 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   gameFound:string = null;
   
   constructor(private router:Router, private gameHub:GameHub,private gameService:GameService, private route: ActivatedRoute, 
-    userService:UserService, lexiconService:LexiconService, boardService:BoardService) {         
+    private userService:UserService, lexiconService:LexiconService, boardService:BoardService) {         
     this.onlineFriends$ = this.gameService.onlineFriends$;
     this.onlineFriendsSubscription = this.onlineFriends$.subscribe(f => this.hasOnlineFriends = f.length > 0);
     
@@ -93,13 +93,13 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
       this.lexiconSubscription = lexiconService.getLexicons().subscribe(ls => {
         this.availableLexicons = ls;
         if (!!s){
-          this.selectedLexicon = this.availableLexicons.find(l => l.language.toLowerCase() === s.language.toLowerCase());
+          this.selectedLanguage = this.availableLexicons.find(l => l.language.toLowerCase() === s.language.toLowerCase())?.language;
         }
       });
       this.boardSubscription = boardService.getBoards().subscribe(bs =>{
         this.availableBoards = bs;
         if (!!s){
-          this.selectedBoard = this.availableBoards.find(b => b.id == s.defaultBoard);
+          this.selectedBoardId = this.availableBoards.find(b => b.id == s.defaultBoard)?.id;
         }
       });
     });
@@ -107,8 +107,14 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
   } 
   ngOnInit(): void {   
     this.newOpponent = this.route.snapshot.paramMap.get('id');
-    if (!!this.newOpponent) {
-      this.startGame(this.newOpponent)
+    console.log('this.newOpponent  :>> ', this.newOpponent);
+    if (!!this.newOpponent) {      
+      this.userService.getSettings().toPromise().then(s => {
+        console.log('s :>> ', s);
+        this.startGame(s.language,s.defaultBoard,this.newOpponent);
+      });
+
+      
     }
   }
   ngOnDestroy(): void {
@@ -126,14 +132,14 @@ export class GcNewGameComponent implements OnInit, OnDestroy {
 
 
   onStartGame($event: any,friend:string ){
-    this.startGame(friend);
+    this.startGame(this.selectedLanguage,this.selectedBoardId,friend);
   }  
   onCancelChallenge(event: any,friend:string ){
     this.gameService.cancelChallenge(friend);
   }
 
-  private startGame(friend:string){    
-    this.gameService.challengeGame(this.selectedLexicon.language,this.selectedBoard.id,friend);
+  private startGame(language:string,boardId:number,friend:string){       
+    this.gameService.challengeGame(language,boardId,friend);
   }
   
 

@@ -36,16 +36,16 @@
             <div class="col-md-6">            
               <div class="form-group">
                 <label for="languageSelector">Language</label>
-                <select class="form-control bg-dark text-white" id="languageSelector" title="{{selectedLexicon?.language}}" [(ngModel)]="selectedLexicon">
-                  <option *ngFor="let l of availableLexicons" [value]="l" title="{{l.language}}" >{{l.description}}</option>
+                <select class="form-control bg-dark text-white" id="languageSelector" title="{{selectedLanguage}}" [(ngModel)]="selectedLanguage">
+                  <option *ngFor="let l of availableLexicons" [value]="l.language" title="{{l.language}}" >{{l.description}}</option>
                 </select>
               </div>            
             </div>
             <div class="col-md-6">
               <div class="form-group">
                 <label for="boardSelector">Board</label>
-                <select class="form-control bg-dark text-white" id="boardSelector" [(ngModel)]="selectedBoard">
-                  <option *ngFor="let b of availableBoards" [value]="b" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
+                <select class="form-control bg-dark text-white" id="boardSelector" [(ngModel)]="selectedBoardId">
+                  <option *ngFor="let b of availableBoards" [value]="b.id" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
                 </select>
               </div>
             </div>
@@ -59,7 +59,7 @@
           <div *ngIf="hasChallenges">
             <ul class="list-group text-dark">
               <li *ngFor="let challenge of receivedChallenges$ | async" class="list-group-item wz-challenges-item">
-                <div>{{challenge.origin}}</div>
+                <div>{{challenge.origin}} ({{challenge.language}})</div>
                 <div class="btn-group btn-group-sm" role="group">
                   <button class="btn btn-success " (click)="onAcceptChallenge($event, challenge.id)">
                     <fa-icon [icon]="faThumbsUp" size="sm" ></fa-icon>

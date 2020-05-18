@@ -48,12 +48,12 @@ export class UserPageSettingsComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() { 
-    /*this.userService.setDetails(this.userDetails).subscribe(d => {
+    this.userService.setSettings(this.mainSettings).subscribe(d => {
       if (!!d){
         this.originalValue = JSON.stringify(d);
-        this.userDetails = d;
+        this.mainSettings = d;
       }      
-    });*/
+    });
   }
 
   get diagnostic() { return JSON.stringify(this.mainSettings); }

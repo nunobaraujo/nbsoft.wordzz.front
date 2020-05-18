@@ -39,10 +39,10 @@ export class GcHomeComponent implements OnInit, OnDestroy {
   private gameManagerSubscription:Subscription;
   
   availableLexicons:Lexicon[];
-  selectedLexicon:Lexicon;
+  selectedLanguage:string;
 
   availableBoards:Board[];
-  selectedBoard:Board;
+  selectedBoardId:number;
   
   gamesManagers$:Observable<GameManager[]>;
   endedGames$:Observable<GameResult[]>;
@@ -67,13 +67,13 @@ export class GcHomeComponent implements OnInit, OnDestroy {
       this.lexiconSubscription = lexiconService.getLexicons().subscribe(ls => {
         this.availableLexicons = ls;
         if (!!s){
-          this.selectedLexicon = this.availableLexicons.find(l => l.language.toLowerCase() === s.language.toLowerCase());
+          this.selectedLanguage = this.availableLexicons.find(l => l.language.toLowerCase() === s.language.toLowerCase())?.language;
         }
       });
       this.boardSubscription = boardService.getBoards().subscribe(bs =>{
         this.availableBoards = bs;
         if (!!s){
-          this.selectedBoard = this.availableBoards.find(b => b.id == s.defaultBoard);
+          this.selectedBoardId = this.availableBoards.find(b => b.id == s.defaultBoard)?.id;
         }
       });
     });
@@ -138,10 +138,11 @@ export class GcHomeComponent implements OnInit, OnDestroy {
       .reduce((a, b) => a + b, 0);
   }
 
-  onSearchGame($event: any){
-    console.log('searching for game');
-    var language = this.selectedLexicon.language;
-    this.gameService.searchGame(language,0);
+  onSearchGame($event: any){    
+    var language = this.selectedLanguage;
+    var boardId = this.selectedBoardId;
+    console.log('searching for game:', language, boardId);
+    this.gameService.searchGame(language, boardId);
   }
   onShowGameResult($event: any, gameId:string){
     var result = this.gameService.getGameResult(gameId);

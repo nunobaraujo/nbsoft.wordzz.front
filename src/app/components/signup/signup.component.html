@@ -39,6 +39,7 @@
                 <div *ngIf="created" class="alert alert-success mt-3 mb-0">
                     <div>{{created}}</div>
                     <div>You can now sign in on the <a [routerLink]="['/login']" routerLinkActive="router-link-active" >LogIn page</a></div>
+                    <div>You will be redirected in 5 seconds...</div>
                 </div>
                 <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
             </form>
