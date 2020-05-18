@@ -157,34 +157,7 @@ export class GameHub implements OnDestroy {
   
 
 
-  private initializeService() {
-    
-    console.log('initializeService :>> ');
-    
-    /*this.hubConnection.invoke('GetSentChallenges').then(challenges=>{                
-      this.sentChallengeStore.challenges = challenges;        
-      console.log("sentChallengeStore:", this.sentChallengeStore.challenges);
-      this._sentChallenges.next(Object.assign({}, this.sentChallengeStore).challenges);        
-    })
-    .catch(err =>  {          
-      console.error(err);
-      this.sentChallengeStore.challenges = [];
-      this._sentChallenges.next(Object.assign({}, this.sentChallengeStore).challenges);
-    });
-
-    this.hubConnection.invoke('GetReceivedChallenges').then(challenges=>{
-      this.receivedChallengeStore.challenges = challenges;        
-      console.log("getReceivedChallenges:", this.receivedChallengeStore.challenges);
-      this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
-    })
-    .catch(err =>  {          
-      console.error(err);
-      this.receivedChallengeStore.challenges = [];
-      this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
-    });    */
-
-  }
-
+ 
   public async waitForGame(){
     this.searchingGame = "searching";
     this._searchingGame.next(this.searchingGame);
@@ -196,8 +169,7 @@ export class GameHub implements OnDestroy {
         if (!!getMatchResult){            
           this.stopSearch == true;            
           searchGameSubscription.unsubscribe();
-          if (!getMatchResult.startsWith("Error")){
-            console.log('Match Found!',getMatchResult);
+          if (!getMatchResult.startsWith("Error")){            
             //await this.gameService.refreshGames();              
             setTimeout(() => {
               this.searchingGame = getMatchResult;
@@ -252,11 +224,9 @@ export class GameHub implements OnDestroy {
     
 
     this.hubConnection.start()
-      .then(async () => {        
-        console.log('WebSocks connection state :>> ', this.hubConnection.state);   
+      .then(async () => {                
         this.isConnected = true;
-        this.registerGameHubEvents();
-        await this.initializeService();
+        this.registerGameHubEvents();        
         this._isConnected.next(this.isConnected);
       })
       .catch(err =>{ 
@@ -283,8 +253,6 @@ export class GameHub implements OnDestroy {
   }
   
   private registerGameHubEvents():void{
-    console.log('Registering GameHub Events ');
-    
     // On Close
     this.hubConnection.onclose(res =>{
       console.log('Connection Lost :', res);
@@ -294,15 +262,13 @@ export class GameHub implements OnDestroy {
     });
 
     // On user connected
-    this.hubConnection.on('connected', (name: string) => {
-      console.log('User Connected :>> ', name);
+    this.hubConnection.on('connected', (name: string) => {      
       this._userArrived.next(name);
       this._userArrived.next(null);      
     });
 
     // On user disconnected
-    this.hubConnection.on('disconnected', (name: string) => {      
-      console.log('User Disconnected :>> ', name);
+    this.hubConnection.on('disconnected', (name: string) => {
       this._userLeft.next(name);
       this._userLeft.next(null);      
     });
@@ -315,8 +281,6 @@ export class GameHub implements OnDestroy {
 
     // On challenge accepted
     this.hubConnection.on('challengeAccepted', (challengeId:string,  accept:boolean, gameId:string) => {            
-      console.log('challengeAccepted :>> ',challengeId);
-
       var result = new GameChallengeResult(); 
       result.challengeId = challengeId;
       result.accepted = accept;
@@ -326,8 +290,7 @@ export class GameHub implements OnDestroy {
            
     });
      // On challenge Canceled
-     this.hubConnection.on('challengeCanceled', (challengeId:string) => {
-      console.log('challengeCanceled:>> ',challengeId);
+     this.hubConnection.on('challengeCanceled', (challengeId:string) => {      
       this._challengeCanceled.next(challengeId)
       this._challengeCanceled.next(null);    
            
@@ -360,7 +323,7 @@ export class GameHub implements OnDestroy {
     });      
     // On match found
     this.hubConnection.on('gameMatchFound', (gameId:string) => {      
-      console.log('gameMatchFound :>> ', gameId);
+      console.log('Game Match Found :>> ', gameId);
     });    
   }  
 }

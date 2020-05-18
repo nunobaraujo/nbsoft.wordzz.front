@@ -19,6 +19,7 @@ import { PlayLetter } from '../Models/playLetter';
 import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { GameChallengeResult } from '../Models/gameChallengeResult';
+import { LexiconService } from './lexicon.service';
 
 
 @Injectable({
@@ -56,7 +57,7 @@ export class GameService {
   challengeResults$ = this._challengeResults.asObservable();
   
   private contactSubscription: Subscription;
-  constructor(private http: HttpClient, private router:Router, authenticationService:AuthenticationService,private userService:UserService, private gameHub:GameHub) { 
+  constructor(private http: HttpClient, private router:Router, authenticationService:AuthenticationService,private userService:UserService,private lexiconService:LexiconService, private gameHub:GameHub) { 
     authenticationService.currentUser.subscribe(u => {
       this.currentUser = u;
       if (!!u){     
@@ -73,8 +74,7 @@ export class GameService {
 
         this.apiGetQueuedGames(this.currentUser.username)
         .then(q => {
-          if (q.length>0){
-            console.log('q :>> ', q);
+          if (q.length>0){            
             var search = q.find(sg => sg.player1 == this.currentUser.username && !sg.player2);
             if (!! search){
               this.gameHub.waitForGame()
@@ -89,8 +89,8 @@ export class GameService {
           this.registerChallengeCanceled();
           this.registerSearchingGame();
 
-          this.updateOnlineContacts().then(c => console.log('updateOnlineContacts'));
-          this.updateOnlineOpponents().then(c => console.log('updateOnlineOpponents'));
+          this.updateOnlineContacts().then();
+          this.updateOnlineOpponents().then();
         })
         .catch(err => authenticationService.logout() );
         
@@ -100,8 +100,7 @@ export class GameService {
 
   private registerChallengeCanceled(){
     this.gameHub.challengeCanceled$.subscribe(challengeId =>{
-      if (!!challengeId){
-        console.log('Challenge canceled :>> ', challengeId);
+      if (!!challengeId){        
         this.apiGetChallengesReceived().then(challenges=>{
           this.receivedChallengeStore.challenges = challenges;
           this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
@@ -132,7 +131,6 @@ export class GameService {
           this.sentChallengeStore.challenges.splice(sChallengeIndex,1);
           this._sentChallenges.next(Object.assign({},this.sentChallengeStore).challenges);
         }        
-        console.log('challengeResult :>> ', challengeResult);
 
         if (challengeResult.accepted){
           this.refreshGames().then(() => {
@@ -148,7 +146,6 @@ export class GameService {
   private registerReceivedChallenge(){
     this.gameHub.receivedChallenge$.subscribe(challenge =>{
       if (!!challenge){
-        console.log('Received Challenge :>> ', challenge);
         this.receivedChallengeStore.challenges.push(challenge);
         this._receivedChallenges.next(Object.assign({}, this.receivedChallengeStore).challenges);
       }
@@ -191,7 +188,7 @@ export class GameService {
       this.endedGamesStore.games.push(gameResult);
       this._endedGames.next(Object.assign({},this.endedGamesStore).games);
       
-      this.refreshGames().then(g => console.log('Refresh :>> ',g ));
+      this.refreshGames().then();
 
     });    
   }
@@ -229,7 +226,6 @@ export class GameService {
   }
   public async searchGame(language:string, boardId:number):Promise<string>{
     try {
-      console.log('language :>> ', language);
       let gameQueue = await this.apiQueueGame(language,boardId);      
       this.gameHub.waitForGame();
       return gameQueue.id;     
@@ -287,14 +283,12 @@ export class GameService {
     var game = await this.apiAcceptChallenge(challengeId, accept);
     const index:number = this.receivedChallengeStore.challenges.findIndex(({id})=> id === challengeId);
     if (index!==-1) {
-      console.log('Removing Challenge :', index);
       this.receivedChallengeStore.challenges.splice(index, 1);
       this._receivedChallenges.next(Object.assign({},this.receivedChallengeStore).challenges);          
     }
 
     if (accept){      
       await this.refreshGames();
-      console.log(' .object updateOnlineOpponents :>> ');
       await this.updateOnlineOpponents();      
       this.router.navigateByUrl(`/game-center/${game.id}`)
       return game.id
@@ -308,10 +302,9 @@ export class GameService {
       var manager = this.gameManagersStore.gameManagers.find(gm => gm.gameId == g.id);
       if (!manager){
         // No manager to this game, add it
-        var manager = new GameManager(this,g.id);
+        var manager = new GameManager(this,this.lexiconService,g.id);
         this.gameManagersStore.gameManagers.push(manager);
         this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
-        console.log('New Game Mananager :', g.id);
       }
     });
     
@@ -329,8 +322,7 @@ export class GameService {
       let index = this.gameManagersStore.gameManagers.findIndex(gm => gm.gameId == id);
       if (index !== -1){
         this.gameManagersStore.gameManagers.splice(index,1);
-        this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);
-        console.log('Game Mananager removed:', id);
+        this._gameManagers.next(Object.assign({}, this.gameManagersStore).gameManagers);        
       }
     });
 

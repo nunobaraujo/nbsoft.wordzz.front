@@ -15,7 +15,6 @@ export class GcGameStatusComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
   }
   ngAfterViewInit(): void {
-    console.log('this.gameManager :>> ', this.gameManager.gameId);
     setTimeout(() => {
       this.gameManager.currentPlayer$.subscribe( c => {
         if (c == this.gameManager.currentUser.username){
