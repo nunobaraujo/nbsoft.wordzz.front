@@ -57,6 +57,10 @@ export class SignupComponent implements OnInit {
                 console.log('data :>> ', data);
                 this.created= `User ${data.userName} created successfully`;
                 console.log('text :>> ', this.created);
+                setTimeout(() =>{                  
+                  this.router.navigate(['/login']);
+                }          
+                ,5000);                
               }
             },
             error => {

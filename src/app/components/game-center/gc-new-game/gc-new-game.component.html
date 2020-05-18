@@ -10,16 +10,16 @@
                     <div class="col-md-6">            
                         <div class="form-group">
                         <label for="languageSelector">Language</label>
-                        <select class="form-control bg-dark text-white" id="languageSelector" title="{{selectedLexicon?.language}}" [(ngModel)]="selectedLexicon">
-                            <option *ngFor="let l of availableLexicons" [value]="l" title="{{l.language}}" >{{l.description}}</option>
+                        <select class="form-control bg-dark text-white" id="languageSelector" title="{{selectedLanguage}}" [(ngModel)]="selectedLanguage">
+                            <option *ngFor="let l of availableLexicons" [value]="l.language" title="{{l.language}}" >{{l.description}}</option>
                         </select>
                         </div>            
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                         <label for="boardSelector">Board</label>
-                        <select class="form-control bg-dark text-white" id="boardSelector" [(ngModel)]="selectedBoard">
-                            <option *ngFor="let b of availableBoards" [value]="b" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
+                        <select class="form-control bg-dark text-white" id="boardSelector" [(ngModel)]="selectedBoardId">
+                            <option *ngFor="let b of availableBoards" [value]="b.id" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
                         </select>
                         </div>
                     </div>

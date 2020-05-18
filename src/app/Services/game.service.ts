@@ -229,6 +229,7 @@ export class GameService {
   }
   public async searchGame(language:string, boardId:number):Promise<string>{
     try {
+      console.log('language :>> ', language);
       let gameQueue = await this.apiQueueGame(language,boardId);      
       this.gameHub.waitForGame();
       return gameQueue.id;     
@@ -273,10 +274,11 @@ export class GameService {
   public pass(gameId:string){
     return this.gameHub.pass(gameId);
   }
-  public async forfeit(gameId:string){
-    var res =  this.gameHub.forfeit(gameId);
+  public async forfeit(gameId:string){    
+    var res =  await this.gameHub.forfeit(gameId);
     await this.updateOnlineOpponents();
     await this.refreshGames();
+    
     return res;
   }
 

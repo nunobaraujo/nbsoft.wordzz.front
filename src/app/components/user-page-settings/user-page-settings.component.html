@@ -6,13 +6,13 @@
     <div class="form-group">
         <label for="languageSelector">Default Game Language</label>
         <select class="form-control" id="languageSelector" [(ngModel)]="mainSettings.language" name="postalCode">
-            <option *ngFor="let l of availableLexicons" [value]="l" title="{{l.language}}" >{{l.description}}</option>
+            <option *ngFor="let l of availableLexicons" [value]="l.language" title="{{l.language}}" >{{l.description}}</option>
         </select>
     </div>
     <div class="form-group">
         <label for="boardSelector">Default Game Board</label>
         <select class="form-control" id="boardSelector" [(ngModel)]="mainSettings.defaultBoard" name="defaultBoard">
-            <option *ngFor="let b of availableBoards" [value]="b" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
+            <option *ngFor="let b of availableBoards" [value]="b.id" title="{{b.name}}" >{{b.name}} ({{b.boardRows}}x{{b.boardColumns}})</option>
         </select>
     </div>                   
     <button type="submit" [disabled]="!hasChanges" class="btn btn-primary">Save Settings</button>
