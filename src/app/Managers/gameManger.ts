@@ -15,7 +15,9 @@ import { Letter } from '../Models/letter';
 import { GameResult } from '../Models/gameResult';
 import { GameService } from '../Services/game.service';
 import { PlayResult } from '../Models/playResult';
-
+import { PlayWord } from '../Models/playWord';
+import { LexiconService } from '../Services/lexicon.service';
+import { Word } from '../Models/word';
 
 export class GameManager{
     private gameSubscription:Subscription;
@@ -28,6 +30,8 @@ export class GameManager{
     currentUser:User;
     board:Board;
     availableLetters:string;
+
+    private wordDescriptions:Word[]=[];    
 
     private _activeRack = new BehaviorSubject<BoardLetter[]>(null);  
     private activeRackStore: { rack:  BoardLetter[] } ={ rack: []};
@@ -59,9 +63,8 @@ export class GameManager{
 
     private _gameEnded = new BehaviorSubject<GameResult>(null);    
     gameEnded$ = this._gameEnded.asObservable();
-
-    
-    constructor(private gameService:GameService, gameId:string){
+        
+    constructor(private gameService:GameService, private lexiconService:LexiconService, gameId:string){
         this.gameId = gameId;
         this.currentUser = gameService.currentUser;        
         
@@ -189,7 +192,22 @@ export class GameManager{
         this.rackConnectedTilesStore.connections = result;
         this._rackConnectedTiles.next(Object.assign({}, this.rackConnectedTilesStore).connections);  
     }
+
     
+    
+    updateWordDescriptions(){        
+        this.game.playMoves.forEach(m => {
+            m.words.forEach(async w => {
+                let wordString = this.getWord(w).toUpperCase();                
+                var existing = this.wordDescriptions.find( d => d.name.toUpperCase() ==  wordString);
+                if (!existing){
+                    var iWord = await this.lexiconService.getWordInfo(this.game.language,wordString);                    
+                    this.wordDescriptions.push(iWord);
+                }
+            });
+        });
+
+    }
     
     getTileConnections(tile:BoardTile):string[]{
         var result = this.game.board.tiles.map(t =>{
@@ -238,6 +256,13 @@ export class GameManager{
         else{
           return this.game.player02;
         }
+    }
+    public getWordDescription(word:string):string{
+        let iWord = this.wordDescriptions.find(w => w.name.toUpperCase() == word.toUpperCase());
+        if (!iWord){
+            return word;
+        }        
+        return iWord.description;
     }
       
 
@@ -339,6 +364,7 @@ export class GameManager{
         this.currentPlayer = game.currentPlayer;
         this._currentPlayer.next(this.currentPlayer);
         
+        this.updateWordDescriptions();
 
         // update rack drag and drop connections
         this.updateRackConnections();
@@ -381,6 +407,14 @@ export class GameManager{
             this.activeRackStore.rack.splice(letterIndex,1);
             this._activeRack.next(Object.assign({}, this.activeRackStore).rack);
         }
+    }
+
+    private getWord(word:PlayWord):string{
+        let result:string = "";
+        word.letters.forEach(l =>{
+            result+= l.letter.letter.char;
+        });
+        return result;
     }
     
 
