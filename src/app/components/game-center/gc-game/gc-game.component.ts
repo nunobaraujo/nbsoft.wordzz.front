@@ -4,7 +4,7 @@ import { GameHub } from 'src/app/Managers/gameHub';
 import { GameManager } from 'src/app/Managers/gameManger';
 import { Observable, Subscription, BehaviorSubject } from 'rxjs';
 import { GameLog } from 'src/app/Models/gameLog';
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faTimesCircle,faAlignJustify } from '@fortawesome/free-solid-svg-icons';
 import { MatDialog } from '@angular/material/dialog';
 import { GameoverModalComponent } from 'src/app/Dialogs/gameover-modal/gameover-modal.component';
 import { GameResult } from 'src/app/Models/gameResult';
@@ -18,6 +18,7 @@ import { GameService } from 'src/app/Services/game.service';
 export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   @ViewChild('gameLog') private myScrollContainer: ElementRef;
   faTimesCircle = faTimesCircle;
+  faAlignJustify = faAlignJustify;
   loading = false;
   currentUserName:string;
   gameManager:GameManager;  
@@ -26,6 +27,7 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   onlineOpponentsSubscription:Subscription;
   routeSubscription:Subscription;
   gameOverSubscription:Subscription;
+  lastOponentMoveSubscription:Subscription;
 
   gameLogs$: Observable<GameLog[]>;  
   
@@ -33,19 +35,19 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
   playLocked:boolean;
 
   isOpponentOnline = false;
+  activePlayer:string = "";
   private _status = new BehaviorSubject<string>(null);
   status$ = this._status.asObservable();
 
   constructor(private route: ActivatedRoute, private gameHub:GameHub, private gameService:GameService, router:Router ,public dialog: MatDialog) {    
-    this.currentUserName = this.gameService.currentUser.username;
-    
+    this.currentUserName = this.gameService.currentUser.username;    
     if(!!this.routeSubscription){
       this.routeSubscription.unsubscribe();  
     }
     this.routeSubscription = this.route.data
     .subscribe((data) => {
       this.loading = true;      
-      this.gameManager = this.gameService.getManager(data.game.id);
+      this.gameManager = this.gameService.getManager(data.game.id);      
       this.gameLogs$ = this.gameManager.gameLog$;         
       if (!!this.gameOverSubscription){
         this.gameOverSubscription.unsubscribe();
@@ -74,8 +76,40 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
       this.onlineOpponentsSubscription = this.gameService.onlineOpponents$.subscribe(opponent =>{
         this.isOpponentOnline = opponent.findIndex(f => this.gameManager.getOpponent().userName ) !== -1;        
       }); 
+
+      if (!!this.lastOponentMoveSubscription){
+        this.lastOponentMoveSubscription.unsubscribe();
+      }
+      this.lastOponentMoveSubscription = this.gameManager.lastOpponentMove$.subscribe(p =>{
+        if (!!p){
+          var words:string[] = [];
+          console.log('p :>> ', p);
+          p.words.forEach(w => {
+            words.push(this.gameManager.getWord(w));
+          });        
+          var text =`${this.getOpponentFullName()} scored ${p.score} points: [${words.join(', ')}]`;
+          this.setStatusText(text,10000);
+        }
+      });      
+
+      this.gameManager.currentPlayer$.subscribe(c => {
+        this.activePlayer = c;
+      });
+
     });     
   }      
+
+  getPlayerUserClass():string{
+    return this.activePlayer == this.getPlayerUserName() ? "active-player" :"inactive-player" 
+  }
+  getOpponentUserClass():string{
+    if (!this.isOpponentOnline){
+      return "offline-player";
+    }
+    return this.activePlayer == this.getOpponentUserName() ? "active-player" :"inactive-player" 
+    
+  }
+
   ngOnInit(): void {    
     this.scrollToBottom();
     
@@ -88,20 +122,11 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
     this.routeSubscription.unsubscribe();
     this.gameOverSubscription.unsubscribe();
     this.onlineOpponentsSubscription.unsubscribe();
+    this.lastOponentMoveSubscription.unsubscribe();
   }
   
   onPlay():void{    
-    this._status.next("Waiting...");
-    this.playLocked = true;
-    this.gameManager.play().then(res =>{ 
-      console.log('res :>> ', res);      
-      this._status.next(res);
-      this.playLocked = false
-      setTimeout(() => {
-        this._status.next("");
-      }, 8000);
-    });
-    
+    this.play()
   }
   onPass():void{    
     var r = confirm("Are you sure you want to pass your turn?");
@@ -115,6 +140,24 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
       this.gameManager.forfeit();    
     }    
 
+  }
+  private async play(){
+    this._status.next("Waiting...");
+    this.playLocked = true;
+    var res = await this.gameManager.play();
+    this.playLocked = false
+    if(res.moveResult == "OK")
+    {
+      var words:string[] = [];
+      res.playMove.words.forEach(w => {
+        words.push(this.gameManager.getWord(w));
+      });        
+      var text =`Scored ${res.playMove.score} points: [${words.join(', ')}]`;
+      this.setStatusText(text,10000);
+    }
+    else{
+      this.setStatusText(res.moveResult,5000);
+    }
   }
 
   getLogClass(log:GameLog):string{
@@ -139,6 +182,24 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
         this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
     } catch(err) { }                 
   }
+  
+  isLogPopped:boolean = false;
+  logContainerClicked(event)
+  {
+    var target = event.target || event.srcElement || event.currentTarget;    
+    var idAttr = target.attributes.id;
+    if (!!idAttr){
+      var value = idAttr.nodeValue;
+      if (value == "gameLogContainer"){
+        console.log('calue :>> ', value);
+        this.isLogPopped = false;
+      }
+    }
+  }
+  onPopLogs(event){
+    this.isLogPopped = true;
+  }
+
   getPlayerUserName():string{
     if (!this.gameManager.player){
       return "";
@@ -171,6 +232,14 @@ export class GcGameComponent implements OnInit, OnDestroy ,AfterViewChecked {
     return this.gameManager.opponent.userName;
   }
 
+  setStatusText(text:string,duration:number ){
+    console.log('Status :>> ', text);
+    this._status.next(text);      
+      setTimeout(() => {
+        this._status.next("");
+      }, duration);
+
+  }
   onGameOver(result:GameResult){
     const dialogRef = this.dialog.open(GameoverModalComponent, {
       width: '600px',      
