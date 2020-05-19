@@ -63,6 +63,9 @@ export class GameManager{
 
     private _gameEnded = new BehaviorSubject<GameResult>(null);    
     gameEnded$ = this._gameEnded.asObservable();
+
+    private _lastOpponentMove = new BehaviorSubject<PlayMove>(null);      
+    lastOpponentMove$ = this._lastOpponentMove.asObservable();
         
     constructor(private gameService:GameService, private lexiconService:LexiconService, gameId:string){
         this.gameId = gameId;
@@ -266,9 +269,9 @@ export class GameManager{
     }
       
 
-    public async play():Promise<string>{
-
+    public async play():Promise<PlayResult>{
         var result =  await this.gameService.play(this.game.id,this.currentPlaysStore.letters);
+
         if(result.moveResult == "OK")
         {                
             if (!!this.gameSubscription)
@@ -278,12 +281,9 @@ export class GameManager{
             this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
                 console.log('refresGamme :>> ');
                 this.refreshGame(g);
-            });
-            return "OK"
+            });            
         }
-        else{
-            return result.moveResult;
-        }
+        return result;        
     }
     public async pass():Promise<PlayResult>{
         var res = await this.gameService.pass(this.game.id);
@@ -319,6 +319,10 @@ export class GameManager{
         }        
         this.gameSubscription = this.gameService.getGame(this.gameId).subscribe(g =>{                   
             this.refreshGame(g);
+           var play =  g.playMoves[g.playMoves.length-1];
+           this._lastOpponentMove.next(play);
+           this._lastOpponentMove.next(null);
+
         });
     }
 
@@ -409,7 +413,7 @@ export class GameManager{
         }
     }
 
-    private getWord(word:PlayWord):string{
+    public getWord(word:PlayWord):string{
         let result:string = "";
         word.letters.forEach(l =>{
             result+= l.letter.letter.char;

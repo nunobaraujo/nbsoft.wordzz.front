@@ -1,5 +1,22 @@
-.active-games-container{
-    margin-top: 10px;
-    margin-left: 10px;   
-    margin-right: 10px;   
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 679px) {
+    /* Styles */
+    .active-games-container{
+        margin-top: 0px;
+        margin-left: 0px;   
+        margin-right: 0px;   
+    }
 }
+
+/* Desktops and laptops ----------- */
+@media only screen 
+and (min-width : 680px) {    
+    .active-games-container{
+        margin-top: 10px;
+        margin-left: 10px;   
+        margin-right: 10px;   
+    }
+}
+
