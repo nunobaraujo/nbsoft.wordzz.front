@@ -1,7 +1,5 @@
 
-.rack-container{  
-  //min-width: 810px;
-  min-height: 80px;
+.rack-container{
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,7 +10,7 @@
   align-items: center;
   justify-content: center;  
   margin-top: 3px;
-  min-width: 300px;
+  min-width: 260px;
   min-height: 50px;
   border-radius: 6px;
 }  

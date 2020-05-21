@@ -51,13 +51,13 @@ export class GridTileComponent implements OnInit {
   private getText():string{
     switch (this.boardTile.bonus) {
       case BonusType.TripleWord:
-        return "Triple Word";    
+        return "TW";    
       case BonusType.DoubleWord:
-        return "Double Word";    
+        return "DW";    
       case BonusType.TripleLetter:
-        return "Triple Letter";    
+        return "TL";    
         case BonusType.DoubleLetter:
-        return "Double Letter";    
+        return "DL";    
       default:
         return "";
     }

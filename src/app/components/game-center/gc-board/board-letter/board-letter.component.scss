@@ -7,17 +7,48 @@ $double-letter-blue: rgba(4, 147, 181, 0.4);
 $unlockedLetter: peru;
 $lockedLetter:orange;
 
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 679px) {
+   .board-letter-inboard
+   {
+      width: calc(100vw /15);
+      height: calc(100vw /15);
+   }
+   .board-letter-inboard .board-letter-value{         
+      align-self: flex-end;
+      font: 0.5rem "Helvetica";
+      padding-right: 4px;
+      padding-top: 0px; 
+      color:black  
+   }
+}
+
+/* Desktops and laptops ----------- */
+@media only screen 
+and (min-width : 680px) {    
+   .board-letter-inboard
+   {
+      width: 32px;
+      height: 32px;
+   }   
+}
+
+
 .board-letter
 {   
    display: flex;
    align-items: center;   
-   flex-direction: column;  /* <--- I added this */
-   width: 30px;
-   height: 30px;      
+   flex-direction: column;   
    border-radius: 3px;
    box-shadow: inset 0 1px 5px -2px rgba(0, 0, 0, 0.2),
    inset 1px -2px 4px -1px rgba(0, 0, 0, 0.2);
-
+}
+.board-letter-inrack
+{
+   width: 32px;
+   height: 32px;
 }
 
 .board-letter-unlocked
@@ -39,21 +70,12 @@ $lockedLetter:orange;
    text-align: center;   
    color: black;
 }
-
-
 .board-letter-value{         
    align-self: flex-end;
-   font: 12px "Helvetica";
+   font: 0.7rem "Helvetica";
    padding-right: 4px;
    padding-top: 1px; 
    color:black  
-}
-.board-letter-value-special{
-   padding-right: 3px;
-   margin-top: -2px;
-   color: white;
-   font-size: 10px;
-   margin-right: -2px;
 }
 
 .bonus-triple-letter{

@@ -10,6 +10,7 @@ export class BoardLetterComponent implements OnInit {
   @Input() boardLetter: BoardLetter;
   @Input() isLocked: boolean;
   @Input() lastPlay: boolean;
+  @Input() inRack: boolean;
   
     
 
@@ -20,11 +21,20 @@ export class BoardLetterComponent implements OnInit {
   }
   
   getClass():string{
+    var cssClass = "";
     if (this.isLocked){
-      return "board-letter-locked"
+      cssClass += " board-letter-locked";
     }
     else{
-      return "board-letter-unlocked"
+      cssClass += " board-letter-unlocked"
     }
+
+    if (this.inRack){
+      cssClass += " board-letter-inrack"
+    }
+    else{
+      cssClass += " board-letter-inboard"
+    }
+    return cssClass;
   }
 }

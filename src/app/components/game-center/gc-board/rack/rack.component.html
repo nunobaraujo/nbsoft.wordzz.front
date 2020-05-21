@@ -7,7 +7,7 @@
         (cdkDropListDropped)="drop($event)" >
         <div  [cdkDragData]='letter'  *ngFor="let letter of gameManager.activeRack$ | async"  cdkDrag >
             <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
-            <app-board-letter [boardLetter]='letter' ></app-board-letter>
+            <app-board-letter [boardLetter]='letter' [inRack]="true" ></app-board-letter>
         </div>    
     </div>
 </div>

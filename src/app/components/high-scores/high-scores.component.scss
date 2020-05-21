@@ -1,0 +1,20 @@
+
+
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 679px) {
+  /* Styles */
+    .wz-score-table{
+        width: 100%;
+        font-size: 0.7rem;
+    }
+}
+
+@media only screen 
+and (min-width : 680px) {
+  /* Styles */
+    .wz-score-table{
+        width: 100%;
+        font-size: 1rem;
+    }
+}

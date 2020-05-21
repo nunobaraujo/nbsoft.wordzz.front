@@ -1,21 +1,106 @@
+$activePlayer: rgb(24, 255, 93);
+$inactivePlayer: rgb(50, 158, 83);
+$offlinePlayer: rgb(139, 29, 34);
 
 
-.game-body{
-    min-width: 600px;
-    max-width: 810px;
-    border-radius: 6px;
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 679px) {
+  /* Styles */
+    .game-body{
+        width: 100%;    
+        border-radius: 6px;
+    }
+    .game-header{
+        
+        display: flex;
+        flex-direction: row ;
+        justify-content: space-between;        
+    }
+
+    .game-container-board{
+        flex: 1 0 100%;
+        align-items: flex-start;
+        overflow: hidden;
+    }
+   
+    .player-score-container{    
+        display: flex;        
+        flex-direction: row ;
+        margin: 2px;
+        width: 100%;
+        min-height: 30px;    
+        justify-content: center;
+        align-items: center;
+    }
+    .game-container-log{
+        display: none;
+    }
 }
-.game-header{
+
+/* bigger devices  ----------- */
+@media only screen 
+and (min-width : 680px) {
+  /* Styles */
+    .game-body{
+        width: 670px;    
+        border-radius: 6px;
+    }
+    .game-header{
+        
+        display: flex;
+        flex-direction: row ;
+        justify-content: space-between;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .game-container-board{
+        flex: 1 0 80%;
+        align-items: flex-start;
+        overflow: hidden;
+    }
     
-    display: flex;
-    flex-direction: row ;
-    justify-content: space-between;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    .player-score-container{    
+        display: flex;        
+        flex-direction: row ;
+        margin: 2px;
+        width: 100%;
+        min-height: 40px;    
+        justify-content: center;
+        align-items: center;
+    }
+    .game-container-log{
+        flex: 1 0 20%;    
+        flex-direction: column ;
+        padding-left: 5px;
+        padding-right: 5px;    
+        font-size: smaller;
+        height: 534px;
+        width: 130px;
+        border-left: 2px solid #aaa;
+        border-right: 2px solid #656565;
+        border-top: 2px solid #aaa;
+        border-bottom: 2px solid #656565;    
+    }
 }
+
+.active-player{
+    background-color: $activePlayer;
+    color: black;
+}
+.inactive-player{
+    background-color: $inactivePlayer;
+    color: white;
+}
+.offline-player{
+    background-color: $offlinePlayer;
+    color: white;
+}
+
 .game-header-section{
     display: flex;
-    min-width: 33%;    
+    width: 50%;    
     justify-content: center;
 }
 .game-header-section-left{    
@@ -24,15 +109,7 @@
 .game-header-section-right{
     justify-content: flex-end;    
 }
-.player-score-container{    
-    display: flex;        
-    flex-direction: row ;
-    margin: 2px;
-    width: 100%;
-    min-height: 40px;    
-    justify-content: center;
-    align-items: center;
-}
+
 
 .player-score{
     display: flex;        
@@ -56,23 +133,7 @@
 .game-container{
     display: flex;    
 }
-.game-container-board{
-    flex: 1 0 80%;
-    align-items: flex-start;
-    overflow: hidden;
-}
-.game-container-log{
-    flex: 1 0 20%;    
-    flex-direction: column ;
-    padding-left: 5px;
-    padding-right: 5px;    
-    font-size: smaller;
-    max-height: 534px;
-    border-left: 2px solid #aaa;
-    border-right: 2px solid #656565;
-    border-top: 2px solid #aaa;
-    border-bottom: 2px solid #656565;    
-}
+
 .game-container-log-player{
     text-align: left;
     color: white;
@@ -81,32 +142,52 @@
     text-align: right;
     color: #c0c0c0;
 }
-
+.game-container-log-pop{
+    flex: 1 0 20%;    
+    flex-direction: column ;
+    padding-left: 5px;
+    padding-right: 5px;    
+    font-size: smaller;
+    height: 534px;    
+    border-left: 2px solid #aaa;
+    border-right: 2px solid #656565;
+    border-top: 2px solid #aaa;
+    border-bottom: 2px solid #656565;  
+}
+.game-container-log-container{
+    position: fixed; /* Sit on top of the page content */
+    display: flex; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    align-content: center;
+    padding: 70px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+    
+}
 
 .game-footer{    
     display: flex;    
     align-items: center;    
-}
-.game-footer .game-pub{    
-    display: flex;  
     flex-direction: column;
-    align-items: center;
-    justify-content:center;
-    width: 30%;
-    min-height: 120px;
+    max-width: 670px;
 }
+
 .game-footer .game-rack{    
     display: flex;  
     flex-direction: column;
-    align-items: flex-start;
-    width: 40%;
+    align-items: flex-start;    
 }
 .game-footer .game-commands{
     display: flex;  
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    width: 30%;
     
 }
 
@@ -115,6 +196,28 @@
     font-size: small;
     min-height: 40px;
 }
-.game-footer .game-commands .btn{
-    min-width: 80px;
+.game-footer .game-commands .button-container{
+    width: 100vw;
+    max-width: 670px;
+    display: flex;  
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content:space-around;
+    margin-bottom: 10px;
+    
+}
+.button-container .btn-normal{
+    width: 82px;
+}
+
+.button-container .btn-wide{
+    width: 100px;
+}
+.button-container .btn-icon{
+    display: inline-block;
+    align-items: center;
+    padding-left: 8px;
+    padding-top: 4px;
+    width: 32px;
+    height: 32px;
 }
