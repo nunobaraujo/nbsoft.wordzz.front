@@ -1,0 +1,15 @@
+version: '3.0'
+services:
+  wordzzfrontend:
+    image: nunobaraujo/wordzzfrontend:latest    
+    build:
+       context: .    
+    container_name: wordzzfrontend
+    environment:
+      - ENV_INFO=PROD
+    ports:
+      - "8080:80"
+networks:  
+  default:
+    external:
+      name: nb-net

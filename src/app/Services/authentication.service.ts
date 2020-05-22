@@ -34,14 +34,24 @@ export class AuthenticationService {
     }
 
     logout() {
-        let current = localStorage.getItem('currentUser');
-        localStorage.removeItem('currentUser');        
-        this.currentUserSubject.next(null);        
-        // remove user from local storage to log user out
-        console.log("Logged out")
+        let current = localStorage.getItem('currentUser');        
+        // remove user from local storage to log user out        
         if (!!current)   {
             this.http.delete(`${environment.apiUrl}/session`).subscribe(() => {
-            });
+                localStorage.removeItem('currentUser');        
+                this.currentUserSubject.next(null);  
+                console.log("Session Terminated")     
+            },
+            err => {
+                localStorage.removeItem('currentUser');        
+                this.currentUserSubject.next(null);  
+            } );
+        }
+        else
+        {
+            localStorage.removeItem('currentUser');        
+            this.currentUserSubject.next(null);
+            console.log("Logged out")
         }
     }
 }

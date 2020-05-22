@@ -92,8 +92,7 @@ export class GameService {
           this.updateOnlineContacts().then();
           this.updateOnlineOpponents().then();
         })
-        .catch(err => authenticationService.logout() );
-        
+        .catch(err => console.error('Error Getting games: ',err));
       }
     });
   }
