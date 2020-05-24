@@ -2,37 +2,28 @@ $activePlayer: rgb(24, 255, 93);
 $inactivePlayer: rgb(50, 158, 83);
 $offlinePlayer: rgb(139, 29, 34);
 
+$gameWidth: 610px;
 
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 
-and (min-device-width : 320px) 
-and (max-device-width : 679px) {
+and (max-width : 613px) {
   /* Styles */
-    .game-body{
-        width: 100%;    
-        border-radius: 6px;
+    .user-name{
+        font-size: 1rem;    
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-top: 5px;
     }
-    .game-header{
-        
-        display: flex;
-        flex-direction: row ;
-        justify-content: space-between;        
-    }
-
+    .score{
+        font-size: 1rem;    
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-top: 7px;
+    }   
     .game-container-board{
         flex: 1 0 100%;
         align-items: flex-start;
         overflow: hidden;
-    }
-   
-    .player-score-container{    
-        display: flex;        
-        flex-direction: row ;
-        margin: 2px;
-        width: 100%;
-        min-height: 30px;    
-        justify-content: center;
-        align-items: center;
     }
     .game-container-log{
         display: none;
@@ -41,34 +32,25 @@ and (max-device-width : 679px) {
 
 /* bigger devices  ----------- */
 @media only screen 
-and (min-width : 680px) {
+and (min-width : 614px) {
   /* Styles */
-    .game-body{
-        width: 670px;    
-        border-radius: 6px;
+    .user-name{
+        font-size: 1.5rem;    
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 10px;
     }
-    .game-header{
-        
-        display: flex;
-        flex-direction: row ;
-        justify-content: space-between;
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
+    .score{
+        font-size: 1.5rem;    
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 12px;
+    }   
     .game-container-board{
         flex: 1 0 80%;
         align-items: flex-start;
         overflow: hidden;
-    }
-    
-    .player-score-container{    
-        display: flex;        
-        flex-direction: row ;
-        margin: 2px;
-        width: 100%;
-        min-height: 40px;    
-        justify-content: center;
-        align-items: center;
+        max-width: 480px;
     }
     .game-container-log{
         flex: 1 0 20%;    
@@ -76,13 +58,42 @@ and (min-width : 680px) {
         padding-left: 5px;
         padding-right: 5px;    
         font-size: smaller;
-        height: 534px;
+        height: 480px;
         width: 130px;
+        max-width: 130px;
         border-left: 2px solid #aaa;
         border-right: 2px solid #656565;
         border-top: 2px solid #aaa;
         border-bottom: 2px solid #656565;    
     }
+}
+.game-body{
+    width: 100%;    
+    
+    /*border-radius: 6px;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black; */
+}
+
+.game-header{
+    display: flex;
+    flex-direction: row ;
+    justify-content: space-between;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    max-width: $gameWidth;
+}
+
+.player-score-container{    
+    display: flex;        
+    flex-direction: row ;
+    margin: 2px;
+    width: 100%;
+    min-height: 40px;    
+    justify-content: center;
+    align-items: center;
 }
 
 .active-player{
@@ -114,20 +125,6 @@ and (min-width : 680px) {
 .player-score{
     display: flex;        
     flex-direction: row ;
-}
-
-
-.user-name{
-    font-size: large;    
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 10px;
-}
-.score{
-    font-size: larger;    
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 12px;
 }
 
 .game-container{
@@ -175,7 +172,7 @@ and (min-width : 680px) {
     display: flex;    
     align-items: center;    
     flex-direction: column;
-    max-width: 670px;
+    max-width: $gameWidth;    
 }
 
 .game-footer .game-rack{    
@@ -183,27 +180,30 @@ and (min-width : 680px) {
     flex-direction: column;
     align-items: flex-start;    
 }
+.game-footer .status {
+    overflow: auto;
+    font-size: 0.7rem;
+    min-height: 33px;
+}
 .game-footer .game-commands{
     display: flex;  
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
-.game-footer .game-commands .status {
-    overflow: auto;
-    font-size: small;
-    min-height: 40px;
-}
+
 .game-footer .game-commands .button-container{
     width: 100vw;
-    max-width: 670px;
+    max-width: $gameWidth;
     display: flex;  
     flex-direction: row;
     align-items: flex-start;
     justify-content:space-around;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     
 }
 .button-container .btn-normal{

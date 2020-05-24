@@ -1,7 +1,6 @@
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 
-and (min-device-width : 320px) 
-and (max-device-width : 679px) {
+and (max-width : 613px) {
     /* Styles */
     .active-games-container{
         margin-top: 0px;
@@ -12,7 +11,7 @@ and (max-device-width : 679px) {
 
 /* Desktops and laptops ----------- */
 @media only screen 
-and (min-width : 680px) {    
+and (min-width : 614px) {    
     .active-games-container{
         margin-top: 10px;
         margin-left: 10px;   

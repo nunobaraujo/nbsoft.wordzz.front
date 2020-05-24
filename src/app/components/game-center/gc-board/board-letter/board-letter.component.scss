@@ -9,30 +9,37 @@ $lockedLetter:orange;
 
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 
-and (min-device-width : 320px) 
-and (max-device-width : 679px) {
-   .board-letter-inboard
-   {
-      width: calc(100vw /15);
-      height: calc(100vw /15);
-   }
+and (max-width : 613px) {
+   
    .board-letter-inboard .board-letter-value{         
       align-self: flex-end;
       font: 0.5rem "Helvetica";
       padding-right: 4px;
-      padding-top: 0px; 
+      padding-top: 1px; 
       color:black  
    }
 }
 
 /* Desktops and laptops ----------- */
 @media only screen 
-and (min-width : 680px) {    
-   .board-letter-inboard
-   {
-      width: 32px;
-      height: 32px;
-   }   
+and (min-width : 614px) {    
+   
+}
+
+.board-letter-value{         
+   align-self: flex-end;
+   font: 0.7rem "Helvetica";
+   padding-right: 4px;
+   padding-top: 1px; 
+   color:black  
+}
+
+.board-letter-inboard
+{
+   width: calc(100vw /15);
+   height: calc(100vw /15);
+   max-width: 32px;
+   max-height: 32px;
 }
 
 
@@ -69,13 +76,6 @@ and (min-width : 680px) {
    font: 700 18px "Helvetica";
    text-align: center;   
    color: black;
-}
-.board-letter-value{         
-   align-self: flex-end;
-   font: 0.7rem "Helvetica";
-   padding-right: 4px;
-   padding-top: 1px; 
-   color:black  
 }
 
 .bonus-triple-letter{
