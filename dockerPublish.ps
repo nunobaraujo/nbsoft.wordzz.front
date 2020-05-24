@@ -1,0 +1,5 @@
+ docker login --username nunobaraujo --password @SisemeN#18
+ docker tag wordzzfrontend:latest wordzzfrontend:1.0.1
+ docker build -t wordzzfrontend .
+ docker tag wordzzfrontend nunobaraujo/wordzzfrontend
+ docker push nunobaraujo/wordzzfrontend
