@@ -33,25 +33,26 @@ export class AuthenticationService {
             }));
     }
 
-    logout() {
-        let current = localStorage.getItem('currentUser');        
-        // remove user from local storage to log user out        
-        if (!!current)   {
-            this.http.delete(`${environment.apiUrl}/session`).subscribe(() => {
-                localStorage.removeItem('currentUser');        
-                this.currentUserSubject.next(null);  
-                console.log("Session Terminated")     
-            },
-            err => {
-                localStorage.removeItem('currentUser');        
-                this.currentUserSubject.next(null);  
-            } );
-        }
-        else
+    logout() {        
+        
+        try
         {
+            let current = localStorage.getItem('currentUser');         
+            if (!!current)   {
+                this.http.delete(`${environment.apiUrl}/session`).subscribe(() => {
+                    localStorage.removeItem('currentUser');        
+                    this.currentUserSubject.next(null);  
+                    console.log("Session Terminated");
+                });
+            }
+            
+
+        }
+        finally{            
+            // remove user from local storage to log user out        
             localStorage.removeItem('currentUser');        
-            this.currentUserSubject.next(null);
-            console.log("Logged out")
+            this.currentUserSubject.next(null);  
+            console.log("Logged Out");
         }
     }
 }
