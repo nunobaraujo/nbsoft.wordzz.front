@@ -8,4 +8,6 @@ RUN npm run buildprod
 
 ### STAGE 2: Run ###
 FROM nginx:1.17.1-alpine
+RUN rm /etc/nginx/conf.d/default.conf
+COPY conf /etc/nginx
 COPY --from=build /usr/src/app/dist/wordzz-front /usr/share/nginx/html
